@@ -32,83 +32,155 @@ body{
   font-family:'DM Sans',sans-serif;
   min-height:100vh;
   overflow-x:hidden;
+  display:flex;
 }
 
-/* ── GRID NOISE BACKGROUND ── */
-body::before{
-  content:'';
-  position:fixed;inset:0;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,229,204,0.07) 0%, transparent 60%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' fill='none'/%3E%3Cpath d='M0 40L40 0M-10 10L10-10M30 50L50 30' stroke='%23ffffff' stroke-width='0.4' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events:none;
-  z-index:0;
+/* ── SIDEBAR ── */
+#sidebar {
+  position: fixed; left:0; top:0; bottom:0;
+  width: var(--sb-w);
+  background: var(--s1);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  z-index: 300;
+  padding: 0 0 24px;
+  transition: transform .3s ease;
 }
 
-/* ── HEADER ── */
-header{
+.sb-logo {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.sb-logo-name {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px;letter-spacing:3px;
+  color:var(--text);line-height:1;
+}
+.sb-logo-badge {
+  font-size:9px;font-family:'DM Mono',monospace;
+  color:var(--cyan);letter-spacing:1.5px;
+  margin-top:3px;
+  display:block;
+}
+
+.sb-nav { flex:1; padding:0 10px; overflow-y:auto; }
+
+.sb-section-label {
+  font-size:9px;font-family:'DM Mono',monospace;
+  color:var(--muted);letter-spacing:2px;
+  padding: 14px 10px 6px;
+  text-transform:uppercase;
+}
+
+.sb-btn {
+  display:flex;align-items:center;gap:11px;
+  width:100%;padding:10px 12px;
+  background:transparent;border:none;
+  border-radius:10px;
+  color:var(--muted);
+  font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;
+  cursor:pointer;text-align:left;
+  transition:all .15s;
+  margin-bottom:2px;
+  white-space:nowrap;
+}
+.sb-btn:hover { background:var(--s3); color:var(--text); }
+.sb-btn.active { background:var(--cyan2); color:var(--cyan); font-weight:600; }
+.sb-btn .sb-icon { font-size:15px; flex-shrink:0; width:20px;text-align:center; }
+.sb-btn .sb-count {
+  margin-left:auto;font-size:10px;font-family:'DM Mono',monospace;
+  background:var(--s4);color:var(--muted);
+  padding:2px 7px;border-radius:20px;
+}
+.sb-btn.active .sb-count { background:var(--cyan2);color:var(--cyan); }
+
+.sb-divider { height:1px;background:var(--border);margin:10px 10px; }
+
+.sb-footer { padding:0 10px; display:flex;flex-direction:column;gap:6px; }
+.sb-footer-btn {
+  display:flex;align-items:center;gap:8px;
+  width:100%;padding:9px 12px;
+  background:transparent;border:none;border-radius:10px;
+  color:var(--muted);font-size:12px;font-family:'DM Sans',sans-serif;
+  cursor:pointer;text-align:left;transition:all .15s;
+}
+.sb-footer-btn:hover { background:var(--s3);color:var(--text); }
+.sb-footer-btn.cyan { color:var(--cyan); }
+.sb-footer-btn.cyan:hover { background:var(--cyan2); }
+
+/* ── MAIN CONTENT AREA ── */
+#appMain {
+  margin-left: var(--sb-w);
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── TOP BAR (inside main) ── */
+.top-bar {
   position:sticky;top:0;z-index:200;
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 36px;height:62px;
-  background:rgba(12,12,14,0.92);
+  padding:0 28px;height:58px;
+  background:rgba(9,9,12,0.93);
   border-bottom:1px solid var(--border);
   backdrop-filter:blur(20px);
+  gap:12px;
 }
 
-.logo{
-  font-family:'Bebas Neue',sans-serif;
-  font-size:24px;letter-spacing:2px;
-  display:flex;align-items:center;gap:10px;
-}
+.top-bar-left { display:flex;align-items:center;gap:10px; }
+.top-bar-right { display:flex;align-items:center;gap:8px; }
 
-.logo-badge{
-  font-size:10px;font-family:'DM Mono',monospace;
-  background:var(--cyan);color:#000;
-  padding:3px 8px;border-radius:4px;
-  letter-spacing:1px;font-weight:500;
-  margin-top:2px;
+.top-bar-title {
+  font-family:'DM Sans',sans-serif;
+  font-size:15px;font-weight:600;
+  color:var(--text);letter-spacing:.1px;
 }
-
-.header-right{display:flex;align-items:center;gap:8px;}
 
 .stat{
   font-family:'DM Mono',monospace;
   font-size:11px;color:var(--muted);
   background:var(--s2);
   border:1px solid var(--border);
-  padding:6px 14px;border-radius:100px;
+  padding:5px 12px;border-radius:100px;
 }
+
+/* keep old .logo classes as fallback */
+.logo{ display:none; }
+.logo-badge{ display:none; }
+.header-right{ display:none; }
 
 .btn{
   font-family:'DM Sans',sans-serif;
-  font-size:12px;font-weight:500;
-  padding:8px 18px;border-radius:8px;
+  font-size:12px;font-weight:600;
+  padding:9px 20px;border-radius:10px;
   cursor:pointer;border:none;
   transition:all .18s;letter-spacing:.2px;
 }
 
 .btn-ghost{
-  background:transparent;
+  background:var(--s3);
   border:1px solid var(--border2);
   color:var(--muted);
 }
-.btn-ghost:hover{color:var(--text);border-color:var(--border2);background:var(--s2);}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2);background:var(--s4);}
 
 .btn-primary{
   background:var(--cyan);color:#000;
-  font-weight:600;
+  font-weight:700;
 }
-.btn-primary:hover{background:#00ffea;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,229,204,0.3);}
+.btn-primary:hover{background:#00ffea;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,229,204,0.25);}
 
 /* ── CATEGORY BAR ── */
 .cat-bar{
-  position:sticky;top:62px;z-index:100;
-  background:rgba(12,12,14,0.95);
+  position:sticky;top:58px;z-index:100;
+  background:rgba(9,9,12,0.96);
   border-bottom:1px solid var(--border);
   backdrop-filter:blur(20px);
-  padding:0 36px;
+  padding:0 28px;
   display:flex;align-items:center;
-  min-height:52px;
+  min-height:48px;
   overflow-x:auto;
   gap:2px;
 }
@@ -167,7 +239,7 @@ header{
 /* ── TOOLBAR ── */
 .toolbar{
   display:flex;align-items:center;justify-content:space-between;
-  padding:20px 36px 0;
+  padding:18px 28px 0;
   gap:12px;
 }
 
@@ -177,9 +249,9 @@ header{
   color:var(--muted);font-size:13px;pointer-events:none;
 }
 .search-input{
-  width:280px;
+  width:260px;
   background:var(--s2);border:1px solid var(--border);
-  border-radius:10px;padding:10px 14px 10px 38px;
+  border-radius:12px;padding:10px 14px 10px 38px;
   font-family:'DM Sans',sans-serif;font-size:13px;
   color:var(--text);outline:none;
   transition:border-color .18s,background .18s;
@@ -198,7 +270,7 @@ header{
 .vbtn.active{background:var(--s3);color:var(--text);}
 
 /* ── GALLERY ── */
-.gallery-wrap{padding:20px 36px 80px;position:relative;z-index:1;}
+.gallery-wrap{padding:22px 28px 80px;position:relative;z-index:1;}
 
 .gallery-grid{
   display:grid;
@@ -213,25 +285,25 @@ header{
 
 /* ── CARD ── */
 .card{
-  background:var(--s1);
+  background:var(--s2);
   border:1px solid var(--border);
-  border-radius:var(--r);
+  border-radius:var(--r2);
   overflow:hidden;
   cursor:pointer;
-  transition:all .25s;
-  animation:rise .4s ease both;
+  transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+  animation:rise .35s ease both;
   position:relative;
 }
 
 @keyframes rise{
-  from{opacity:0;transform:translateY(14px);}
-  to{opacity:1;transform:translateY(0);}
+  from{opacity:0;transform:translateY(12px) scale(.98);}
+  to{opacity:1;transform:translateY(0) scale(1);}
 }
 
 .card:hover{
-  border-color:rgba(0,229,204,0.3);
-  transform:translateY(-3px);
-  box-shadow:0 20px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,229,204,0.08);
+  border-color:rgba(0,229,204,0.22);
+  transform:translateY(-4px);
+  box-shadow:0 24px 56px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,229,204,0.07);
 }
 
 /* IMAGE ZONE */
@@ -316,15 +388,16 @@ header{
 /* CARD BODY — prompt visible */
 .card-body{
   padding:14px 16px 16px;
-  background:var(--s1);
+  background:var(--s2);
 }
 
 .card-title{
   font-family:'DM Sans',sans-serif;
-  font-size:14px;font-weight:600;
+  font-size:13.5px;font-weight:600;
   color:var(--text);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   margin-bottom:8px;
+  letter-spacing:.1px;
 }
 
 /* PROMPT PREVIEW */
@@ -409,7 +482,7 @@ header{
 .modal{
   background:var(--s1);
   border:1px solid var(--border2);
-  border-radius:16px;
+  border-radius:20px;
   width:100%;max-width:560px;
   max-height:92vh;overflow-y:auto;
   animation:mpop .28s cubic-bezier(.34,1.46,.64,1);
@@ -583,36 +656,98 @@ header{
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--subtle);border-radius:3px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+
+/* ── SIDEBAR SCROLLBAR ── */
+#sidebar .sb-nav::-webkit-scrollbar { width: 3px; }
+#sidebar .sb-nav::-webkit-scrollbar-thumb { background: var(--subtle); border-radius: 2px; }
+
+/* ── GALLERY grid — slightly bigger cards ── */
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:18px;
+}
+
+/* ── TOP BAR add-foto hide on inner views, show search ── */
+#topSearchWrap { display:flex;align-items:center;gap:8px; }
+
+/* ── VIEW padding reset for appMain ── */
+#viewRestore { padding: 24px 28px 80px; }
+#viewMyPrompts { padding: 24px 28px 80px; }
+#viewAmostra { max-width:900px;margin:0 auto; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="logo">
-    IA FOTO STUDIO
-    <span class="logo-badge">GALLERY v11</span>
+<!-- ══ SIDEBAR ══ -->
+<nav id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-name">IA FOTO STUDIO</div>
+    <span class="sb-logo-badge">GALLERY v12 · STUDIO</span>
   </div>
-  <div class="header-right">
-    <span class="stat" id="statPill">0 fotos</span>
-    <button class="btn btn-ghost" onclick="exportBackup()">↓ Backup</button>
-    <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">↑ Importar</button>
-    <button class="btn btn-ghost" onclick="openSyncModal()" style="color:var(--cyan);border-color:rgba(0,229,204,.3);display:flex;align-items:center;gap:5px;" id="syncBtn">⇄ Sync</button>
+
+  <div class="sb-nav">
+    <div class="sb-section-label">Workspace</div>
+    <button class="sb-btn active" data-view="gallery" onclick="switchMainTab('gallery',this)">
+      <span class="sb-icon">🖼</span> Galeria
+      <span class="sb-count" id="statPill">0</span>
+    </button>
+    <button class="sb-btn" data-view="amostra" onclick="switchMainTab('amostra',this)">
+      <span class="sb-icon">🔏</span> Amostra
+    </button>
+
+    <div class="sb-section-label">Ferramentas</div>
+    <button class="sb-btn" data-view="restore" onclick="switchMainTab('restore',this)">
+      <span class="sb-icon">🔧</span> Restauração
+    </button>
+    <button class="sb-btn" data-view="myprompts" onclick="switchMainTab('myprompts',this)">
+      <span class="sb-icon">📌</span> Meus Prompts
+    </button>
+  </div>
+
+  <div class="sb-divider"></div>
+  <div class="sb-footer">
+    <button class="sb-footer-btn cyan" onclick="openPromptGen()">
+      <span>✦</span> Gerar Prompt
+    </button>
+    <button class="sb-footer-btn" onclick="openSyncModal()" id="syncBtn">
+      <span>⇄</span> Sync
+    </button>
+    <button class="sb-footer-btn" onclick="exportBackup()">
+      <span>↓</span> Backup
+    </button>
+    <button class="sb-footer-btn" onclick="document.getElementById('importFile').click()">
+      <span>↑</span> Importar
+    </button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
-    <button class="btn btn-ghost" id="apiKeyBtn" onclick="openApiKey()" style="display:flex;align-items:center;gap:6px;">
-      <span id="apiDot" style="width:7px;height:7px;border-radius:50%;background:#3a3a4a;display:inline-block;transition:background .3s;"></span>
+    <button class="sb-footer-btn" id="apiKeyBtn" onclick="openApiKey()">
+      <span id="apiDot" style="width:7px;height:7px;border-radius:50%;background:var(--subtle);display:inline-block;border-radius:50%;transition:background .3s;"></span>
       API Key
     </button>
-    <button class="btn" style="background:linear-gradient(135deg,#00e5cc,#00b8a5);color:#000;font-weight:700;display:flex;align-items:center;gap:6px;" onclick="openPromptGen()">✦ Gerar Prompt</button>
-    <button class="btn btn-primary" onclick="openAdd()">+ Adicionar foto</button>
   </div>
-</header>
+</nav>
 
-<!-- MAIN TAB BAR (v10) -->
-<div class="main-tab-bar" id="mainTabBar">
-  <button class="main-tab active" data-view="gallery" onclick="switchMainTab('gallery',this)">🖼 Galeria</button>
-  <button class="main-tab" data-view="restore" onclick="switchMainTab('restore',this)">🔧 Restauração</button>
-  <button class="main-tab" data-view="myprompts" onclick="switchMainTab('myprompts',this)">📌 Meus Prompts</button>
+<!-- ══ MAIN WRAPPER ══ -->
+<div id="appMain">
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-bar-left">
+    <div class="top-bar-title" id="topBarTitle">Galeria</div>
+  </div>
+  <div class="top-bar-right" id="topBarRight">
+    <button class="btn btn-primary" onclick="openAdd()" style="display:flex;align-items:center;gap:6px;padding:9px 18px;">
+      <span style="font-size:15px;line-height:1;">+</span> Adicionar foto
+    </button>
+  </div>
+</div>
+
+<!-- keep old tab bar hidden (JS needs it) -->
+<div class="main-tab-bar" id="mainTabBar" style="display:none;">
+  <button class="main-tab active" data-view="gallery" onclick="switchMainTab('gallery',this)">Galeria</button>
+  <button class="main-tab" data-view="restore" onclick="switchMainTab('restore',this)">Restauração</button>
+  <button class="main-tab" data-view="myprompts" onclick="switchMainTab('myprompts',this)">Meus Prompts</button>
+  <button class="main-tab" data-view="amostra" onclick="switchMainTab('amostra',this)">Amostra</button>
 </div>
 
 <!-- ── VIEW: GALLERY ── -->
@@ -655,7 +790,7 @@ header{
 
 
 <!-- ══ VIEW: RESTAURAÇÃO (v10) ══ -->
-<div id="viewRestore">
+<div id="viewRestore" style="display:none;">
   <div style="max-width:860px;margin:0 auto;">
     <h2 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">Restauração de Fotos</h2>
     <p style="font-size:12px;color:var(--muted);margin-bottom:18px;">Suba a foto, escolha o modo — o prompt é gerado para colar no Flow ou Midjourney.</p>
@@ -1000,8 +1135,19 @@ header{
         </div>
       </div>
       <div class="field">
-        <div class="field-label">Prompt completo</div>
+        <div class="field-label" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Prompt completo</span>
+          <button id="analyzeImgBtn" onclick="analyzeImageForPrompt()" disabled
+            style="display:flex;align-items:center;gap:6px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:600;padding:5px 13px;border-radius:6px;border:1.5px solid rgba(0,229,204,.35);background:rgba(0,229,204,.07);color:var(--cyan);cursor:pointer;transition:all .18s;opacity:.45;pointer-events:none;">
+            <span id="analyzeImgSpinner" style="display:none;width:12px;height:12px;border:2px solid rgba(0,229,204,.3);border-top-color:var(--cyan);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;"></span>
+            <span id="analyzeImgBtnLabel">✦ Analisar com IA</span>
+          </button>
+        </div>
         <textarea class="field-textarea" id="fPrompt" placeholder="Cole aqui o prompt usado para gerar esta imagem…" style="min-height:130px"></textarea>
+        <div id="analyzeImgStatus" style="display:none;font-size:11px;font-family:'DM Mono',monospace;margin-top:5px;"></div>
+        <button id="copyPromptJsonBtn" onclick="copyAnalyzedPrompt()" style="display:none;margin-top:8px;width:100%;padding:9px;background:var(--s3);border:1px solid var(--border2);border-radius:7px;font-size:12px;font-family:'DM Mono',monospace;color:var(--muted);cursor:pointer;transition:all .18s;text-align:center;" onmouseover="this.style.background='var(--cyan2)';this.style.color='var(--cyan)';this.style.borderColor='var(--cyan)'" onmouseout="this.style.background='var(--s3)';this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">
+          📋 Copiar JSON gerado
+        </button>
       </div>
       <div class="field">
         <div class="field-label">Categoria</div>
@@ -1082,6 +1228,111 @@ header{
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════
+     VIEW: AMOSTRA — Proteção com marca d'água
+══════════════════════════════════════════════════════ -->
+<div id="viewAmostra" style="display:none;padding:28px 24px 80px;max-width:860px;margin:0 auto;">
+
+  <div style="margin-bottom:24px;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text);">
+      🔏 AMOSTRA — Proteção de Foto
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;">
+      Adicione marcas d'água antes de enviar ao cliente · A foto original não é alterada
+    </div>
+  </div>
+
+  <!-- UPLOAD ZONE -->
+  <div id="amUploadZone"
+    style="border:2px dashed var(--border2);border-radius:12px;padding:48px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--s1);position:relative;"
+    onclick="document.getElementById('amFileInput').click()"
+    ondragover="event.preventDefault();this.style.borderColor='var(--cyan)'"
+    ondragleave="this.style.borderColor='var(--border2)'"
+    ondrop="amHandleDrop(event)">
+    <div style="font-size:40px;margin-bottom:10px;">📸</div>
+    <div style="font-size:14px;color:var(--muted);">Clique para selecionar ou <kbd style="background:var(--s3);padding:2px 6px;border-radius:4px;font-size:11px;">Ctrl+V</kbd> para colar</div>
+    <div style="font-size:11px;color:var(--subtle);margin-top:6px;">JPG, PNG, WEBP</div>
+    <input type="file" id="amFileInput" accept="image/*" style="display:none" onchange="amLoadFile(this.files[0])">
+  </div>
+
+  <!-- PREVIEW + CONTROLS (hidden until image loaded) -->
+  <div id="amWorkspace" style="display:none;margin-top:24px;">
+
+    <!-- Configurações da marca -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+
+      <div class="field" style="margin:0;">
+        <div class="field-label">Texto da marca</div>
+        <input class="field-input" id="amWatermarkText" value="AMOSTRA — IA FOTO STUDIO"
+          oninput="amPreview()" style="font-family:'DM Mono',monospace;font-size:12px;">
+      </div>
+
+      <div class="field" style="margin:0;">
+        <div class="field-label">Densidade de marcas</div>
+        <div style="display:flex;gap:8px;margin-top:2px;">
+          <button class="am-density active" data-val="3" onclick="amSetDensity(3,this)">Leve</button>
+          <button class="am-density" data-val="5" onclick="amSetDensity(5,this)">Média</button>
+          <button class="am-density" data-val="8" onclick="amSetDensity(8,this)">Densa</button>
+        </div>
+      </div>
+
+      <div class="field" style="margin:0;">
+        <div class="field-label">Opacidade da marca</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="range" id="amOpacity" min="10" max="70" value="32" oninput="amUpdateOpacityLabel();amPreview()"
+            style="flex:1;accent-color:var(--cyan);">
+          <span id="amOpacityLabel" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--cyan);min-width:28px;">32%</span>
+        </div>
+      </div>
+
+      <div class="field" style="margin:0;">
+        <div class="field-label">Tamanho do texto</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="range" id="amFontSize" min="12" max="60" value="24" oninput="amUpdateFontLabel();amPreview()"
+            style="flex:1;accent-color:var(--cyan);">
+          <span id="amFontSizeLabel" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--cyan);min-width:28px;">24</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Canvas preview -->
+    <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#000;text-align:center;position:relative;">
+      <canvas id="amCanvas" style="max-width:100%;height:auto;display:block;margin:0 auto;"></canvas>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+      <button onclick="amDownload()" style="flex:1;min-width:160px;padding:13px;background:var(--cyan);color:#000;border:none;border-radius:8px;font-weight:700;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        ⬇ Baixar com marca d'água
+      </button>
+      <button onclick="amCopyToClipboard()" style="flex:1;min-width:160px;padding:13px;background:var(--s3);color:var(--text);border:1px solid var(--border2);border-radius:8px;font-weight:600;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background='var(--s3)'">
+        📋 Copiar imagem
+      </button>
+      <button onclick="amReset()" style="padding:13px 18px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">
+        ✕ Nova foto
+      </button>
+    </div>
+
+    <div style="margin-top:12px;font-size:11px;color:var(--subtle);font-family:'DM Mono',monospace;text-align:center;">
+      ⚠ A imagem baixada contém marca d'água · O arquivo original não é modificado
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+.am-density {
+  padding:6px 14px;font-size:11px;font-family:'DM Mono',monospace;
+  background:var(--s3);color:var(--muted);border:1px solid var(--border);
+  border-radius:6px;cursor:pointer;transition:all .15s;
+}
+.am-density.active {
+  background:var(--cyan2);color:var(--cyan);border-color:var(--cyan);
+}
+</style>
+
 <!-- ══ MODAL: NEW CATEGORY ══ -->
 <div class="overlay" id="newCatOverlay">
   <div class="modal" style="max-width:400px">
@@ -1094,9 +1345,131 @@ header{
         <div class="field-label">Nome da categoria</div>
         <input class="field-input" id="ncName" placeholder="Ex: Retratos, Fantasia, Executivas…">
       </div>
-      <div class="field">
-        <div class="field-label">Emoji / Ícone</div>
-        <input class="field-input" id="ncIcon" placeholder="🎨" maxlength="4" style="font-size:22px;text-align:center">
+<div class="field">
+        <div class="field-label">Ícone</div>
+        <div id="ncIconGrid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px;max-height:190px;overflow-y:auto;">
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','📷')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">📷</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','📸')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">📸</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎞')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎞</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🖼')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🖼</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎨')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎨</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','✨')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">✨</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','⭐')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">⭐</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌟')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌟</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','👤')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👤</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','👥')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👥</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','👩')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👩</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','👨')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👨</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','👸')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👸</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🤴')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🤴</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🧑')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧑</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🧒')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧒</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','💄')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💄</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','👗')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👗</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','👠')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👠</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🧣')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧣</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','👒')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👒</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🕶')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🕶</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','💍')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💍</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','💅')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💅</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌿')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌿</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌸')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌸</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌺')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌺</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌻')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌻</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🍀')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍀</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌲')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌲</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏔')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏔</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌊')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌊</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏙')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏙</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌆')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌆</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏛')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏛</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏠')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏠</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌉')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌉</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🗼')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🗼</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏰')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏰</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌃')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌃</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎉')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎉</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎊')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎊</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','💒')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💒</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎂')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎂</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🥂')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🥂</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎁')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎁</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🪄')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🪄</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎭')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎭</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🐾')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐾</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🐶')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐶</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🐱')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐱</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🦁')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🦁</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🦋')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🦋</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🐦')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐦</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🦊')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🦊</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🐘')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐘</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','👶')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👶</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🍼')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍼</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🫶')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🫶</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','❤️')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">❤️</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','💕')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💕</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏡')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏡</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🧸')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧸</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌈')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌈</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏋')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏋</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🧘')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧘</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏃')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏃</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','⛹')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">⛹</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏄')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏄</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🚴')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🚴</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🤸')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🤸</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎯')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎯</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎬')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎬</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🖌')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🖌</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','✏️')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">✏️</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','💡')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💡</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🔮')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🔮</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🪩')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🪩</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🫧')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🫧</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎭')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎭</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','💼')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💼</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🤝')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🤝</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','📊')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">📊</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏆')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏆</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','👔')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👔</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🖥')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🖥</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','📱')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">📱</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','⚙️')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">⚙️</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🍽')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍽</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','☕')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">☕</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🥂')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🥂</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🍷')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍷</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🍰')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍰</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌮')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌮</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🫕')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🫕</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🧁')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧁</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌙')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌙</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','💜')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💜</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🖤')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🖤</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','💎')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💎</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🔥')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🔥</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','⚡')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">⚡</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌛')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌛</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎆')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎆</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏖')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏖</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌴')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌴</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','☀️')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">☀️</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🐚')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐚</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🏊')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏊</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🍹')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍹</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌅')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌅</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🩴')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🩴</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','❄️')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">❄️</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🌨')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌨</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🕯')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🕯</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🪔')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🪔</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎙')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎙</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🎚')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎚</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🫐')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🫐</button>
+          <button type="button" onclick="selectCatIcon('ncIcon','ncIconGrid','🍃')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍃</button>
+        </div>
+        <input class="field-input" id="ncIcon" placeholder="🎨" maxlength="4" style="font-size:22px;text-align:center;margin-top:8px;" oninput="syncIconGrid('ncIconGrid',this.value)">
       </div>
     </div>
     <div class="modal-foot">
@@ -1118,9 +1491,131 @@ header{
         <div class="field-label">Nome da categoria</div>
         <input class="field-input" id="ecName" placeholder="Nome…">
       </div>
-      <div class="field">
-        <div class="field-label">Emoji / Ícone</div>
-        <input class="field-input" id="ecIcon" placeholder="🎨" maxlength="4" style="font-size:22px;text-align:center">
+<div class="field">
+        <div class="field-label">Ícone</div>
+        <div id="ecIconGrid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px;max-height:190px;overflow-y:auto;">
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','📷')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">📷</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','📸')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">📸</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎞')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎞</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🖼')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🖼</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎨')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎨</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','✨')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">✨</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','⭐')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">⭐</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌟')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌟</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','👤')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👤</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','👥')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👥</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','👩')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👩</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','👨')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👨</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','👸')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👸</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🤴')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🤴</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🧑')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧑</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🧒')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧒</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','💄')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💄</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','👗')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👗</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','👠')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👠</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🧣')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧣</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','👒')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👒</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🕶')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🕶</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','💍')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💍</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','💅')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💅</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌿')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌿</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌸')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌸</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌺')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌺</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌻')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌻</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🍀')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍀</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌲')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌲</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏔')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏔</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌊')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌊</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏙')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏙</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌆')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌆</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏛')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏛</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏠')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏠</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌉')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌉</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🗼')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🗼</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏰')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏰</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌃')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌃</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎉')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎉</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎊')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎊</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','💒')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💒</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎂')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎂</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🥂')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🥂</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎁')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎁</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🪄')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🪄</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎭')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎭</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🐾')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐾</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🐶')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐶</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🐱')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐱</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🦁')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🦁</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🦋')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🦋</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🐦')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐦</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🦊')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🦊</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🐘')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐘</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','👶')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👶</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🍼')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍼</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🫶')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🫶</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','❤️')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">❤️</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','💕')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💕</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏡')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏡</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🧸')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧸</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌈')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌈</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏋')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏋</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🧘')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧘</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏃')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏃</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','⛹')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">⛹</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏄')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏄</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🚴')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🚴</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🤸')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🤸</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎯')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎯</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎬')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎬</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🖌')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🖌</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','✏️')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">✏️</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','💡')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💡</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🔮')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🔮</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🪩')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🪩</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🫧')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🫧</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎭')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎭</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','💼')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💼</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🤝')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🤝</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','📊')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">📊</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏆')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏆</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','👔')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">👔</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🖥')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🖥</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','📱')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">📱</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','⚙️')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">⚙️</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🍽')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍽</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','☕')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">☕</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🥂')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🥂</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🍷')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍷</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🍰')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍰</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌮')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌮</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🫕')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🫕</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🧁')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🧁</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌙')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌙</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','💜')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💜</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🖤')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🖤</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','💎')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">💎</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🔥')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🔥</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','⚡')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">⚡</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌛')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌛</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎆')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎆</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏖')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏖</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌴')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌴</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','☀️')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">☀️</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🐚')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🐚</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🏊')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🏊</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🍹')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍹</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌅')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌅</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🩴')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🩴</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','❄️')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">❄️</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🌨')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🌨</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🕯')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🕯</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🪔')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🪔</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎙')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎙</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🎚')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🎚</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🫐')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🫐</button>
+          <button type="button" onclick="selectCatIcon('ecIcon','ecIconGrid','🍃')" style="font-size:20px;background:transparent;border:1.5px solid transparent;border-radius:7px;cursor:pointer;padding:4px;transition:all .15s;line-height:1;" onmouseover="this.style.background='var(--cyan3)';this.style.borderColor='var(--cyan)'" onmouseout="if(!this.classList.contains('icon-active')){this.style.background='transparent';this.style.borderColor='transparent'}">🍃</button>
+        </div>
+        <input class="field-input" id="ecIcon" placeholder="🎨" maxlength="4" style="font-size:22px;text-align:center;margin-top:8px;" oninput="syncIconGrid('ecIconGrid',this.value)">
       </div>
     </div>
     <div class="modal-foot">
@@ -1579,31 +2074,9 @@ header{
 #viewGallery { display: none; }
 #viewGallery.active { display: block; }
 /* ── V10: MAIN TABS ── */
-.main-tab-bar {
-  display: flex;
-  gap: 0;
-  background: var(--s1);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  overflow-x: auto;
-}
-.main-tab-bar::-webkit-scrollbar { height: 0; }
-.main-tab {
-  padding: 13px 20px;
-  font-size: 12px;
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 600;
-  color: var(--muted);
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  border-bottom: 2.5px solid transparent;
-  transition: all .15s;
-  white-space: nowrap;
-  letter-spacing: .3px;
-}
-.main-tab:hover { color: var(--text); }
-.main-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+/* main-tab-bar hidden — navigation moved to sidebar */
+.main-tab-bar { display:none !important; }
+.main-tab { display:none !important; }
 
 /* ── V10: RESTORE TAB ── */
 #viewRestore { display: none; padding: 24px 20px 80px; }
@@ -1796,6 +2269,13 @@ header{
   .mp-layout { grid-template-columns: 1fr; }
   .mp-sidebar { position: static; }
   #viewRestore.active, #viewMyPrompts.active { display: block; padding: 16px 12px 80px; }
+  #sidebar { transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #appMain { margin-left: 0; }
+  .top-bar { padding: 0 16px; }
+  .gallery-wrap { padding: 14px 14px 80px; }
+  .cat-bar { padding: 0 14px; }
+  .toolbar { padding: 14px 14px 0; }
 }
 @media (max-width: 380px) {
   .restore-modes { grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -3538,7 +4018,7 @@ function persist() {
 function buildTabs() {
   document.getElementById('tc-all').textContent = items.length;
   document.getElementById('tc-fav').textContent = items.filter(i=>i.fav).length;
-  document.getElementById('statPill').textContent = `${items.length} foto${items.length!==1?'s':''}`;
+  document.getElementById('statPill').textContent = items.length;
 
   document.getElementById('catTabs').innerHTML = cats.map(c => {
     const n = items.filter(i=>i.cat===c.id).length;
@@ -3663,6 +4143,13 @@ function openAdd() {
   document.getElementById('uploadPreview').src='';
   document.getElementById('uploadPreviewWrap').style.display='none';
   document.getElementById('addUploadZone').style.display='';
+  // reset botão análise
+  const abtn = document.getElementById('analyzeImgBtn');
+  if(abtn){ abtn.disabled=true; abtn.style.opacity='.45'; abtn.style.pointerEvents='none'; }
+  const ast = document.getElementById('analyzeImgStatus');
+  if(ast) ast.style.display='none';
+  const acpb = document.getElementById('copyPromptJsonBtn');
+  if(acpb) acpb.style.display='none';
   document.getElementById('addOverlay').classList.add('open');
   setTimeout(()=>selectOrient('landscape'),50);
 }
@@ -3684,6 +4171,11 @@ function setAddImage(dataUrl) {
   document.getElementById('uploadPreview').src=dataUrl;
   document.getElementById('uploadPreviewWrap').style.display='block';
   document.getElementById('addUploadZone').style.display='none';
+  // Habilita botão de análise IA
+  const btn = document.getElementById('analyzeImgBtn');
+  if(btn){ btn.disabled=false; btn.style.opacity='1'; btn.style.pointerEvents='auto'; }
+  const st = document.getElementById('analyzeImgStatus');
+  if(st) st.style.display='none';
 }
 
 function clearAddImage(e) {
@@ -3693,6 +4185,226 @@ function clearAddImage(e) {
   document.getElementById('uploadPreviewWrap').style.display='none';
   document.getElementById('addUploadZone').style.display='';
   document.getElementById('fileInput').value='';
+  // desabilita botão de análise
+  const btn = document.getElementById('analyzeImgBtn');
+  if(btn){ btn.disabled=true; btn.style.opacity='.45'; btn.style.pointerEvents='none'; }
+  const st = document.getElementById('analyzeImgStatus');
+  if(st) st.style.display='none';
+}
+
+// ── ANALISAR IMAGEM COM IA (modal Adicionar Foto) ──
+async function analyzeImageForPrompt() {
+  const apiKey = localStorage.getItem('pg_api_key');
+  if (!apiKey) {
+    toast('⚠ Configure sua API Key primeiro (botão no topo)');
+    return;
+  }
+  if (!tempImg) {
+    toast('⚠ Selecione uma imagem primeiro');
+    return;
+  }
+
+  const btn = document.getElementById('analyzeImgBtn');
+  const spinner = document.getElementById('analyzeImgSpinner');
+  const label = document.getElementById('analyzeImgBtnLabel');
+  const status = document.getElementById('analyzeImgStatus');
+  const promptField = document.getElementById('fPrompt');
+
+  btn.disabled = true;
+  btn.style.pointerEvents = 'none';
+  spinner.style.display = 'block';
+  label.textContent = 'Analisando…';
+  status.style.display = 'block';
+  status.style.color = 'var(--muted)';
+  status.textContent = '⏳ Enviando imagem para análise detalhada…';
+
+  // Extrai base64 puro
+  const base64 = tempImg.includes(',') ? tempImg.split(',')[1] : tempImg;
+  const mimeMatch = tempImg.match(/^data:(image\/[^;]+);/);
+  const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+
+  const ANALYSIS_PROMPT = `You are an expert AI image analyst and prompt engineer. Analyze this image with extreme surgical precision.
+
+Return ONLY a single valid JSON object (no markdown, no backticks, no explanation). The JSON must have this structure:
+
+{
+  "title_suggestion": "short descriptive title for this image (5-8 words)",
+  "tags_suggestion": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "orientation": "landscape | portrait | square",
+  "category_suggestion": "suggested category name",
+  "scene": {
+    "type": "indoor | outdoor | studio | abstract",
+    "setting": "exact environment description",
+    "time_of_day": "golden hour | midday | night | overcast | studio | N/A",
+    "mood": "overall mood and atmosphere"
+  },
+  "lighting": {
+    "type": "natural | artificial | mixed | studio",
+    "direction": "front | side | back | top | Rembrandt | butterfly | N/A",
+    "quality": "hard | soft | diffused | harsh",
+    "color_temperature": "warm | cool | neutral | mixed",
+    "special_effects": "description or none"
+  },
+  "composition": {
+    "rule_of_thirds": true,
+    "framing": "close-up | medium | wide | full body | portrait | landscape",
+    "depth_of_field": "shallow | deep | medium",
+    "perspective": "eye level | low angle | high angle | bird eye | worm eye",
+    "leading_lines": "description or none",
+    "symmetry": "yes | no | partial"
+  },
+  "color_palette": {
+    "dominant_colors": ["#hex1", "#hex2", "#hex3"],
+    "color_mood": "warm | cool | neutral | vibrant | muted | monochromatic | complementary",
+    "saturation": "high | medium | low | desaturated",
+    "contrast": "high | medium | low"
+  },
+  "subjects": [
+    {
+      "type": "person | animal | object | architecture | nature | abstract",
+      "description": "exact detailed description",
+      "position_in_frame": "center | left | right | foreground | background | etc",
+      "pose_or_state": "detailed pose or state description"
+    }
+  ],
+  "people": [
+    {
+      "gender": "exact as seen or N/A",
+      "approximate_age": "range e.g. 25-35",
+      "face_shape": "oval | round | square | heart | diamond",
+      "skin_tone": "exact skin tone description",
+      "eyes": "shape, color, spacing",
+      "nose": "size and shape",
+      "lips": "thin | full | shape",
+      "jawline": "strong | soft | square | rounded | pointed",
+      "hair": "exact color, length, style, texture — or BALD",
+      "beard": "none | stubble | short beard | full beard | etc — include color",
+      "body_type": "slim | average | athletic | heavyset | stocky",
+      "outfit": {
+        "top": "exact top description",
+        "bottom": "exact bottom description",
+        "shoes": "description or not visible",
+        "accessories": "description or none"
+      },
+      "expression": "exact facial expression",
+      "unique_features": "moles, scars, dimples, freckles — or none",
+      "face_preservation": "one surgical paragraph combining ALL face features to recreate this exact person"
+    }
+  ],
+  "style": {
+    "artistic_style": "photorealistic | cinematic | painterly | illustration | anime | sketch | etc",
+    "rendering_quality": "4K | 8K | RAW | hyperrealistic | painterly | etc",
+    "film_grain": "none | subtle | moderate | heavy",
+    "color_grading": "description of color treatment"
+  },
+  "camera": {
+    "lens_type": "wide | standard | telephoto | macro | fisheye | estimated mm",
+    "aperture_estimate": "f/1.4 | f/2.8 | f/8 | etc",
+    "motion_blur": "none | slight | heavy",
+    "focus_point": "what is in sharp focus"
+  },
+  "background": {
+    "type": "blurred | sharp | solid | gradient | textured | natural",
+    "description": "exact background description",
+    "bokeh": "none | subtle | strong"
+  },
+  "prompt_ready": "One complete, detailed, copy-paste-ready prompt in English to recreate this exact image in an AI generator. Include subject, pose, clothing, environment, lighting, color palette, style, camera settings, quality tags. Be extremely specific and thorough.",
+  "negative_prompt": "comma-separated list of things to avoid when recreating this image"
+}`;
+
+  const MODELS_TO_TRY = [
+    'google/gemini-2.0-flash-001',
+    'google/gemini-flash-1.5',
+    'anthropic/claude-3.5-haiku',
+    'openai/gpt-4o-mini'
+  ];
+
+  let result = null;
+  for (const model of MODELS_TO_TRY) {
+    try {
+      status.textContent = `⏳ Tentando modelo ${model.split('/')[1]}…`;
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+        body: JSON.stringify({
+          model,
+          max_tokens: 2000,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'text', text: ANALYSIS_PROMPT },
+              { type: 'image_url', image_url: { url: `data:${mime};base64,${base64}` } }
+            ]
+          }]
+        })
+      });
+      if (!res.ok) continue;
+      const data = await res.json();
+      const raw = (data.choices?.[0]?.message?.content || '').replace(/```json|```/g,'').trim();
+      result = JSON.parse(raw);
+      break;
+    } catch(e) { continue; }
+  }
+
+  spinner.style.display = 'none';
+  label.textContent = '✦ Analisar com IA';
+  btn.disabled = false;
+  btn.style.pointerEvents = 'auto';
+
+  if (!result) {
+    status.style.color = 'var(--red)';
+    status.textContent = '✗ Não foi possível analisar. Verifique sua API Key e tente novamente.';
+    return;
+  }
+
+  // Preenche o campo de prompt com o JSON formatado
+  promptField.value = JSON.stringify(result, null, 2);
+
+  // Auto-preenche título se estiver vazio
+  const titleField = document.getElementById('fTitle');
+  if (!titleField.value.trim() && result.title_suggestion) {
+    titleField.value = result.title_suggestion;
+  }
+
+  // Auto-preenche tags se estiver vazio
+  const tagsField = document.getElementById('fTags');
+  if (!tagsField.value.trim() && result.tags_suggestion?.length) {
+    tagsField.value = result.tags_suggestion.join(', ');
+  }
+
+  // Auto-seleciona orientação
+  if (result.orientation) {
+    const orientMap = { landscape: 'landscape', portrait: 'portrait', square: 'square' };
+    const orient = orientMap[result.orientation] || 'landscape';
+    selectOrient(orient);
+  }
+
+  status.style.color = 'var(--cyan)';
+  status.textContent = '✓ Análise concluída! Título, tags e orientação preenchidos automaticamente.';
+  // Mostra botão de copiar
+  const copyBtn = document.getElementById('copyPromptJsonBtn');
+  if(copyBtn) copyBtn.style.display = 'block';
+  toast('✦ Imagem analisada com sucesso!');
+}
+
+function copyAnalyzedPrompt() {
+  const txt = document.getElementById('fPrompt').value;
+  if (!txt) { toast('⚠ Nenhum prompt para copiar'); return; }
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('copyPromptJsonBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copiado!';
+    btn.style.background = 'var(--cyan2)';
+    btn.style.color = 'var(--cyan)';
+    btn.style.borderColor = 'var(--cyan)';
+    setTimeout(() => {
+      btn.innerHTML = orig;
+      btn.style.background = 'var(--s3)';
+      btn.style.color = 'var(--muted)';
+      btn.style.borderColor = 'var(--border2)';
+    }, 1800);
+    toast('📋 JSON copiado!');
+  });
 }
 
 // Ctrl+V para colar imagem dentro do modal Adicionar Foto
@@ -3846,6 +4558,8 @@ function openEditCat(e, id) {
   document.getElementById('ecName').value = cat.name;
   document.getElementById('ecIcon').value = cat.icon;
   document.getElementById('editCatOverlay').classList.add('open');
+  // Pré-seleciona o ícone atual no grid
+  setTimeout(() => syncIconGrid('ecIconGrid', cat.icon), 30);
 }
 function closeEditCat() { document.getElementById('editCatOverlay').classList.remove('open'); editCatId=null; }
 function saveEditCat() {
@@ -3949,7 +4663,15 @@ render();
 // ═══════════════════════════════════════════
 function switchMainTab(view, btn) {
   // Hide all views using inline style (avoids CSS specificity issues)
-  ['viewGallery','viewRestore','viewMyPrompts'].forEach(id => {
+  // update sidebar active state
+  document.querySelectorAll('.sb-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === tab);
+  });
+  // update top bar title
+  const titles = { gallery:'Galeria', restore:'Restauração', myprompts:'Meus Prompts', amostra:'Amostra' };
+  const titleEl = document.getElementById('topBarTitle');
+  if(titleEl) titleEl.textContent = titles[tab] || '';
+  ['viewGallery','viewRestore','viewMyPrompts','viewAmostra'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.style.display = 'none'; el.classList.remove('active'); }
   });
@@ -3957,7 +4679,7 @@ function switchMainTab(view, btn) {
   document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
   // Show selected
   // myprompts → viewMyPrompts (capitalização especial)
-  const viewIdMap = { myprompts: 'viewMyPrompts', gallery: 'viewGallery', restore: 'viewRestore' };
+  const viewIdMap = { myprompts: 'viewMyPrompts', gallery: 'viewGallery', restore: 'viewRestore', amostra: 'viewAmostra' };
   const viewId = viewIdMap[view] || ('view' + view.charAt(0).toUpperCase() + view.slice(1));
   const el = document.getElementById(viewId);
   if (el) { el.style.display = 'block'; el.classList.add('active'); }
@@ -5130,6 +5852,176 @@ NEGATIVE: different faces, wrong nose shape, different jawline, wrong eye shape,
 }
 
 
+// ── ICON PICKER (Category modals) ──
+function selectCatIcon(inputId, gridId, emoji) {
+  document.getElementById(inputId).value = emoji;
+  // highlight selected button
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  grid.querySelectorAll('button').forEach(btn => {
+    const isThis = btn.textContent === emoji;
+    btn.classList.toggle('icon-active', isThis);
+    btn.style.background = isThis ? 'var(--cyan2)' : 'transparent';
+    btn.style.borderColor = isThis ? 'var(--cyan)' : 'transparent';
+  });
+}
+
+function syncIconGrid(gridId, emoji) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  grid.querySelectorAll('button').forEach(btn => {
+    const isThis = btn.textContent === emoji;
+    btn.classList.toggle('icon-active', isThis);
+    btn.style.background = isThis ? 'var(--cyan2)' : 'transparent';
+    btn.style.borderColor = isThis ? 'var(--cyan)' : 'transparent';
+  });
+}
+
+// Pre-select icon when edit cat modal opens
+
+// ══════════════════════════════════════════════
+//  AMOSTRA — Watermark engine
+// ══════════════════════════════════════════════
+let amImage = null;
+let amDensity = 3;
+
+function amHandleDrop(e) {
+  e.preventDefault();
+  document.getElementById('amUploadZone').style.borderColor = 'var(--border2)';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) amLoadFile(file);
+}
+
+function amLoadFile(file) {
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => amSetImage(ev.target.result);
+  r.readAsDataURL(file);
+}
+
+function amSetImage(dataUrl) {
+  const img = new Image();
+  img.onload = () => {
+    amImage = img;
+    document.getElementById('amUploadZone').style.display = 'none';
+    document.getElementById('amWorkspace').style.display = 'block';
+    amPreview();
+  };
+  img.src = dataUrl;
+}
+
+function amUpdateOpacityLabel() {
+  document.getElementById('amOpacityLabel').textContent = document.getElementById('amOpacity').value + '%';
+}
+function amUpdateFontLabel() {
+  document.getElementById('amFontSizeLabel').textContent = document.getElementById('amFontSize').value;
+}
+
+function amSetDensity(val, btn) {
+  amDensity = val;
+  document.querySelectorAll('.am-density').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  amPreview();
+}
+
+function amPreview() {
+  if (!amImage) return;
+  const canvas = document.getElementById('amCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const W = amImage.naturalWidth;
+  const H = amImage.naturalHeight;
+  canvas.width = W;
+  canvas.height = H;
+
+  // Draw original image
+  ctx.drawImage(amImage, 0, 0, W, H);
+
+  // Watermark settings
+  const text = document.getElementById('amWatermarkText').value || 'AMOSTRA — IA FOTO STUDIO';
+  const opacity = parseInt(document.getElementById('amOpacity').value) / 100;
+  const fontSize = parseInt(document.getElementById('amFontSize').value);
+  const scaledFont = Math.round(fontSize * (W / 800));  // scale relative to width
+  const actualFont = Math.max(14, scaledFont);
+
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `bold ${actualFont}px 'DM Sans', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Diagonal repeating watermark grid
+  const angle = -35 * Math.PI / 180;
+  const measured = ctx.measureText(text).width;
+  const stepX = measured + actualFont * 3;
+  const stepY = actualFont * (amDensity + 1);
+
+  ctx.translate(W / 2, H / 2);
+  ctx.rotate(angle);
+
+  const diag = Math.sqrt(W * W + H * H);
+  const cols = Math.ceil(diag / stepX) + 2;
+  const rows = Math.ceil(diag / stepY) + 2;
+
+  for (let r = -rows; r <= rows; r++) {
+    for (let c = -cols; c <= cols; c++) {
+      // Add subtle shadow for readability on any bg
+      ctx.shadowColor = 'rgba(0,0,0,0.55)';
+      ctx.shadowBlur = actualFont * 0.4;
+      ctx.fillText(text, c * stepX, r * stepY);
+    }
+  }
+
+  ctx.restore();
+}
+
+function amDownload() {
+  if (!amImage) return;
+  const canvas = document.getElementById('amCanvas');
+  const link = document.createElement('a');
+  const ts = new Date().toISOString().slice(0,10);
+  link.download = 'amostra-ia-foto-studio-' + ts + '.jpg';
+  link.href = canvas.toDataURL('image/jpeg', 0.92);
+  link.click();
+  toast('⬇ Imagem baixada com marca dagua!');
+}
+
+async function amCopyToClipboard() {
+  const canvas = document.getElementById('amCanvas');
+  canvas.toBlob(async blob => {
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      toast('📋 Imagem copiada para área de transferência!');
+    } catch(e) {
+      toast('⚠ Não foi possível copiar — use o botão Baixar');
+    }
+  });
+}
+
+function amReset() {
+  amImage = null;
+  document.getElementById('amUploadZone').style.display = '';
+  document.getElementById('amWorkspace').style.display = 'none';
+  document.getElementById('amFileInput').value = '';
+  const canvas = document.getElementById('amCanvas');
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// Ctrl+V paste — only active when on the Amostra tab
+document.addEventListener('paste', e => {
+  const view = document.getElementById('viewAmostra');
+  if (!view || view.style.display === 'none' || view.style.display === '') return;
+  const items = e.clipboardData.items;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      amLoadFile(item.getAsFile());
+      break;
+    }
+  }
+});
+
 </script>
+</div><!-- /appMain -->
 </body>
 </html>
