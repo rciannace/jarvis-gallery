@@ -2589,7 +2589,7 @@ body{
   .view-toggle { align-self: flex-end; }
 
   .gallery-wrap { padding: 12px 8px 80px; }
-  .gallery-grid { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .gallery-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
 
   .card-title { font-size: 10px; }
   .card-body { padding: 5px 6px 7px; }
@@ -2659,7 +2659,7 @@ body{
 }
 
 @media (max-width: 380px) {
-  .gallery-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .gallery-grid { grid-template-columns: repeat(4, 1fr); gap: 4px; }
   .logo { font-size: 14px; }
   .restore-modes { grid-template-columns: 1fr 1fr; }
 }
@@ -2667,10 +2667,16 @@ body{
 /* ══ MOBILE: NOVOS ELEMENTOS DA GALERIA ══ */
 @media (max-width: 768px) {
 
-  /* Cards de categoria — 2 colunas no mobile */
-  #viewGallery .gallery-grid {
+  /* Cards de categoria (tela principal) — 2 colunas */
+  #viewGallery .gallery-grid.cat-view {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10px !important;
+  }
+
+  /* Fotos dentro de categoria — 3 colunas */
+  #viewGallery .gallery-grid.photo-view {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 5px !important;
   }
 
   /* Botão de acesso (nome da categoria) — fonte menor */
@@ -2763,10 +2769,13 @@ body{
 }
 
 @media (max-width: 480px) {
-  /* Cards de categoria em tela muito pequena — ainda 2 cols */
-  #viewGallery .gallery-grid {
+  #viewGallery .gallery-grid.cat-view {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 8px !important;
+  }
+  #viewGallery .gallery-grid.photo-view {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 4px !important;
   }
 
   .card-access-btn {
@@ -4598,7 +4607,8 @@ function render() {
   );
 
   const grid = document.getElementById('gallery');
-  grid.className = 'gallery-grid' + (currentView==='list'?' list-view':'');
+  const isCatView = currentCat === 'all' && !document.getElementById('searchInput').value;
+  grid.className = 'gallery-grid' + (currentView==='list' ? ' list-view' : '') + (isCatView ? ' cat-view' : ' photo-view');
 
   // ── VIEW ALL: mostra um card por categoria ──
   if (currentCat === 'all' && !q) {
