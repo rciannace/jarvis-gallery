@@ -5139,9 +5139,18 @@ document.addEventListener('paste', function(e) {
   }
 });
 
+function nextPhotoNumber() {
+  let max = 0;
+  items.forEach(it => {
+    const m = it.title && it.title.match(/^Foto\s+(\d+)$/i);
+    if (m) max = Math.max(max, parseInt(m[1]));
+  });
+  return 'Foto ' + String(max + 1).padStart(3, '0');
+}
+
 function saveItem() {
-  const title = document.getElementById('fTitle').value.trim();
-  if (!title) { toast('⚠ Digite um título'); return; }
+  let title = document.getElementById('fTitle').value.trim();
+  if (!title) title = nextPhotoNumber();
   const tags = document.getElementById('fTags').value.split(',').map(t=>t.trim()).filter(Boolean);
 
   if (editId) {
@@ -5185,13 +5194,22 @@ function openEditCard(e, id) {
   document.getElementById('fCat').value = it.cat||'';
   document.getElementById('fTags').value = (it.tags||[]).join(', ');
   if(it.img){
-    document.getElementById('uploadPreview').src=it.img;
-    document.getElementById('uploadPreviewWrap').style.display='block';
-    document.getElementById('addUploadZone').style.display='none';
+    // Recarrega a imagem no tempImg para habilitar o botão "Analisar com IA"
+    setAddImage(it.img);
   } else {
-    document.getElementById('uploadPreview').src='';
-    document.getElementById('uploadPreviewWrap').style.display='none';
-    document.getElementById('addUploadZone').style.display='';
+    // Tenta buscar do IndexedDB
+    idbGet(id).then(dataUrl => {
+      if (dataUrl) {
+        setAddImage(dataUrl);
+      } else {
+        document.getElementById('uploadPreview').src='';
+        document.getElementById('uploadPreviewWrap').style.display='none';
+        document.getElementById('addUploadZone').style.display='';
+        // Desabilita botão pois não há imagem
+        const btn = document.getElementById('analyzeImgBtn');
+        if(btn){ btn.disabled=true; btn.style.opacity='.45'; btn.style.pointerEvents='none'; }
+      }
+    });
   }
   document.getElementById('addOverlay').classList.add('open');
   setTimeout(()=>selectOrient(it.orient||'landscape'),50);
