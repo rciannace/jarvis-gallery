@@ -4311,11 +4311,8 @@ function pgCreateCatInline() {
 
 <script>
 // ── STATE ──
-let items = JSON.parse(localStorage.getItem('iafoto_items') || '[]');
-let cats  = JSON.parse(localStorage.getItem('iafoto_cats')  || '[]');
-
-// Migração: garantir campo orient em itens antigos
-items = items.map(it => it.orient ? it : {...it, orient:'landscape'});
+let items = [];
+let cats  = [];
 let currentCat = 'all';
 let currentView = 'grid';
 let editId = null;
@@ -4323,24 +4320,128 @@ let detailId = null;
 let tempImg = null;
 let editCatId = null;
 
-// Default categories
-if (!cats.length) {
-  cats = [
-    {id:'c1', name:'Executivas Feminino', icon:'👩'},
-    {id:'c2', name:'Executivas Masculino', icon:'👨'},
-    {id:'c3', name:'Fantasy', icon:'🏰'},
-    {id:'c4', name:'Cinemático', icon:'🎬'},
-    {id:'c5', name:'Aniversário', icon:'🎂'},
-    {id:'c6', name:'Casamento', icon:'💍'},
-    {id:'c7', name:'Infantil', icon:'🧒'},
-    {id:'c8', name:'Luxury', icon:'💎'},
-  ];
-  persist();
+// ── IndexedDB: armazena imagens separadamente dos metadados ──
+let idb = null;
+
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('iafoto_db', 1);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('images')) {
+        db.createObjectStore('images', { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror   = e => reject(e.target.error);
+  });
 }
 
+function idbPut(id, dataUrl) {
+  return new Promise((resolve, reject) => {
+    const tx = idb.transaction('images', 'readwrite');
+    tx.objectStore('images').put({ id, dataUrl });
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+function idbPutBatch(entries) {
+  // entries = [{id, dataUrl}, ...]
+  return new Promise((resolve, reject) => {
+    const tx = idb.transaction('images', 'readwrite');
+    const store = tx.objectStore('images');
+    entries.forEach(e => store.put(e));
+    tx.oncomplete = resolve;
+    tx.onerror = e => reject(e.target.error);
+  });
+}
+
+function idbGet(id) {
+  return new Promise((resolve, reject) => {
+    const tx = idb.transaction('images', 'readonly');
+    const req = tx.objectStore('images').get(id);
+    req.onsuccess = e => resolve(e.target.result?.dataUrl || null);
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+
+function idbGetAll(ids) {
+  return new Promise((resolve, reject) => {
+    const tx = idb.transaction('images', 'readonly');
+    const store = tx.objectStore('images');
+    const results = {};
+    let pending = ids.length;
+    if (!pending) { resolve(results); return; }
+    ids.forEach(id => {
+      const req = store.get(id);
+      req.onsuccess = e => {
+        if (e.target.result) results[id] = e.target.result.dataUrl;
+        if (--pending === 0) resolve(results);
+      };
+      req.onerror = () => { if (--pending === 0) resolve(results); };
+    });
+  });
+}
+
+function idbDelete(id) {
+  return new Promise((resolve) => {
+    const tx = idb.transaction('images', 'readwrite');
+    tx.objectStore('images').delete(id);
+    tx.oncomplete = resolve;
+  });
+}
+
+// Salva só metadados no localStorage (sem img)
 function persist() {
-  localStorage.setItem('iafoto_items', JSON.stringify(items));
+  const meta = items.map(({img, ...rest}) => rest); // remove img
+  localStorage.setItem('iafoto_items', JSON.stringify(meta));
   localStorage.setItem('iafoto_cats',  JSON.stringify(cats));
+}
+
+// Carrega metadados + imagens do IDB e inicializa o app
+async function initApp() {
+  idb = await openIDB();
+
+  // Carrega metadados
+  let meta = JSON.parse(localStorage.getItem('iafoto_items') || '[]');
+  cats     = JSON.parse(localStorage.getItem('iafoto_cats')  || '[]');
+
+  // Migração: se metadados antigos ainda tiverem img embutida, move para IDB
+  const toMigrate = meta.filter(it => it.img);
+  if (toMigrate.length) {
+    await idbPutBatch(toMigrate.map(it => ({ id: it.id, dataUrl: it.img })));
+    meta = meta.map(({img, ...rest}) => rest);
+    localStorage.setItem('iafoto_items', JSON.stringify(meta));
+  }
+
+  // Garante campo orient
+  meta = meta.map(it => it.orient ? it : {...it, orient:'portrait'});
+
+  // Carrega todas as imagens do IDB de uma vez
+  const ids = meta.map(it => it.id);
+  const imgs = ids.length ? await idbGetAll(ids) : {};
+
+  // Reconstrói items com img
+  items = meta.map(it => ({ ...it, img: imgs[it.id] || null }));
+
+  // Default categories
+  if (!cats.length) {
+    cats = [
+      {id:'c1', name:'Executivas Feminino', icon:'👩'},
+      {id:'c2', name:'Executivas Masculino', icon:'👨'},
+      {id:'c3', name:'Fantasy', icon:'🏰'},
+      {id:'c4', name:'Cinemático', icon:'🎬'},
+      {id:'c5', name:'Aniversário', icon:'🎂'},
+      {id:'c6', name:'Casamento', icon:'💍'},
+      {id:'c7', name:'Infantil', icon:'🧒'},
+      {id:'c8', name:'Luxury', icon:'💎'},
+    ];
+    persist();
+  }
+
+  buildTabs();
+  render();
 }
 
 // ── BUILD TABS ──
@@ -4564,10 +4665,11 @@ async function batchSave() {
     label.textContent = `Convertendo ${done}/${tot}…`;
   });
 
-  // Salva tudo de uma vez (sem delay)
-  label.textContent = `Salvando…`;
+  // Monta itens e salva imagens no IDB (não bloqueia a UI)
+  label.textContent = 'Salvando…';
+  const ts = Date.now();
   const newItems = dataUrls.map((dataUrl, i) => ({
-    id: 'i' + Date.now() + '_' + i,
+    id: 'i' + ts + '_' + i,
     title: `${prefix} ${nextNum + i}`,
     prompt: '',
     cat: catId,
@@ -4577,8 +4679,12 @@ async function batchSave() {
     fav: false
   }));
 
-  // Insere em ordem crescente (último número por último)
-  newItems.reverse().forEach(it => items.unshift(it));
+  // Salva imagens no IDB em lote (uma transação só — muito rápido)
+  await idbPutBatch(newItems.map(it => ({ id: it.id, dataUrl: it.img })));
+
+  // Adiciona metadados em memória (sem img no objeto)
+  const metaItems = newItems.map(({img, ...rest}) => rest);
+  metaItems.reverse().forEach(it => items.unshift({...it, img: newItems.find(n=>n.id===it.id).img}));
 
   // Libera objectURLs
   batchFiles.forEach(f => { if (f.objectUrl) URL.revokeObjectURL(f.objectUrl); });
@@ -4587,7 +4693,6 @@ async function batchSave() {
   toast(`✓ ${total} foto${total!==1?'s':''} adicionada${total!==1?'s':''}!`);
   closeBatch();
 
-  // Navega para a categoria onde as fotos foram salvas
   if (catId) selectCat(catId, null);
   else render();
 }
@@ -5048,16 +5153,22 @@ function saveItem() {
       orient: getOrient(),
       tags
     });
-    if (tempImg) it.img = tempImg;
+    if (tempImg) {
+      it.img = tempImg;
+      idbPut(it.id, tempImg);
+    }
     toast('✓ Foto atualizada!');
   } else {
-    items.unshift({
-      id: 'i'+Date.now(), title,
+    const newId = 'i'+Date.now();
+    const newItem = {
+      id: newId, title,
       prompt: document.getElementById('fPrompt').value.trim(),
       cat: document.getElementById('fCat').value,
       orient: getOrient(),
       tags, img: tempImg||null, fav: false
-    });
+    };
+    items.unshift(newItem);
+    if (tempImg) idbPut(newId, tempImg);
     toast('✓ Foto adicionada!');
   }
   persist(); buildTabs(); render(); closeAdd();
@@ -5089,6 +5200,7 @@ function openEditCard(e, id) {
 function confirmDelete(e, id) {
   e.stopPropagation();
   if (!confirm('Excluir esta foto?')) return;
+  idbDelete(id);
   items = items.filter(i=>i.id!==id);
   persist(); buildTabs(); render();
   toast('🗑 Foto excluída');
@@ -5141,6 +5253,7 @@ function editDetail() {
 
 function deleteDetail() {
   if (!confirm('Excluir esta foto?')) return;
+  idbDelete(detailId);
   items = items.filter(i=>i.id!==detailId);
   persist(); buildTabs(); render(); closeDetail();
   toast('🗑 Foto excluída');
@@ -5267,8 +5380,7 @@ document.querySelectorAll('.overlay').forEach(o => {
 });
 
 // ── INIT ──
-buildTabs();
-render();
+initApp();
 
 // ═══════════════════════════════════════════
 // V10: MAIN TAB SWITCHING
