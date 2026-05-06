@@ -344,6 +344,97 @@ body{
   box-shadow:0 28px 60px rgba(0,0,0,0.7), 0 0 0 2px rgba(0,229,204,0.25);
 }
 
+/* ── MULTI-SELECT MODE ── */
+.select-mode .card{
+  cursor:pointer;
+}
+.select-mode .card:hover{
+  transform:translateY(-3px);
+}
+.card.selected{
+  box-shadow:0 0 0 3px var(--cyan), 0 12px 40px rgba(0,229,204,0.25) !important;
+  transform:translateY(-2px) !important;
+}
+.card.selected .card-img-zone::after{
+  background:linear-gradient(to bottom, rgba(0,229,204,0.15) 0%, rgba(0,0,0,0.75) 100%) !important;
+}
+.card-select-check{
+  position:absolute;top:10px;left:10px;
+  width:26px;height:26px;
+  background:rgba(0,0,0,.75);
+  border:2px solid rgba(255,255,255,.35);
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+  z-index:5;
+  transition:all .15s;
+  opacity:0;
+  backdrop-filter:blur(6px);
+  pointer-events:none;
+}
+.select-mode .card-select-check{ opacity:1; }
+.card.selected .card-select-check{
+  background:var(--cyan);
+  border-color:var(--cyan);
+  color:#000;
+  font-weight:700;
+}
+
+/* ── FLOATING ACTION BAR ── */
+#multiSelectBar{
+  position:fixed;
+  bottom:28px;
+  left:50%;
+  transform:translateX(-50%) translateY(120px);
+  z-index:400;
+  background:var(--s1);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  padding:12px 16px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 20px 60px rgba(0,0,0,.8), 0 0 0 1px rgba(0,229,204,.08);
+  backdrop-filter:blur(20px);
+  transition:transform .3s cubic-bezier(.34,1.46,.64,1);
+  white-space:nowrap;
+}
+#multiSelectBar.visible{
+  transform:translateX(-50%) translateY(0);
+}
+.msb-count{
+  font-family:'DM Mono',monospace;
+  font-size:12px;font-weight:700;
+  color:var(--cyan);
+  background:var(--cyan2);
+  padding:5px 12px;border-radius:8px;
+  min-width:60px;text-align:center;
+}
+.msb-select{
+  background:var(--s2);border:1px solid var(--border2);
+  border-radius:8px;
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  padding:7px 10px;cursor:pointer;
+  outline:none;
+}
+.msb-select:focus{ border-color:var(--cyan); }
+.msb-btn{
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;
+  padding:8px 18px;border-radius:8px;cursor:pointer;border:none;
+  transition:all .15s;letter-spacing:.2px;
+}
+.msb-btn-move{
+  background:var(--cyan);color:#000;
+}
+.msb-btn-move:hover{ background:#00ffea; }
+.msb-btn-move:disabled{ background:var(--subtle);color:var(--muted);cursor:default; }
+.msb-btn-cancel{
+  background:transparent;
+  border:1px solid var(--border2);
+  color:var(--muted);
+}
+.msb-btn-cancel:hover{ color:var(--text);border-color:var(--border2); }
+.msb-divider{ width:1px;height:28px;background:var(--border2); }
+
 /* IMAGE ZONE — ocupa todo o card */
 .card-img-zone{
   position:relative;
@@ -4308,6 +4399,18 @@ function pgCreateCatInline() {
 
 <div class="toast" id="toast"><div class="toast-dot"></div><span id="toastMsg"></span></div>
 
+<!-- MULTI-SELECT FLOATING BAR -->
+<div id="multiSelectBar">
+  <div class="msb-count" id="msbCount">0 fotos</div>
+  <div class="msb-divider"></div>
+  <span style="font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);">Mover para:</span>
+  <select class="msb-select" id="msbTargetCat">
+    <option value="">Sem categoria</option>
+  </select>
+  <button class="msb-btn msb-btn-move" id="msbMoveBtn" onclick="multiSelectMove()">↗ Mover</button>
+  <div class="msb-divider"></div>
+  <button class="msb-btn msb-btn-cancel" onclick="exitSelectMode()">✕ Cancelar</button>
+</div>
 
 <script>
 // ── STATE ──
@@ -4319,6 +4422,10 @@ let editId = null;
 let detailId = null;
 let tempImg = null;
 let editCatId = null;
+
+// ── MULTI-SELECT STATE ──
+let selectMode = false;
+let selectedIds = new Set();
 
 // ── IndexedDB: armazena imagens separadamente dos metadados ──
 let idb = null;
@@ -4473,6 +4580,7 @@ function buildTabs() {
 }
 
 function selectCat(id, btn) {
+  if (selectMode) exitSelectMode();
   currentCat = id;
   buildTabs();
   render();
@@ -4776,8 +4884,12 @@ function render() {
       <button onclick="goBackToCategories()" style="background:var(--s2);border:1px solid rgba(0,229,204,.35);border-radius:10px;color:var(--cyan);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .18s;letter-spacing:.3px;" onmouseover="this.style.background='rgba(0,229,204,.08)'" onmouseout="this.style.background='var(--s2)'">← Voltar</button>
       <span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:800;color:var(--text);">${catObj?catObj.icon+' '+catObj.name:''}</span>
       <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-left:2px;">${list.length} foto${list.length!==1?'s':''}</span>
-      <button onclick="openBatch('${currentCat}')" style="margin-left:auto;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;" onmouseover="this.style.borderColor='rgba(0,229,204,.4)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Upload em Lote</button>
-    </div>` : '';
+      <button onclick="enterSelectMode()" style="background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;" onmouseover="this.style.borderColor='rgba(0,229,204,.4)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">☑ Selecionar</button>
+      <button onclick="openBatch('${currentCat}')" style="background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;margin-left:auto;" onmouseover="this.style.borderColor='rgba(0,229,204,.4)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Upload em Lote</button>
+    </div>` : (currentCat === 'all' && !q) ? '' : `
+    <div style="grid-column:1/-1;display:flex;align-items:center;gap:12px;margin-bottom:8px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+      <button onclick="enterSelectMode()" style="margin-left:auto;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;" onmouseover="this.style.borderColor='rgba(0,229,204,.4)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">☑ Selecionar</button>
+    </div>`;
 
   if (!list.length) {
     grid.innerHTML = backBar + `<div class="empty" style="grid-column:1/-1"><div class="empty-icon">◻</div><h3>${q?'NENHUM RESULTADO':'NENHUMA FOTO'}</h3><p>${q?'Tente outra busca.':'Adicione fotos a esta categoria.'}</p></div>`;
@@ -4788,12 +4900,14 @@ function render() {
     const cat = cats.find(c=>c.id===item.cat);
     const tags = (item.tags||[]).slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('');
     const promptShort = (item.prompt||'').substring(0, 120) + ((item.prompt||'').length > 120 ? '…' : '');
-    return `<div class="card" style="animation-delay:${i*0.04}s">
-      <div class="card-img-zone" data-orient="${item.orient||'portrait'}" onclick="openDetail('${item.id}')">
+    const isSelected = selectedIds.has(item.id);
+    return `<div class="card${isSelected?' selected':''}" data-id="${item.id}" style="animation-delay:${i*0.04}s" onclick="${selectMode ? `toggleSelectCard(event,'${item.id}')` : ''}">
+      <div class="card-img-zone" data-orient="${item.orient||'portrait'}" onclick="${selectMode ? `toggleSelectCard(event,'${item.id}')` : `openDetail('${item.id}')`}">
         ${item.img
           ? `<img class="card-img" src="${item.img}" alt="${item.title}">`
           : `<div class="card-no-img"><div class="no-img-icon">🖼</div><span>SEM IMAGEM</span></div>`}
-        <div class="card-actions">
+        <div class="card-select-check">${isSelected ? '✓' : ''}</div>
+        <div class="card-actions" style="${selectMode?'display:none':''}">
           <div class="ic ${item.fav?'fav-on':''}" onclick="toggleFav(event,'${item.id}')" title="Favorito">♥</div>
           <div class="ic" onclick="downloadItem(event,'${item.id}')" title="Baixar" style="font-size:11px;">⬇</div>
           <div class="ic edit-ic" onclick="openEditCard(event,'${item.id}')" title="Editar">✎</div>
@@ -4829,6 +4943,75 @@ function toggleFavDetail() {
   btn.classList.toggle('fav-on', it.fav);
   persist(); buildTabs(); render();
   toast(it.fav ? '♥ Adicionado aos favoritos' : 'Removido dos favoritos');
+}
+
+// ── MULTI-SELECT ──
+function enterSelectMode() {
+  selectMode = true;
+  selectedIds.clear();
+  document.getElementById('appMain').classList.add('select-mode');
+  updateMultiSelectBar();
+  render();
+  toast('✔ Modo seleção ativo — clique nas fotos para selecionar');
+}
+
+function exitSelectMode() {
+  selectMode = false;
+  selectedIds.clear();
+  document.getElementById('appMain').classList.remove('select-mode');
+  const bar = document.getElementById('multiSelectBar');
+  bar.classList.remove('visible');
+  render();
+}
+
+function toggleSelectCard(e, id) {
+  e.stopPropagation();
+  if (!selectMode) return;
+  if (selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+  // Update just this card visually
+  const cards = document.querySelectorAll('.card[data-id="' + id + '"]');
+  cards.forEach(card => {
+    card.classList.toggle('selected', selectedIds.has(id));
+    const check = card.querySelector('.card-select-check');
+    if (check) check.textContent = selectedIds.has(id) ? '✓' : '';
+  });
+  updateMultiSelectBar();
+}
+
+function updateMultiSelectBar() {
+  const n = selectedIds.size;
+  const bar = document.getElementById('multiSelectBar');
+  const countEl = document.getElementById('msbCount');
+  const moveBtn = document.getElementById('msbMoveBtn');
+  countEl.textContent = n + ' foto' + (n !== 1 ? 's' : '');
+  bar.classList.toggle('visible', selectMode);
+  moveBtn.disabled = n === 0;
+
+  // Populate target cat select
+  const sel = document.getElementById('msbTargetCat');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">Sem categoria</option>' +
+    [...cats].sort((a,b)=>a.name.localeCompare(b.name,'pt'))
+      .map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  sel.value = prev;
+}
+
+function multiSelectMove() {
+  if (!selectedIds.size) return;
+  const targetCat = document.getElementById('msbTargetCat').value;
+  const ids = [...selectedIds];
+  ids.forEach(id => {
+    const it = items.find(i => i.id === id);
+    if (it) it.cat = targetCat;
+  });
+  persist(); buildTabs();
+  const n = ids.size || ids.length;
+  const catName = targetCat ? (cats.find(c=>c.id===targetCat)?.name || 'categoria') : 'Sem categoria';
+  toast(`✓ ${n} foto${n!==1?'s':''} movida${n!==1?'s':''} para ${catName}`);
+  exitSelectMode();
+  if (targetCat) selectCat(targetCat, null);
+  else render();
 }
 
 // ── ADD MODAL ──
