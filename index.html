@@ -925,9 +925,6 @@ body{
     <div class="top-bar-title" id="topBarTitle">Galeria</div>
   </div>
   <div class="top-bar-right" id="topBarRight">
-    <button class="btn btn-ghost batch-main-btn" onclick="openBatch('')" style="display:flex;align-items:center;gap:6px;padding:9px 14px;border:1px solid var(--border2);">
-      <span style="font-size:14px;line-height:1;">⬆</span> <span class="add-btn-label">Upload em Lote</span>
-    </button>
     <button class="btn btn-primary" onclick="openAdd()" style="display:flex;align-items:center;gap:6px;padding:9px 18px;">
       <span style="font-size:15px;line-height:1;">+</span> <span class="add-btn-label">Adicionar foto</span>
     </button>
@@ -5523,48 +5520,79 @@ function setView(v) {
 }
 
 // ── BACKUP ──
-function exportBackup() {
-  const blob = new Blob([JSON.stringify({items,cats,v:2,at:new Date().toISOString()},null,2)],{type:'application/json'});
+async function exportBackup() {
+  toast('⏳ Preparando backup com imagens…');
+
+  // Busca todas as imagens do IDB para garantir que estão no export
+  const ids = items.map(it => it.id);
+  const imgs = ids.length ? await idbGetAll(ids) : {};
+
+  // Monta items com img incluída (base64 completo)
+  const itemsWithImgs = items.map(it => ({
+    ...it,
+    img: imgs[it.id] || it.img || null
+  }));
+
+  const payload = { items: itemsWithImgs, cats, v: 3, at: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `iafoto-gallery-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
-  toast('✓ Backup exportado!');
+  const total = itemsWithImgs.filter(i => i.img).length;
+  toast(`✓ Backup exportado! ${total} foto${total!==1?'s':''} com imagem.`);
 }
 
-function importBackup(e) {
-  const file=e.target.files[0]; if(!file) return;
-  const r=new FileReader();
-  r.onload=ev=>{
+async function importBackup(e) {
+  const file = e.target.files[0]; if (!file) return;
+  e.target.value = '';
+  const r = new FileReader();
+  r.onload = async ev => {
     try {
       const d = JSON.parse(ev.target.result);
-      if (!d.items||!d.cats) throw 0;
+      if (!d.items || !d.cats) throw 0;
+
+      const withImg  = d.items.filter(i => i.img).length;
+      const total    = d.items.length;
       const mode = confirm(
-        'Como deseja importar?\n\n' +
+        `Backup com ${total} foto(s) — ${withImg} com imagem.\n\n` +
         'OK = Merge (adiciona sem apagar os existentes)\n' +
         'Cancelar = Substituir tudo'
       );
+
+      // Salva imagens no IDB
+      const toSave = d.items.filter(i => i.img);
+      if (toSave.length) {
+        toast(`⏳ Restaurando ${toSave.length} imagem(ns)…`);
+        await idbPutBatch(toSave.map(i => ({ id: i.id, dataUrl: i.img })));
+      }
+
+      // Metadados sem img (img fica só no IDB)
+      const metaItems = d.items.map(({ img, ...rest }) => ({ ...rest, img: null }));
+      // Recoloca img em memória para exibição imediata
+      const itemsReady = d.items.map(it => ({ ...it }));
+
       if (mode) {
         // MERGE
-        let added=0;
-        d.items.forEach(ni=>{
-          if(!items.find(x=>x.id===ni.id)){items.unshift(ni);added++;}
+        let added = 0;
+        itemsReady.forEach(ni => {
+          if (!items.find(x => x.id === ni.id)) { items.unshift(ni); added++; }
         });
-        d.cats.forEach(nc=>{
-          if(!cats.find(x=>x.id===nc.id))cats.push(nc);
+        d.cats.forEach(nc => {
+          if (!cats.find(x => x.id === nc.id)) cats.push(nc);
         });
         persist(); buildTabs(); render();
-        toast('✓ Merge: ' + added + ' foto(s) adicionada(s)!');
+        toast(`✓ Merge: ${added} foto(s) adicionada(s)${withImg ? ' com imagens' : ''}!`);
       } else {
-        if(!confirm('Isso apagará todos os dados atuais. Confirma?')) return;
-        items=d.items; cats=d.cats;
+        if (!confirm('Isso apagará todos os dados atuais. Confirma?')) return;
+        items = itemsReady;
+        cats  = d.cats;
         persist(); buildTabs(); render();
-        toast('✓ ' + items.length + ' fotos importadas!');
+        toast(`✓ ${items.length} foto(s) importada(s)${withImg ? ' com imagens' : ''}!`);
       }
-    } catch { toast('⚠ Arquivo inválido'); }
+    } catch(err) { toast('⚠ Arquivo inválido'); }
   };
   r.readAsText(file);
-  e.target.value='';
 }
 
 // ── TOAST ──
