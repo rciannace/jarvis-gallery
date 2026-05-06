@@ -834,6 +834,9 @@ body{
     <div class="top-bar-title" id="topBarTitle">Galeria</div>
   </div>
   <div class="top-bar-right" id="topBarRight">
+    <button class="btn btn-ghost batch-main-btn" onclick="openBatch('')" style="display:flex;align-items:center;gap:6px;padding:9px 14px;border:1px solid var(--border2);">
+      <span style="font-size:14px;line-height:1;">⬆</span> <span class="add-btn-label">Upload em Lote</span>
+    </button>
     <button class="btn btn-primary" onclick="openAdd()" style="display:flex;align-items:center;gap:6px;padding:9px 18px;">
       <span style="font-size:15px;line-height:1;">+</span> <span class="add-btn-label">Adicionar foto</span>
     </button>
@@ -1301,7 +1304,7 @@ body{
       <div class="modal-title">UPLOAD EM LOTE</div>
       <button class="modal-close" onclick="closeBatch()">✕</button>
     </div>
-    <div class="modal-body" style="padding:20px;">
+    <div class="modal-body" style="padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
       <!-- Categoria destino -->
       <div class="field" style="margin-bottom:16px;">
@@ -1326,7 +1329,7 @@ body{
         <div style="font-size:32px;margin-bottom:8px;">📁</div>
         <div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">Clique ou arraste as imagens aqui</div>
         <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Selecione múltiplas imagens de uma vez</div>
-        <input type="file" id="batchFileInput" accept="image/*" multiple style="display:none" onchange="batchHandleFiles(this.files)">
+        <input type="file" id="batchFileInput" accept="image/*" multiple style="display:none" onchange="batchHandleFiles(this.files)" onclick="this.value=''">
       </div>
 
       <!-- Contador + progresso -->
@@ -1387,6 +1390,7 @@ body{
       </div>
     </div>
     <div class="detail-actions">
+      <button class="btn-outline" onclick="downloadDetail()" id="dDownloadBtn" title="Baixar foto">⬇ Baixar</button>
       <button class="btn-outline" onclick="editDetail()">✎ Editar</button>
       <button class="btn-danger" onclick="deleteDetail()">Excluir</button>
     </div>
@@ -2645,9 +2649,10 @@ body{
   /* Prompt gen modal — close bar at bottom */
   #pgMobileCloseBar { display: flex !important; }
 
-  /* Top bar — hide "Adicionar foto" text, show just + */
+  /* Top bar — esconde textos, mantém ícones */
   .add-btn-label { display: none; }
   .btn-primary { padding: 9px 13px !important; }
+  .batch-main-btn { padding: 9px 13px !important; }
 
   /* Sidebar overlay */
   #sidebarOverlay.open { display: block !important; }
@@ -2657,6 +2662,118 @@ body{
   .gallery-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; }
   .logo { font-size: 14px; }
   .restore-modes { grid-template-columns: 1fr 1fr; }
+}
+
+/* ══ MOBILE: NOVOS ELEMENTOS DA GALERIA ══ */
+@media (max-width: 768px) {
+
+  /* Cards de categoria — 2 colunas no mobile */
+  #viewGallery .gallery-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* Botão de acesso (nome da categoria) — fonte menor */
+  .card-access-btn {
+    font-size: 10px !important;
+    padding: 10px 6px !important;
+    letter-spacing: .6px !important;
+  }
+
+  /* Badge de contagem no canto — menor */
+  .cat-count-badge {
+    font-size: 9px !important;
+    padding: 2px 7px !important;
+    top: 6px !important;
+    left: 6px !important;
+  }
+
+  /* Botão editar categoria — sempre visível no mobile (sem hover) */
+  .cat-edit-btn {
+    opacity: 1 !important;
+    width: 26px !important;
+    height: 26px !important;
+    font-size: 11px !important;
+    top: 6px !important;
+    right: 6px !important;
+  }
+
+  /* Título da foto na base */
+  .card-photo-title {
+    font-size: 9px !important;
+    padding: 4px 6px !important;
+    bottom: 38px !important;
+  }
+
+  /* BackBar (barra de voltar dentro da categoria) */
+  #viewGallery [style*="grid-column:1/-1"] {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 6px !important;
+  }
+
+  /* Botão Upload em Lote — ocupa linha própria no mobile */
+  #viewGallery [style*="grid-column:1/-1"] button[onclick*="openBatch"] {
+    margin-left: 0 !important;
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 10px !important;
+    font-size: 13px !important;
+  }
+
+  /* Modal batch — bottom sheet no mobile */
+  #batchOverlay .modal {
+    border-radius: 18px 18px 0 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: 92vh !important;
+  }
+
+  /* Drop zone batch — menor no mobile */
+  #batchDropZone {
+    padding: 20px 12px !important;
+  }
+
+  /* Grid de previews batch — mais colunas pequenas */
+  #batchPreviewGrid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)) !important;
+    max-height: 220px !important;
+  }
+
+  /* Select e input do modal batch — tamanho correto para mobile */
+  #batchCat, #batchPrefix {
+    font-size: 16px !important; /* evita zoom automático no iOS */
+  }
+
+  /* Fotos individuais dentro da categoria — 3 colunas */
+  .list-view .card {
+    grid-template-columns: 70px 1fr !important;
+  }
+
+  /* Ícones de ação nas fotos — sempre visíveis no mobile */
+  .card-actions {
+    opacity: 1 !important;
+  }
+  .ic {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 10px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Cards de categoria em tela muito pequena — ainda 2 cols */
+  #viewGallery .gallery-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .card-access-btn {
+    font-size: 9px !important;
+    padding: 9px 4px !important;
+    letter-spacing: .4px !important;
+  }
 }
 
 </style>
@@ -4255,6 +4372,33 @@ function goBackToCategories() {
   selectCat('all', null);
 }
 
+// ── DOWNLOAD ──
+function downloadItem(e, id) {
+  if (e) e.stopPropagation();
+  const item = items.find(i => i.id === id);
+  if (!item || !item.img) { toast('⚠ Sem imagem para baixar'); return; }
+  triggerDownload(item.img, item.title || 'foto');
+}
+
+function downloadDetail() {
+  const id = document.getElementById('detailOverlay').dataset.currentId;
+  downloadItem(null, id);
+}
+
+function triggerDownload(dataUrl, name) {
+  // Detecta extensão pelo mime type
+  const mime = dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
+  const ext = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : 'jpg';
+  const safeName = (name || 'foto').replace(/[^a-zA-Z0-9À-ɏ _-]/g, '').trim() || 'foto';
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = `${safeName}.${ext}`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  toast('⬇ Download iniciado!');
+}
+
 // ── BATCH UPLOAD ──
 let batchFiles = []; // {file, dataUrl, name}
 
@@ -4274,11 +4418,11 @@ function openBatch(catId) {
       .map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
   if (catId && catId !== 'all' && catId !== 'favorites' && catId !== 'none') {
     sel.value = catId;
-    // Pré-preenche prefixo com nome da categoria
     const cat = cats.find(c=>c.id===catId);
     if (cat) document.getElementById('batchPrefix').value = cat.name;
   } else {
     document.getElementById('batchPrefix').value = 'Foto';
+    sel.value = ''; // sem pré-seleção — usuário escolhe
   }
 
   const btn = document.getElementById('batchSaveBtn');
@@ -4501,6 +4645,7 @@ function render() {
           : `<div class="card-no-img"><div class="no-img-icon">🖼</div><span>SEM IMAGEM</span></div>`}
         <div class="card-actions">
           <div class="ic ${item.fav?'fav-on':''}" onclick="toggleFav(event,'${item.id}')" title="Favorito">♥</div>
+          <div class="ic" onclick="downloadItem(event,'${item.id}')" title="Baixar" style="font-size:11px;">⬇</div>
           <div class="ic edit-ic" onclick="openEditCard(event,'${item.id}')" title="Editar">✎</div>
           <div class="ic del-ic" onclick="confirmDelete(event,'${item.id}')" title="Excluir">✕</div>
         </div>
@@ -4924,7 +5069,12 @@ function openDetail(id) {
   const favBtn = document.getElementById('dFavBtn');
   favBtn.classList.toggle('fav-on', !!it.fav);
 
-  document.getElementById('detailOverlay').classList.add('open');
+  const overlay = document.getElementById('detailOverlay');
+  overlay.dataset.currentId = id;
+  overlay.classList.add('open');
+  // Esconde botão baixar se sem imagem
+  const dlBtn = document.getElementById('dDownloadBtn');
+  if (dlBtn) dlBtn.style.display = it.img ? '' : 'none';
 }
 
 function closeDetail() { document.getElementById('detailOverlay').classList.remove('open'); }
