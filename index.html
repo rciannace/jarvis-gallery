@@ -322,16 +322,16 @@ body{
   gap:8px;
 }
 
-/* ── CARD ── */
+/* ── CARD — Poster Style ── */
 .card{
-  background:var(--s2);
-  border:1px solid var(--border);
-  border-radius:var(--r2);
+  border:none;
+  border-radius:14px;
   overflow:hidden;
   cursor:pointer;
-  transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+  transition:transform .22s ease, box-shadow .22s ease;
   animation:rise .35s ease both;
   position:relative;
+  background:#000;
 }
 
 @keyframes rise{
@@ -340,22 +340,21 @@ body{
 }
 
 .card:hover{
-  border-color:rgba(0,229,204,0.22);
-  transform:translateY(-4px);
-  box-shadow:0 24px 56px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,229,204,0.07);
+  transform:translateY(-5px);
+  box-shadow:0 28px 60px rgba(0,0,0,0.7), 0 0 0 2px rgba(0,229,204,0.25);
 }
 
-/* IMAGE ZONE */
+/* IMAGE ZONE — ocupa todo o card */
 .card-img-zone{
   position:relative;
   background:var(--s2);
   overflow:hidden;
+  width:100%;
 }
 .card-img-zone[data-orient="landscape"]{ aspect-ratio:4/3; }
 .card-img-zone[data-orient="portrait"]{ aspect-ratio:3/4; }
 .card-img-zone[data-orient="square"]{ aspect-ratio:1/1; }
-/* default fallback */
-.card-img-zone:not([data-orient]){ aspect-ratio:4/3; }
+.card-img-zone:not([data-orient]){ aspect-ratio:3/4; }
 
 .card-img{
   width:100%;height:100%;
@@ -378,20 +377,20 @@ body{
 
 .no-img-icon{font-size:36px;opacity:.3;}
 
-/* GRADIENT OVERLAY */
+/* GRADIENT OVERLAY — escurece base para o botão */
 .card-img-zone::after{
   content:'';
   position:absolute;inset:0;
-  background:linear-gradient(to bottom, transparent 40%, rgba(12,12,14,.95) 100%);
+  background:linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.85) 100%);
   pointer-events:none;
 }
 
-/* ACTIONS OVERLAY */
+/* ACTIONS OVERLAY — ícones topo direito */
 .card-actions{
   position:absolute;top:10px;right:10px;
   display:flex;gap:6px;
   opacity:0;transition:opacity .2s;
-  z-index:3;
+  z-index:4;
 }
 .card:hover .card-actions{opacity:1;}
 
@@ -410,89 +409,139 @@ body{
 .ic.edit-ic:hover{color:var(--cyan);border-color:rgba(0,229,204,.4);}
 .ic.del-ic:hover{color:var(--red);border-color:rgba(255,77,109,.4);}
 
-/* CATEGORY TAG on image */
+/* TITLE BADGE — label branca no centro do card (só cards de categoria) */
+.card-title-badge{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(6px);
+  border-radius:50px;
+  padding:7px 18px;
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;font-weight:800;
+  color:#111;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  white-space:nowrap;
+  text-align:center;
+  z-index:3;
+  max-width:85%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  box-shadow:0 2px 12px rgba(0,0,0,0.3);
+}
+
+/* PHOTO TITLE — título da foto na base, sobre o gradiente */
+.card-photo-title{
+  position:absolute;
+  bottom:44px;left:0;right:0;
+  padding:6px 10px;
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;font-weight:700;
+  color:#fff;
+  letter-spacing:.3px;
+  text-transform:uppercase;
+  z-index:3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  text-align:center;
+  text-shadow:0 1px 4px rgba(0,0,0,0.8);
+}
+
+/* EDIT BTN — lápis no canto superior direito do card de categoria */
+.cat-edit-btn{
+  position:absolute;
+  top:10px;right:10px;
+  width:30px;height:30px;
+  background:rgba(12,12,14,.75);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:8px;
+  color:#fff;
+  font-size:13px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  z-index:4;
+  opacity:0;
+  transition:opacity .18s, background .18s, border-color .18s;
+  backdrop-filter:blur(6px);
+}
+.card:hover .cat-edit-btn{ opacity:1; }
+.cat-edit-btn:hover{
+  background:rgba(0,229,204,.15);
+  border-color:rgba(0,229,204,.5);
+  color:var(--cyan);
+}
+
+/* COUNT BADGE — número de fotos no canto superior esquerdo */
+.cat-count-badge{
+  position:absolute;
+  top:10px;left:10px;
+  background:rgba(0,0,0,0.65);
+  backdrop-filter:blur(6px);
+  border-radius:20px;
+  padding:3px 10px;
+  font-family:'DM Mono',monospace;
+  font-size:10px;font-weight:700;
+  color:#fff;
+  letter-spacing:.4px;
+  z-index:3;
+  border:1px solid rgba(255,255,255,0.15);
+}
+
+/* CATEGORY TAG — mantida mas escondida na nova view (usamos o badge) */
 .card-cat-tag{
-  position:absolute;bottom:10px;left:10px;
-  background:rgba(12,12,14,.85);
+  position:absolute;top:10px;left:10px;
+  background:rgba(12,12,14,.8);
   backdrop-filter:blur(8px);
   border:1px solid var(--border2);
   border-radius:6px;
   padding:4px 10px;
-  font-size:11px;color:var(--text);
+  font-size:10px;color:var(--muted);
   font-family:'DM Mono',monospace;
-  z-index:2;
+  z-index:3;
   letter-spacing:.3px;
 }
 
-/* CARD BODY — prompt visible */
-.card-body{
-  padding:10px 12px 13px;
-  background:var(--s2);
-}
-
-.card-title{
+/* BOTÃO ACESSAR CONTEÚDO — dentro da zona de imagem, na base */
+.card-access-btn{
+  position:absolute;
+  bottom:0;left:0;right:0;
+  background:#00c8b4;
+  color:#000;
   font-family:'DM Sans',sans-serif;
-  font-size:12.5px;font-weight:600;
-  color:var(--text);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  margin-bottom:8px;
-  letter-spacing:.1px;
+  font-size:11px;font-weight:800;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  text-align:center;
+  padding:11px 10px;
+  border:none;cursor:pointer;
+  z-index:3;
+  transition:background .18s, letter-spacing .18s;
+}
+.card:hover .card-access-btn{
+  background:#00e5cc;
+  letter-spacing:1.5px;
 }
 
-/* PROMPT PREVIEW */
-.card-prompt-wrap{
-  background:var(--s2);
-  border:1px solid var(--border);
-  border-radius:6px;
-  padding:10px 12px;
-  position:relative;
-}
+/* CARD BODY — escondido, sem mais espaço abaixo da imagem */
+.card-body{ display:none; }
 
-.card-prompt-label{
-  font-size:9px;font-family:'DM Mono',monospace;
-  color:var(--muted);letter-spacing:1.5px;
-  text-transform:uppercase;margin-bottom:5px;
-  display:flex;align-items:center;gap:5px;
-}
-
-.card-prompt-label::before{
-  content:'';width:6px;height:6px;
-  background:var(--cyan);border-radius:50%;
-  opacity:.7;
-}
-
-.card-prompt-text{
-  font-size:11px;font-family:'DM Mono',monospace;
-  color:var(--muted);line-height:1.65;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-}
-
-.card-copy-btn{
-  position:absolute;top:8px;right:8px;
-  background:var(--s3);border:1px solid var(--border);
-  border-radius:4px;padding:3px 8px;
-  font-size:10px;font-family:'DM Mono',monospace;
-  color:var(--muted);cursor:pointer;
-  transition:all .15s;
-  opacity:0;
-}
-.card-prompt-wrap:hover .card-copy-btn{opacity:1;}
-.card-copy-btn:hover{background:var(--cyan2);color:var(--cyan);border-color:var(--cyan);}
-
-.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px;}
-.tag{
-  font-size:10px;font-family:'DM Mono',monospace;
-  color:var(--muted);background:var(--s3);
-  border:1px solid var(--border);
-  padding:2px 9px;border-radius:4px;
-}
+/* Mantém classes existentes sem quebrar nada */
+.card-title{ display:none; }
+.card-prompt-wrap{ display:none; }
+.card-copy-btn{ display:none; }
+.card-tags{ display:none; }
+.tag{ display:none; }
 
 /* ── LIST VIEW ── */
-.list-view .card{display:grid;grid-template-columns:180px 1fr;}
+.list-view .card{display:grid;grid-template-columns:180px 1fr;border-radius:10px;}
 .list-view .card-img-zone{aspect-ratio:auto;height:100%;min-height:140px;}
+.list-view .card-title-badge{top:50%;font-size:10px;}
+.list-view .card-access-btn{font-size:10px;padding:8px 10px;}
+.list-view .card-body{display:flex;flex-direction:column;justify-content:center;padding:12px 14px;background:var(--s2);}
+.list-view .card-title{display:block;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.list-view .card-title-badge{display:none;}
+.list-view .card-access-btn{position:static;border-radius:0 0 0 0;}
 
 /* ── EMPTY ── */
 .empty{
@@ -816,8 +865,8 @@ body{
       <button class="btn btn-ghost" style="font-size:11px;padding:5px 11px;border-radius:7px;white-space:nowrap;" onclick="openNewCat()">+ Categoria</button>
     </div>
   </div>
-  <!-- Linha 2: categorias dinâmicas (alfabética, wrap) -->
-  <div class="cat-bar-row2">
+  <!-- Linha 2: categorias dinâmicas — escondida, usada só pelo JS -->
+  <div class="cat-bar-row2" style="display:none;">
     <span id="catTabs" style="display:contents;"></span>
   </div>
 </div>
@@ -4141,12 +4190,17 @@ function selectCat(id, btn) {
   render();
 }
 
+function goBackToCategories() {
+  selectCat('all', null);
+}
+
 // ── RENDER ──
 function render() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   let list = [...items];
 
   if (currentCat === 'favorites')     list = list.filter(i=>i.fav);
+  else if (currentCat === 'none')     list = list.filter(i=>!i.cat||!cats.find(c=>c.id===i.cat));
   else if (currentCat !== 'all')      list = list.filter(i=>i.cat===currentCat);
   if (q) list = list.filter(i =>
     i.title.toLowerCase().includes(q) ||
@@ -4157,21 +4211,80 @@ function render() {
   const grid = document.getElementById('gallery');
   grid.className = 'gallery-grid' + (currentView==='list'?' list-view':'');
 
-  if (!list.length) {
-    grid.innerHTML = `<div class="empty">
-      <div class="empty-icon">◻</div>
-      <h3>${q?'NENHUM RESULTADO':'GALERIA VAZIA'}</h3>
-      <p>${q?'Tente outra busca.':'Clique em "+ Adicionar foto" para começar a organizar suas fotos e prompts.'}</p>
-    </div>`;
+  // ── VIEW ALL: mostra um card por categoria ──
+  if (currentCat === 'all' && !q) {
+    const catsWithItems = cats.filter(c => items.some(i => i.cat === c.id));
+    const uncategorized = items.filter(i => !i.cat || !cats.find(c=>c.id===i.cat));
+
+    if (!catsWithItems.length && !uncategorized.length) {
+      grid.innerHTML = `<div class="empty"><div class="empty-icon">◻</div><h3>GALERIA VAZIA</h3><p>Clique em "+ Adicionar foto" para começar.</p></div>`;
+      return;
+    }
+
+    let catCards = catsWithItems.map((cat, i) => {
+      const catItems = items.filter(it => it.cat === cat.id);
+      const cover = catItems.find(it => it.img) || catItems[0];
+      const coverImg = cover?.img || '';
+      const count = catItems.length;
+      return `<div class="card" style="animation-delay:${i*0.04}s" onclick="selectCat('${cat.id}',null)">
+        <div class="card-img-zone" data-orient="portrait">
+          ${coverImg
+            ? `<img class="card-img" src="${coverImg}" alt="${cat.name}">`
+            : `<div class="card-no-img"><div class="no-img-icon">${cat.icon}</div><span>SEM IMAGEM</span></div>`}
+          <div class="cat-count-badge">${count} foto${count!==1?'s':''}</div>
+          <button class="cat-edit-btn" onclick="event.stopPropagation();openEditCat(event,'${cat.id}')" title="Editar nome">✎</button>
+          <button class="card-access-btn" onclick="event.stopPropagation();selectCat('${cat.id}',null)">${cat.name.toUpperCase()}</button>
+        </div>
+        <div class="card-body"></div>
+      </div>`;
+    });
+
+    if (uncategorized.length) {
+      const cover = uncategorized.find(it=>it.img) || uncategorized[0];
+      const ucount = uncategorized.length;
+      catCards.push(`<div class="card" style="animation-delay:${catsWithItems.length*0.04}s" onclick="selectCat('none',null)">
+        <div class="card-img-zone" data-orient="portrait">
+          ${cover?.img ? `<img class="card-img" src="${cover.img}" alt="Sem categoria">` : `<div class="card-no-img"><div class="no-img-icon">📁</div><span>SEM IMAGEM</span></div>`}
+          <div class="cat-count-badge">${ucount} foto${ucount!==1?'s':''}</div>
+          <button class="card-access-btn" onclick="event.stopPropagation();selectCat('none',null)">SEM CATEGORIA</button>
+        </div>
+        <div class="card-body"></div>
+      </div>`);
+    }
+
+    grid.innerHTML = catCards.join('');
     return;
   }
 
-  grid.innerHTML = list.map((item, i) => {
+  // ── VIEW CATEGORIA ESPECÍFICA ou busca: mostra fotos individuais ──
+  // Ordena por número extraído do título (crescente)
+  list.sort((a, b) => {
+    const numA = parseInt((a.title||'').match(/\d+/)?.[0] ?? '9999');
+    const numB = parseInt((b.title||'').match(/\d+/)?.[0] ?? '9999');
+    if (numA !== numB) return numA - numB;
+    return (a.title||'').localeCompare(b.title||'', 'pt');
+  });
+
+  // Botão de voltar para categorias
+  const catObj = currentCat !== 'all' && currentCat !== 'favorites' ? (currentCat === 'none' ? {icon:'📁', name:'Sem Categoria'} : cats.find(c=>c.id===currentCat)) : null;
+  const backBar = (currentCat !== 'all' && currentCat !== 'favorites') ? `
+    <div style="grid-column:1/-1;display:flex;align-items:center;gap:12px;margin-bottom:8px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+      <button onclick="goBackToCategories()" style="background:var(--s2);border:1px solid rgba(0,229,204,.35);border-radius:10px;color:var(--cyan);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .18s;letter-spacing:.3px;" onmouseover="this.style.background='rgba(0,229,204,.08)'" onmouseout="this.style.background='var(--s2)'">← Voltar</button>
+      <span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:800;color:var(--text);">${catObj?catObj.icon+' '+catObj.name:''}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-left:2px;">${list.length} foto${list.length!==1?'s':''}</span>
+    </div>` : '';
+
+  if (!list.length) {
+    grid.innerHTML = backBar + `<div class="empty" style="grid-column:1/-1"><div class="empty-icon">◻</div><h3>${q?'NENHUM RESULTADO':'NENHUMA FOTO'}</h3><p>${q?'Tente outra busca.':'Adicione fotos a esta categoria.'}</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = backBar + list.map((item, i) => {
     const cat = cats.find(c=>c.id===item.cat);
     const tags = (item.tags||[]).slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('');
     const promptShort = (item.prompt||'').substring(0, 120) + ((item.prompt||'').length > 120 ? '…' : '');
     return `<div class="card" style="animation-delay:${i*0.04}s">
-      <div class="card-img-zone" data-orient="${item.orient||'landscape'}" onclick="openDetail('${item.id}')">
+      <div class="card-img-zone" data-orient="${item.orient||'portrait'}" onclick="openDetail('${item.id}')">
         ${item.img
           ? `<img class="card-img" src="${item.img}" alt="${item.title}">`
           : `<div class="card-no-img"><div class="no-img-icon">🖼</div><span>SEM IMAGEM</span></div>`}
@@ -4180,7 +4293,7 @@ function render() {
           <div class="ic edit-ic" onclick="openEditCard(event,'${item.id}')" title="Editar">✎</div>
           <div class="ic del-ic" onclick="confirmDelete(event,'${item.id}')" title="Excluir">✕</div>
         </div>
-        ${cat?`<div class="card-cat-tag">${cat.icon} ${cat.name}</div>`:''}
+        <div class="card-photo-title">${item.title}</div>
       </div>
       <div class="card-body">
         <div class="card-title">${item.title}</div>
