@@ -1294,6 +1294,67 @@ body{
   </div>
 </div>
 
+<!-- ══ MODAL: UPLOAD EM LOTE ══ -->
+<div class="overlay" id="batchOverlay" onclick="if(event.target===this)closeBatch()">
+  <div class="modal" style="max-width:700px;width:95%;">
+    <div class="modal-head">
+      <div class="modal-title">UPLOAD EM LOTE</div>
+      <button class="modal-close" onclick="closeBatch()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px;">
+
+      <!-- Categoria destino -->
+      <div class="field" style="margin-bottom:16px;">
+        <label class="field-label">Categoria destino</label>
+        <select id="batchCat" style="width:100%;padding:10px 12px;background:var(--s3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;">
+          <option value="">Sem categoria</option>
+        </select>
+      </div>
+
+      <!-- Prefixo do nome -->
+      <div class="field" style="margin-bottom:16px;">
+        <label class="field-label">Prefixo do nome <span style="color:var(--muted);font-weight:400;">(as fotos serão: Prefixo 1, Prefixo 2…)</span></label>
+        <input id="batchPrefix" type="text" placeholder="Ex: Foto, Ensaio, Look…" style="width:100%;padding:10px 12px;background:var(--s3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;box-sizing:border-box;">
+      </div>
+
+      <!-- Zona de drop -->
+      <div id="batchDropZone" style="border:2px dashed var(--border2);border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px;"
+        onclick="document.getElementById('batchFileInput').click()"
+        ondragover="event.preventDefault();this.style.borderColor='var(--cyan)';this.style.background='rgba(0,229,204,.05)'"
+        ondragleave="this.style.borderColor='var(--border2)';this.style.background=''"
+        ondrop="event.preventDefault();this.style.borderColor='var(--border2)';this.style.background='';batchHandleDrop(event.dataTransfer.files)">
+        <div style="font-size:32px;margin-bottom:8px;">📁</div>
+        <div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">Clique ou arraste as imagens aqui</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">Selecione múltiplas imagens de uma vez</div>
+        <input type="file" id="batchFileInput" accept="image/*" multiple style="display:none" onchange="batchHandleFiles(this.files)">
+      </div>
+
+      <!-- Contador + progresso -->
+      <div id="batchInfo" style="display:none;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span id="batchCount" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--text);"></span>
+          <button onclick="batchClear()" style="background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;">✕ Limpar</button>
+        </div>
+        <div id="batchProgress" style="display:none;height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px;">
+          <div id="batchProgressBar" style="height:100%;background:var(--cyan);width:0%;transition:width .3s;"></div>
+        </div>
+      </div>
+
+      <!-- Grid de previews -->
+      <div id="batchPreviewGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;max-height:280px;overflow-y:auto;margin-bottom:16px;"></div>
+
+      <!-- Botões -->
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button class="btn btn-ghost" onclick="closeBatch()">Cancelar</button>
+        <button class="btn btn-primary" id="batchSaveBtn" onclick="batchSave()" disabled style="opacity:.45;pointer-events:none;">
+          <span id="batchSaveLabel">Salvar fotos</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- ══ MODAL: DETAIL ══ -->
 <div class="overlay" id="detailOverlay">
   <div class="modal detail-modal">
@@ -4194,6 +4255,155 @@ function goBackToCategories() {
   selectCat('all', null);
 }
 
+// ── BATCH UPLOAD ──
+let batchFiles = []; // {file, dataUrl, name}
+
+function openBatch(catId) {
+  batchFiles = [];
+  document.getElementById('batchPreviewGrid').innerHTML = '';
+  document.getElementById('batchInfo').style.display = 'none';
+  document.getElementById('batchProgress').style.display = 'none';
+  document.getElementById('batchProgressBar').style.width = '0%';
+  document.getElementById('batchFileInput').value = '';
+  document.getElementById('batchSaveLabel').textContent = 'Salvar fotos';
+
+  // Popula select de categorias e pré-seleciona a atual
+  const sel = document.getElementById('batchCat');
+  sel.innerHTML = '<option value="">Sem categoria</option>' +
+    [...cats].sort((a,b)=>a.name.localeCompare(b.name,'pt'))
+      .map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  if (catId && catId !== 'all' && catId !== 'favorites' && catId !== 'none') {
+    sel.value = catId;
+    // Pré-preenche prefixo com nome da categoria
+    const cat = cats.find(c=>c.id===catId);
+    if (cat) document.getElementById('batchPrefix').value = cat.name;
+  } else {
+    document.getElementById('batchPrefix').value = 'Foto';
+  }
+
+  const btn = document.getElementById('batchSaveBtn');
+  btn.disabled = true; btn.style.opacity='.45'; btn.style.pointerEvents='none';
+
+  document.getElementById('batchOverlay').classList.add('open');
+}
+
+function closeBatch() {
+  document.getElementById('batchOverlay').classList.remove('open');
+  batchFiles = [];
+}
+
+function batchHandleDrop(fileList) { batchHandleFiles(fileList); }
+
+function batchHandleFiles(fileList) {
+  const imageFiles = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+  if (!imageFiles.length) { toast('⚠ Nenhuma imagem encontrada'); return; }
+
+  // Ordena pelo nome do arquivo (ordem natural)
+  imageFiles.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
+
+  batchFiles = [];
+  document.getElementById('batchPreviewGrid').innerHTML = '';
+  document.getElementById('batchInfo').style.display = 'block';
+  document.getElementById('batchCount').textContent = `Carregando ${imageFiles.length} imagem${imageFiles.length!==1?'ns':''}…`;
+
+  let loaded = 0;
+  const total = imageFiles.length;
+
+  imageFiles.forEach((file, idx) => {
+    const r = new FileReader();
+    r.onload = ev => {
+      batchFiles[idx] = { file, dataUrl: ev.target.result };
+      loaded++;
+      if (loaded === total) batchFilesReady(total);
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+function batchFilesReady(total) {
+  document.getElementById('batchCount').textContent = `${total} imagem${total!==1?'ns':''} selecionada${total!==1?'s':''}`;
+
+  const grid = document.getElementById('batchPreviewGrid');
+  grid.innerHTML = '';
+  batchFiles.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.style.cssText = 'position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--s3);';
+    div.innerHTML = `
+      <img src="${item.dataUrl}" style="width:100%;height:100%;object-fit:cover;display:block;">
+      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);font-family:'DM Mono',monospace;font-size:9px;color:#fff;text-align:center;padding:3px 4px;letter-spacing:.3px;">#${idx+1}</div>
+      <button onclick="batchRemove(${idx})" style="position:absolute;top:4px;right:4px;width:20px;height:20px;background:rgba(0,0,0,.7);border:none;border-radius:50%;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>`;
+    grid.appendChild(div);
+  });
+
+  const btn = document.getElementById('batchSaveBtn');
+  btn.disabled = false; btn.style.opacity='1'; btn.style.pointerEvents='auto';
+  document.getElementById('batchSaveLabel').textContent = `Salvar ${total} foto${total!==1?'s':''}`;
+}
+
+function batchRemove(idx) {
+  batchFiles.splice(idx, 1);
+  if (!batchFiles.length) { batchClear(); return; }
+  batchFilesReady(batchFiles.length);
+}
+
+function batchClear() {
+  batchFiles = [];
+  document.getElementById('batchPreviewGrid').innerHTML = '';
+  document.getElementById('batchInfo').style.display = 'none';
+  document.getElementById('batchFileInput').value = '';
+  const btn = document.getElementById('batchSaveBtn');
+  btn.disabled = true; btn.style.opacity='.45'; btn.style.pointerEvents='none';
+  document.getElementById('batchSaveLabel').textContent = 'Salvar fotos';
+}
+
+async function batchSave() {
+  if (!batchFiles.length) return;
+  const catId  = document.getElementById('batchCat').value;
+  const prefix = document.getElementById('batchPrefix').value.trim() || 'Foto';
+
+  // Descobre o próximo número disponível nessa categoria
+  const existing = items.filter(i => i.cat === catId);
+  const usedNums = existing.map(i => {
+    const m = (i.title||'').match(/(\d+)$/);
+    return m ? parseInt(m[1]) : 0;
+  });
+  let nextNum = usedNums.length ? Math.max(...usedNums) + 1 : 1;
+
+  const btn = document.getElementById('batchSaveBtn');
+  btn.disabled = true; btn.style.pointerEvents = 'none';
+
+  const progress = document.getElementById('batchProgress');
+  const bar = document.getElementById('batchProgressBar');
+  progress.style.display = 'block';
+
+  const total = batchFiles.length;
+  for (let i = 0; i < total; i++) {
+    const item = batchFiles[i];
+    const title = `${prefix} ${nextNum + i}`;
+    items.unshift({
+      id: 'i' + Date.now() + '_' + i,
+      title,
+      prompt: '',
+      cat: catId,
+      orient: 'portrait',
+      tags: [],
+      img: item.dataUrl,
+      fav: false
+    });
+    bar.style.width = `${Math.round(((i+1)/total)*100)}%`;
+    document.getElementById('batchSaveLabel').textContent = `Salvando ${i+1}/${total}…`;
+    await new Promise(r => setTimeout(r, 30)); // micro-delay p/ UI atualizar
+  }
+
+  persist(); buildTabs();
+  toast(`✓ ${total} foto${total!==1?'s':''} adicionada${total!==1?'s':''}!`);
+  closeBatch();
+
+  // Navega para a categoria onde as fotos foram salvas
+  if (catId) selectCat(catId, null);
+  else render();
+}
+
 // ── RENDER ──
 function render() {
   const q = document.getElementById('searchInput').value.toLowerCase();
@@ -4272,6 +4482,7 @@ function render() {
       <button onclick="goBackToCategories()" style="background:var(--s2);border:1px solid rgba(0,229,204,.35);border-radius:10px;color:var(--cyan);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .18s;letter-spacing:.3px;" onmouseover="this.style.background='rgba(0,229,204,.08)'" onmouseout="this.style.background='var(--s2)'">← Voltar</button>
       <span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:800;color:var(--text);">${catObj?catObj.icon+' '+catObj.name:''}</span>
       <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-left:2px;">${list.length} foto${list.length!==1?'s':''}</span>
+      <button onclick="openBatch('${currentCat}')" style="margin-left:auto;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;" onmouseover="this.style.borderColor='rgba(0,229,204,.4)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Upload em Lote</button>
     </div>` : '';
 
   if (!list.length) {
