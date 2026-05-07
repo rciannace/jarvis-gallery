@@ -5640,76 +5640,91 @@ function updateExportNovasLabel() {
   const ts = getLastSyncTs();
   const el = document.getElementById('exportNovasLabel');
   if (!el) return;
-  if (!ts) {
-    el.textContent = 'Enviar Novidades';
-    return;
-  }
-  const novas = items.filter(i => {
+  const novasFotos = items.filter(i => {
     const id_ts = parseInt((i.id || '').replace('i','').split('_')[0]);
-    return id_ts > ts;
+    return !ts || id_ts > ts;
   }).length;
-  el.textContent = novas > 0 ? `Enviar Novidades (${novas})` : 'Enviar Novidades';
+  const novasCl = clGetSince(ts).length;
+  const total = novasFotos + (novasCl > 0 ? 1 : 0); // fotos novas + flag de edições
+  if (!ts && novasFotos === 0) {
+    el.textContent = 'Enviar Novidades';
+  } else if (novasFotos > 0) {
+    el.textContent = `Enviar Novidades (${novasFotos} foto${novasFotos!==1?'s':''})`;
+  } else if (novasCl > 0) {
+    el.textContent = `Enviar Alterações (${novasCl})`;
+  } else {
+    el.textContent = 'Enviar Novidades';
+  }
 }
 
 async function exportNovas() {
   const lastTs = getLastSyncTs();
   const agora = Date.now();
 
-  // Filtra itens criados DEPOIS do último sync
-  // O id tem formato 'i<timestamp>' ou 'i<timestamp>_<index>'
+  // Fotos criadas DEPOIS do último sync
   const novas = items.filter(i => {
     const raw = (i.id || '').replace(/^i/, '').split('_')[0];
     const ts = parseInt(raw);
     return !lastTs || ts > lastTs;
   });
 
-  if (!novas.length) {
-    toast('✓ Nenhuma novidade desde o último envio!');
+  // Changelog de alterações desde o último sync
+  const changelog = clGetSince(lastTs);
+
+  // Nada a enviar?
+  if (!novas.length && !changelog.length) {
+    toast('✓ Nenhuma novidade ou alteração desde o último envio!');
     return;
   }
 
-  toast(`⏳ Preparando ${novas.length} foto(s) novas…`);
+  const temNovas = novas.length > 0;
+  const temAlteracoes = changelog.length > 0;
+  const resumo = [
+    temNovas ? `${novas.length} foto(s) nova(s)` : '',
+    temAlteracoes ? `${changelog.length} alteração(ões)` : ''
+  ].filter(Boolean).join(' + ');
 
-  // Busca imagens do IDB para essas fotos
-  const ids = novas.map(i => i.id);
-  const imgs = await idbGetAll(ids);
+  toast(`⏳ Preparando: ${resumo}…`);
 
-  const novasComImg = novas.map(it => ({
-    ...it,
-    img: imgs[it.id] || it.img || null
-  }));
-
-  const semImg = novasComImg.filter(i => !i.img).length;
-  if (semImg > 0) {
-    const ok = confirm(`⚠ ${semImg} foto(s) sem imagem serão incluídas só com metadados.\nContinuar?`);
-    if (!ok) return;
+  // Busca imagens do IDB só para fotos novas
+  let novasComImg = [];
+  if (temNovas) {
+    const ids = novas.map(i => i.id);
+    const imgs = await idbGetAll(ids);
+    novasComImg = novas.map(it => ({
+      ...it,
+      img: imgs[it.id] || it.img || null
+    }));
+    const semImg = novasComImg.filter(i => !i.img).length;
+    if (semImg > 0) {
+      const ok = confirm(`⚠ ${semImg} foto(s) sem imagem serão incluídas só com metadados.\nContinuar?`);
+      if (!ok) return;
+    }
   }
 
   const payload = {
     items: novasComImg,
     cats,
-    changelog: clGetSince(lastTs),
+    changelog,
     v: 4,
     tipo: 'novidades',
     desde: lastTs || 0,
     at: new Date().toISOString()
   };
 
-  const json = JSON.stringify(payload);
-  const blob = new Blob([json], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
   const sizeMB = (blob.size / 1024 / 1024).toFixed(1);
 
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  const dateStr = new Date().toISOString().slice(0,10);
-  a.download = `jarvis-novidades-${dateStr}.json`;
+  a.download = `jarvis-novidades-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
 
-  // Atualiza timestamp do último sync
   setLastSyncTs(agora);
 
   const comImg = novasComImg.filter(i => i.img).length;
-  toast(`✓ ${novas.length} foto(s) exportada(s) — ${comImg} com imagem — ${sizeMB}MB`);
+  const msgImg = temNovas ? ` — ${comImg} com imagem` : '';
+  toast(`✓ Enviado: ${resumo}${msgImg} — ${sizeMB}MB`);
 }
 
 async function exportBackup() {
