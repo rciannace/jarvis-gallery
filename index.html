@@ -896,13 +896,16 @@ body{
     <button class="sb-footer-btn" onclick="openSyncModal()" id="syncBtn">
       <span>⇄</span> Sync
     </button>
-    <button class="sb-footer-btn" onclick="exportBackup()">
-      <span>↓</span> Backup
+    <button class="sb-footer-btn cyan" onclick="exportNovas()" id="exportNovasBtn" title="Exporta só as fotos adicionadas desde o último envio">
+      <span>↑</span> <span id="exportNovasLabel">Enviar Novidades</span>
     </button>
-    <button class="sb-footer-btn" onclick="document.getElementById('importFile').click()">
-      <span>↑</span> Importar
+    <button class="sb-footer-btn" onclick="document.getElementById('importFile').click()" title="Importar arquivo de novidades">
+      <span>↓</span> Receber Novidades
     </button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
+    <button class="sb-footer-btn" onclick="exportBackup()" style="font-size:11px;opacity:.55;">
+      <span>⬇</span> Backup completo
+    </button>
     <button class="sb-footer-btn" id="apiKeyBtn" onclick="openApiKey()">
       <span id="apiDot" style="width:7px;height:7px;border-radius:50%;background:var(--subtle);display:inline-block;border-radius:50%;transition:background .3s;"></span>
       API Key
@@ -4546,9 +4549,8 @@ async function initApp() {
 
   buildTabs();
   render();
+  updateExportNovasLabel();
 }
-
-// ── BUILD TABS ──
 function buildTabs() {
   document.getElementById('tc-all').textContent = items.length;
   document.getElementById('tc-fav').textContent = items.filter(i=>i.fav).length;
@@ -5520,60 +5522,148 @@ function setView(v) {
 }
 
 // ── BACKUP ──
-async function exportBackup() {
-  toast('⏳ Preparando backup com imagens…');
+// ── SYNC — NOVIDADES ──
+// Salva timestamp do último export de novidades
+function getLastSyncTs() {
+  return parseInt(localStorage.getItem('iafoto_last_sync') || '0');
+}
+function setLastSyncTs(ts) {
+  localStorage.setItem('iafoto_last_sync', String(ts));
+  updateExportNovasLabel();
+}
 
-  // Busca todas as imagens do IDB para garantir que estão no export
-  const ids = items.map(it => it.id);
-  const imgs = ids.length ? await idbGetAll(ids) : {};
+function updateExportNovasLabel() {
+  const ts = getLastSyncTs();
+  const el = document.getElementById('exportNovasLabel');
+  if (!el) return;
+  if (!ts) {
+    el.textContent = 'Enviar Novidades';
+    return;
+  }
+  const novas = items.filter(i => {
+    const id_ts = parseInt((i.id || '').replace('i','').split('_')[0]);
+    return id_ts > ts;
+  }).length;
+  el.textContent = novas > 0 ? `Enviar Novidades (${novas})` : 'Enviar Novidades';
+}
 
-  // Monta items com img incluída (base64 completo)
-  const itemsWithImgs = items.map(it => ({
+async function exportNovas() {
+  const lastTs = getLastSyncTs();
+  const agora = Date.now();
+
+  // Filtra itens criados DEPOIS do último sync
+  // O id tem formato 'i<timestamp>' ou 'i<timestamp>_<index>'
+  const novas = items.filter(i => {
+    const raw = (i.id || '').replace(/^i/, '').split('_')[0];
+    const ts = parseInt(raw);
+    return !lastTs || ts > lastTs;
+  });
+
+  if (!novas.length) {
+    toast('✓ Nenhuma novidade desde o último envio!');
+    return;
+  }
+
+  toast(`⏳ Preparando ${novas.length} foto(s) novas…`);
+
+  // Busca imagens do IDB para essas fotos
+  const ids = novas.map(i => i.id);
+  const imgs = await idbGetAll(ids);
+
+  const novasComImg = novas.map(it => ({
     ...it,
     img: imgs[it.id] || it.img || null
   }));
 
-  const payload = { items: itemsWithImgs, cats, v: 3, at: new Date().toISOString() };
+  const semImg = novasComImg.filter(i => !i.img).length;
+  if (semImg > 0) {
+    const ok = confirm(`⚠ ${semImg} foto(s) sem imagem serão incluídas só com metadados.\nContinuar?`);
+    if (!ok) return;
+  }
+
+  const payload = {
+    items: novasComImg,
+    cats,
+    v: 4,
+    tipo: 'novidades',
+    desde: lastTs || 0,
+    at: new Date().toISOString()
+  };
+
+  const json = JSON.stringify(payload);
+  const blob = new Blob([json], { type: 'application/json' });
+  const sizeMB = (blob.size / 1024 / 1024).toFixed(1);
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const dateStr = new Date().toISOString().slice(0,10);
+  a.download = `jarvis-novidades-${dateStr}.json`;
+  a.click();
+
+  // Atualiza timestamp do último sync
+  setLastSyncTs(agora);
+
+  const comImg = novasComImg.filter(i => i.img).length;
+  toast(`✓ ${novas.length} foto(s) exportada(s) — ${comImg} com imagem — ${sizeMB}MB`);
+}
+
+async function exportBackup() {
+  toast('⏳ Preparando backup completo…');
+  const ids = items.map(it => it.id);
+  const imgs = ids.length ? await idbGetAll(ids) : {};
+  const itemsWithImgs = items.map(it => ({
+    ...it,
+    img: imgs[it.id] || it.img || null
+  }));
+  const payload = { items: itemsWithImgs, cats, v: 4, tipo: 'completo', at: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `iafoto-gallery-${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `jarvis-backup-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   const total = itemsWithImgs.filter(i => i.img).length;
-  toast(`✓ Backup exportado! ${total} foto${total!==1?'s':''} com imagem.`);
+  toast(`✓ Backup completo: ${total} foto(s) com imagem`);
 }
 
 async function importBackup(e) {
   const file = e.target.files[0]; if (!file) return;
   e.target.value = '';
+
+  toast('⏳ Lendo arquivo…');
+
   const r = new FileReader();
   r.onload = async ev => {
     try {
       const d = JSON.parse(ev.target.result);
-      if (!d.items || !d.cats) throw 0;
+      if (!d.items || !d.cats) throw new Error('formato inválido');
 
-      const withImg  = d.items.filter(i => i.img).length;
-      const total    = d.items.length;
-      const mode = confirm(
-        `Backup com ${total} foto(s) — ${withImg} com imagem.\n\n` +
-        'OK = Merge (adiciona sem apagar os existentes)\n' +
-        'Cancelar = Substituir tudo'
-      );
+      const withImg = d.items.filter(i => i.img).length;
+      const total   = d.items.length;
+      const isNovas = d.tipo === 'novidades';
 
-      // Salva imagens no IDB
+      // Novidades: merge automático sem confirmar
+      // Backup completo: pergunta o modo
+      let doMerge = true;
+      if (!isNovas) {
+        doMerge = confirm(
+          `Backup completo: ${total} foto(s), ${withImg} com imagem.\n\n` +
+          'OK = Merge (adiciona sem apagar)\n' +
+          'Cancelar = Substituir tudo'
+        );
+        if (doMerge === null) return;
+      }
+
+      // Salva imagens no IDB em lote
       const toSave = d.items.filter(i => i.img);
       if (toSave.length) {
-        toast(`⏳ Restaurando ${toSave.length} imagem(ns)…`);
+        toast(`⏳ Salvando ${toSave.length} imagem(ns)…`);
         await idbPutBatch(toSave.map(i => ({ id: i.id, dataUrl: i.img })));
       }
 
-      // Metadados sem img (img fica só no IDB)
-      const metaItems = d.items.map(({ img, ...rest }) => ({ ...rest, img: null }));
-      // Recoloca img em memória para exibição imediata
+      // Items prontos para memória
       const itemsReady = d.items.map(it => ({ ...it }));
 
-      if (mode) {
-        // MERGE
+      if (doMerge) {
         let added = 0;
         itemsReady.forEach(ni => {
           if (!items.find(x => x.id === ni.id)) { items.unshift(ni); added++; }
@@ -5582,15 +5672,21 @@ async function importBackup(e) {
           if (!cats.find(x => x.id === nc.id)) cats.push(nc);
         });
         persist(); buildTabs(); render();
-        toast(`✓ Merge: ${added} foto(s) adicionada(s)${withImg ? ' com imagens' : ''}!`);
+        const tipo = isNovas ? 'novidade(s)' : 'foto(s)';
+        toast(`✓ ${added} ${tipo} adicionada(s)${withImg ? ` — ${withImg} com imagem` : ''}!`);
       } else {
-        if (!confirm('Isso apagará todos os dados atuais. Confirma?')) return;
+        if (!confirm('Apaga tudo atual. Confirma?')) return;
         items = itemsReady;
         cats  = d.cats;
         persist(); buildTabs(); render();
-        toast(`✓ ${items.length} foto(s) importada(s)${withImg ? ' com imagens' : ''}!`);
+        toast(`✓ ${items.length} foto(s) importada(s)${withImg ? ` — ${withImg} com imagem` : ''}!`);
       }
-    } catch(err) { toast('⚠ Arquivo inválido'); }
+
+      updateExportNovasLabel();
+    } catch(err) {
+      toast('⚠ Arquivo inválido ou corrompido');
+      console.error(err);
+    }
   };
   r.readAsText(file);
 }
