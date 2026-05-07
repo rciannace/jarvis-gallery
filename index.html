@@ -4427,6 +4427,24 @@ let editCatId = null;
 let selectMode = false;
 let selectedIds = new Set();
 
+// ── CHANGELOG — registra edições para sync incremental ──
+// Cada entrada: { ts, type, id, data }
+// type: 'edit_item' | 'fav' | 'move' | 'delete_item' | 'edit_cat' | 'delete_cat'
+function clLog(type, id, data) {
+  const log = JSON.parse(localStorage.getItem('iafoto_changelog') || '[]');
+  log.push({ ts: Date.now(), type, id, data });
+  // Mantém só os últimos 500 registros para não estourar o localStorage
+  if (log.length > 500) log.splice(0, log.length - 500);
+  localStorage.setItem('iafoto_changelog', JSON.stringify(log));
+}
+function clGetSince(ts) {
+  const log = JSON.parse(localStorage.getItem('iafoto_changelog') || '[]');
+  return ts ? log.filter(e => e.ts > ts) : log;
+}
+function clClear() {
+  localStorage.removeItem('iafoto_changelog');
+}
+
 // ── IndexedDB: armazena imagens separadamente dos metadados ──
 let idb = null;
 
@@ -4884,6 +4902,7 @@ function render() {
       <span style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:800;color:var(--text);">${catObj?catObj.icon+' '+catObj.name:''}</span>
       <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-left:2px;">${list.length} foto${list.length!==1?'s':''}</span>
       <button onclick="enterSelectMode()" style="background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;" onmouseover="this.style.borderColor='rgba(0,229,204,.4)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">☑ Selecionar</button>
+      <button onclick="renumberCatAndRefresh('${currentCat}')" style="background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;" onmouseover="this.style.borderColor='rgba(245,200,66,.4)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'" title="Renumera todas as fotos desta galeria em ordem: 1, 2, 3...">⟳ Reordenar</button>
       <button onclick="openBatch('${currentCat}')" style="background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;margin-left:auto;" onmouseover="this.style.borderColor='rgba(0,229,204,.4)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Upload em Lote</button>
     </div>` : (currentCat === 'all' && !q) ? '' : `
     <div style="grid-column:1/-1;display:flex;align-items:center;gap:12px;margin-bottom:8px;padding-bottom:12px;border-bottom:1px solid var(--border);">
@@ -4931,13 +4950,14 @@ function render() {
 function toggleFav(e, id) {
   e.stopPropagation();
   const it = items.find(i=>i.id===id);
-  if (it) { it.fav=!it.fav; persist(); buildTabs(); render(); }
+  if (it) { it.fav=!it.fav; clLog('fav', id, { fav: it.fav }); persist(); buildTabs(); render(); }
 }
 
 function toggleFavDetail() {
   const it = items.find(i=>i.id===detailId);
   if (!it) return;
   it.fav = !it.fav;
+  clLog('fav', detailId, { fav: it.fav });
   const btn = document.getElementById('dFavBtn');
   btn.classList.toggle('fav-on', it.fav);
   persist(); buildTabs(); render();
@@ -4996,18 +5016,55 @@ function updateMultiSelectBar() {
   sel.value = prev;
 }
 
+// ── RENUMERAÇÃO DE GALERIA ──
+// Renumera todas as fotos de uma categoria em sequência 1, 2, 3...
+// Mantém o prefixo de texto do primeiro item encontrado (ex: "Foto")
+function renumberCat(catId) {
+  // Pega todas as fotos da categoria, ordenadas pelo número atual do título
+  const catItems = items
+    .filter(i => (catId === '' ? (!i.cat || !cats.find(c=>c.id===i.cat)) : i.cat === catId))
+    .sort((a, b) => {
+      const nA = parseInt((a.title||'').match(/\d+/)?.[0] ?? '9999');
+      const nB = parseInt((b.title||'').match(/\d+/)?.[0] ?? '9999');
+      if (nA !== nB) return nA - nB;
+      return (a.title||'').localeCompare(b.title||'', 'pt');
+    });
+
+  if (!catItems.length) return;
+
+  // Detecta o prefixo mais comum (texto antes do número)
+  const prefixMatch = (catItems[0].title||'').match(/^(.*?)(\d+)(\s*)$/);
+  const prefix = prefixMatch ? prefixMatch[1].trim() : 'Foto';
+
+  catItems.forEach((it, idx) => {
+    const newTitle = `${prefix} ${idx + 1}`;
+    if (it.title !== newTitle) {
+      it.title = newTitle;
+      clLog('edit_item', it.id, { title: newTitle });
+    }
+  });
+}
+
+function renumberCatAndRefresh(catId) {
+  renumberCat(catId);
+  persist(); buildTabs(); render();
+  toast('✓ Galeria renumerada em ordem!');
+}
+
 function multiSelectMove() {
   if (!selectedIds.size) return;
   const targetCat = document.getElementById('msbTargetCat').value;
   const ids = [...selectedIds];
   ids.forEach(id => {
     const it = items.find(i => i.id === id);
-    if (it) it.cat = targetCat;
+    if (it) { it.cat = targetCat; clLog('move', id, { cat: targetCat }); }
   });
+  // Renumera a galeria de destino em sequência
+  renumberCat(targetCat);
   persist(); buildTabs();
-  const n = ids.size || ids.length;
+  const n = ids.length;
   const catName = targetCat ? (cats.find(c=>c.id===targetCat)?.name || 'categoria') : 'Sem categoria';
-  toast(`✓ ${n} foto${n!==1?'s':''} movida${n!==1?'s':''} para ${catName}`);
+  toast(`✓ ${n} foto${n!==1?'s':''} movida${n!==1?'s':''} para ${catName} — renumeradas!`);
   exitSelectMode();
   if (targetCat) selectCat(targetCat, null);
   else render();
@@ -5348,6 +5405,7 @@ function saveItem() {
       it.img = tempImg;
       idbPut(it.id, tempImg);
     }
+    clLog('edit_item', editId, { title, prompt: it.prompt, cat: it.cat, orient: it.orient, tags });
     toast('✓ Foto atualizada!');
   } else {
     const newId = 'i'+Date.now();
@@ -5402,6 +5460,7 @@ function confirmDelete(e, id) {
   if (!confirm('Excluir esta foto?')) return;
   idbDelete(id);
   items = items.filter(i=>i.id!==id);
+  clLog('delete_item', id, {});
   persist(); buildTabs(); render();
   toast('🗑 Foto excluída');
 }
@@ -5455,6 +5514,7 @@ function deleteDetail() {
   if (!confirm('Excluir esta foto?')) return;
   idbDelete(detailId);
   items = items.filter(i=>i.id!==detailId);
+  clLog('delete_item', detailId, {});
   persist(); buildTabs(); render(); closeDetail();
   toast('🗑 Foto excluída');
 }
@@ -5492,6 +5552,7 @@ function saveEditCat() {
   if (!name) { toast('⚠ Digite um nome'); return; }
   const cat = cats.find(c=>c.id===editCatId);
   if (cat) { cat.name = name; cat.icon = document.getElementById('ecIcon').value.trim()||'📁'; }
+  clLog('edit_cat', editCatId, { name: cat?.name, icon: cat?.icon });
   persist(); buildTabs(); render(); closeEditCat();
   toast('✓ Categoria atualizada!');
 }
@@ -5508,6 +5569,7 @@ function deleteCat(e, id) {
   if (!confirm(msg)) return;
   cats = cats.filter(c=>c.id!==id);
   items.forEach(i=>{ if(i.cat===id) i.cat=''; });
+  clLog('delete_cat', id, {});
   if (currentCat === id) currentCat = 'all';
   persist(); buildTabs(); render();
   toast('🗑 Categoria excluída');
@@ -5521,7 +5583,49 @@ function setView(v) {
   render();
 }
 
-// ── BACKUP ──
+// ── APLICA CHANGELOG NO DESTINO ──
+function applyChangelog(log) {
+  if (!log || !log.length) return 0;
+  let applied = 0;
+  // Ordena por timestamp para aplicar em ordem
+  log.sort((a, b) => a.ts - b.ts);
+  log.forEach(entry => {
+    const { type, id, data } = entry;
+    if (type === 'edit_item') {
+      const it = items.find(i => i.id === id);
+      if (it) {
+        if (data.title   !== undefined) it.title   = data.title;
+        if (data.prompt  !== undefined) it.prompt  = data.prompt;
+        if (data.cat     !== undefined) it.cat     = data.cat;
+        if (data.orient  !== undefined) it.orient  = data.orient;
+        if (data.tags    !== undefined) it.tags    = data.tags;
+        applied++;
+      }
+    } else if (type === 'fav') {
+      const it = items.find(i => i.id === id);
+      if (it && data.fav !== undefined) { it.fav = data.fav; applied++; }
+    } else if (type === 'move') {
+      const it = items.find(i => i.id === id);
+      if (it && data.cat !== undefined) { it.cat = data.cat; applied++; }
+    } else if (type === 'delete_item') {
+      const idx = items.findIndex(i => i.id === id);
+      if (idx !== -1) { idbDelete(id); items.splice(idx, 1); applied++; }
+    } else if (type === 'edit_cat') {
+      const cat = cats.find(c => c.id === id);
+      if (cat) {
+        if (data.name !== undefined) cat.name = data.name;
+        if (data.icon !== undefined) cat.icon = data.icon;
+        applied++;
+      }
+    } else if (type === 'delete_cat') {
+      cats = cats.filter(c => c.id !== id);
+      items.forEach(i => { if (i.cat === id) i.cat = ''; });
+      applied++;
+    }
+  });
+  return applied;
+}
+
 // ── SYNC — NOVIDADES ──
 // Salva timestamp do último export de novidades
 function getLastSyncTs() {
@@ -5584,6 +5688,7 @@ async function exportNovas() {
   const payload = {
     items: novasComImg,
     cats,
+    changelog: clGetSince(lastTs),
     v: 4,
     tipo: 'novidades',
     desde: lastTs || 0,
@@ -5671,9 +5776,12 @@ async function importBackup(e) {
         d.cats.forEach(nc => {
           if (!cats.find(x => x.id === nc.id)) cats.push(nc);
         });
+        // Aplica changelog de edições
+        const applied = applyChangelog(d.changelog || []);
         persist(); buildTabs(); render();
         const tipo = isNovas ? 'novidade(s)' : 'foto(s)';
-        toast(`✓ ${added} ${tipo} adicionada(s)${withImg ? ` — ${withImg} com imagem` : ''}!`);
+        const editMsg = applied > 0 ? ` + ${applied} edição(ões) aplicada(s)` : '';
+        toast(`✓ ${added} ${tipo} adicionada(s)${withImg ? ` — ${withImg} com imagem` : ''}${editMsg}!`);
       } else {
         if (!confirm('Apaga tudo atual. Confirma?')) return;
         items = itemsReady;
