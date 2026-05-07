@@ -2805,18 +2805,32 @@ body{
   /* BackBar (barra de voltar dentro da categoria) */
   #viewGallery [style*="grid-column:1/-1"] {
     flex-wrap: wrap !important;
-    gap: 8px !important;
+    gap: 6px !important;
     padding-bottom: 10px !important;
     margin-bottom: 6px !important;
   }
 
+  /* Botões da backbar — compactos no mobile */
+  #viewGallery [style*="grid-column:1/-1"] button:not(.batch-upload-btn) {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+    justify-content: center !important;
+    margin-left: 0 !important;
+    white-space: nowrap !important;
+  }
+
   /* Botão Upload em Lote — ocupa linha própria no mobile */
+  #viewGallery [style*="grid-column:1/-1"] button.batch-upload-btn,
   #viewGallery [style*="grid-column:1/-1"] button[onclick*="openBatch"] {
     margin-left: 0 !important;
     width: 100% !important;
+    flex: 0 0 100% !important;
     justify-content: center !important;
     padding: 10px !important;
     font-size: 13px !important;
+    order: 99 !important;
   }
 
   /* Modal batch — bottom sheet no mobile */
@@ -5018,7 +5032,7 @@ function render() {
       <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-left:2px;">${list.length} foto${list.length!==1?'s':''}</span>
       <button onclick="enterSelectMode()" style="background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;" onmouseover="this.style.borderColor='rgba(0,229,204,.4)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">☑ Selecionar</button>
       <button onclick="renumberCatAndRefresh('${currentCat}')" style="background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;" onmouseover="this.style.borderColor='rgba(245,200,66,.4)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'" title="Renumera todas as fotos desta galeria em ordem: 1, 2, 3...">⟳ Reordenar</button>
-      <button onclick="openBatch('${currentCat}')" style="background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;margin-left:auto;" onmouseover="this.style.borderColor='rgba(0,229,204,.4)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Upload em Lote</button>
+      <button onclick="openBatch('${currentCat}')" class="batch-upload-btn" style="background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;margin-left:auto;" onmouseover="this.style.borderColor='rgba(0,229,204,.4)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Upload em Lote</button>
     </div>` : (currentCat === 'all' && !q) ? '' : `
     <div style="grid-column:1/-1;display:flex;align-items:center;gap:12px;margin-bottom:8px;padding-bottom:12px;border-bottom:1px solid var(--border);">
       <button onclick="enterSelectMode()" style="margin-left:auto;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .18s;" onmouseover="this.style.borderColor='rgba(0,229,204,.4)';this.style.color='var(--cyan)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">☑ Selecionar</button>
