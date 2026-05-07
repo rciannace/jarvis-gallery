@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jarvis Gallery v11</title>
+<title>Jarvis Gallery v14</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -890,6 +890,25 @@ body{
 
   <div class="sb-divider"></div>
   <div class="sb-footer">
+    <!-- Stats strip -->
+    <div id="sbStats" style="display:flex;justify-content:space-around;padding:7px 4px 4px;margin-bottom:2px;border-top:1px solid var(--border);">
+      <div style="text-align:center;">
+        <div id="sbStatPhotos" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--cyan);line-height:1;">0</div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:.5px;margin-top:2px;">FOTOS</div>
+      </div>
+      <div style="text-align:center;">
+        <div id="sbStatFavs" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--red);line-height:1;">0</div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:.5px;margin-top:2px;">FAVS</div>
+      </div>
+      <div style="text-align:center;">
+        <div id="sbStatCats" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--gold);line-height:1;">0</div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:.5px;margin-top:2px;">CATS</div>
+      </div>
+      <div style="text-align:center;">
+        <div id="sbStatMB" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--muted);line-height:1;">—</div>
+        <div style="font-size:9px;color:var(--muted);letter-spacing:.5px;margin-top:2px;">MB</div>
+      </div>
+    </div>
     <button class="sb-footer-btn cyan" onclick="openPromptGen()">
       <span>✦</span> Gerar Prompt
     </button>
@@ -1482,6 +1501,7 @@ body{
     </div>
     <div class="detail-actions">
       <button class="btn-outline" onclick="downloadDetail()" id="dDownloadBtn" title="Baixar foto">⬇ Baixar</button>
+      <button class="btn-outline" onclick="copyFlowPromptDetail()" id="dFlowCopyBtn" title="Copiar flow_prompt_final para o Flow">📋 Flow</button>
       <button class="btn-outline" onclick="editDetail()">✎ Editar</button>
       <button class="btn-danger" onclick="deleteDetail()">Excluir</button>
     </div>
@@ -2186,6 +2206,24 @@ body{
       </div>
 
 
+      <!-- ⚡ HINT PRÉ-ANÁLISE -->
+      <div class="field" id="pgHintField">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div class="field-label" style="margin:0;color:var(--gold);">⚡ Hint pré-análise <span style="font-size:10px;color:var(--muted);font-weight:400;">(injetado no system prompt — aumenta precisão da IA)</span></div>
+          <button onclick="pgClearHint()" title="Limpar hint" style="font-size:10px;font-family:'DM Mono',monospace;padding:3px 8px;border:1px solid var(--border2);border-radius:4px;background:transparent;color:var(--muted);cursor:pointer;">✕ Limpar</button>
+        </div>
+        <!-- Chips de hint rápido -->
+        <div id="pgHintChips" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;"></div>
+        <textarea id="pgHint" rows="2"
+          style="width:100%;background:rgba(245,200,66,0.05);border:1px solid rgba(245,200,66,0.3);border-radius:8px;padding:9px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);line-height:1.7;resize:vertical;box-sizing:border-box;outline:none;transition:border-color .2s;"
+          placeholder="Ex: pessoa é careca. foto de costas. tem barba cheia. usa óculos escuros. corpo plus size..."
+          onfocus="this.style.borderColor='rgba(245,200,66,0.7)'"
+          onblur="this.style.borderColor='rgba(245,200,66,0.3)'"></textarea>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5;opacity:.7;">
+          💡 Digite características que a IA pode não identificar corretamente pela foto — careca, costas, óculos, barba, corpo.
+        </div>
+      </div>
+
       <div class="field">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <div class="field-label" style="margin:0;"><span id="pgExtraCmdLabel">🤖 Comando para o gerador</span> <span id="pgExtraCmdHint" style="font-size:10px;color:var(--cyan);font-weight:400;">(anexado ao prompt enviado ao Flow)</span></div>
@@ -2232,7 +2270,7 @@ body{
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
             <div style="display:flex;align-items:center;gap:8px;">
               <span style="width:7px;height:7px;border-radius:50%;background:var(--gold);display:inline-block;flex-shrink:0;"></span>
-              <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;">Prompt de Aplicação para Cliente</span>
+              <span id="pgClientPromptLabel" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;">Comando para aplicar ao cliente</span>
             </div>
             <button onclick="pgCopyClientPrompt()" id="pgCopyClientBtn"
               style="font-size:11px;font-family:'DM Mono',monospace;padding:4px 14px;border:1px solid rgba(245,200,66,0.5);border-radius:4px;background:rgba(245,200,66,0.1);color:var(--gold);cursor:pointer;transition:all .15s;font-weight:600;white-space:nowrap;">
@@ -2240,7 +2278,7 @@ body{
             </button>
           </div>
           <div style="font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:10px;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:6px;border-left:3px solid rgba(245,200,66,0.3);">
-            💡 <strong style="color:var(--text);">Como usar:</strong> Cole o JSON acima + este comando em qualquer ferramenta de IA (Midjourney, Flux, ChatGPT…) junto com a foto do seu cliente. A IA irá aplicar o estilo/cenário do JSON preservando 100% das características físicas do cliente.
+            💡 Cole o <strong style="color:var(--text);">JSON gerado acima</strong> + este comando no Flow ou em outra IA, junto com a foto do cliente. Garante que a IA preserve 100% do biotipo real da pessoa.
           </div>
           <textarea id="pgClientPromptText" rows="7"
             style="width:100%;background:#050e0d;border:1px solid rgba(245,200,66,0.2);border-radius:8px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:11px;color:#e8c840;line-height:1.75;resize:vertical;box-sizing:border-box;outline:none;letter-spacing:0.1px;"
@@ -2712,6 +2750,18 @@ body{
   #pgOutputCard > div:first-child > div { width: 100%; display: flex; gap: 6px; }
   #pgOutputCard > div:first-child > div button { flex: 1; text-align: center; }
 
+  /* Hint field — mobile adjustments */
+  #pgHintField textarea { font-size: 14px !important; } /* prevent iOS zoom */
+  #pgHintChips { gap: 4px !important; }
+  #pgHintChips button { font-size: 10px !important; padding: 3px 8px !important; }
+
+  /* Stats strip — compact on mobile */
+  #sbStats { padding: 5px 2px 2px !important; }
+  #sbStatPhotos, #sbStatFavs, #sbStatCats, #sbStatMB { font-size: 11px !important; }
+
+  /* Detail modal — flow copy button visible always */
+  #dFlowCopyBtn { opacity: 1 !important; }
+
   #pgModeSimple > div, #pgModeSubject > div,
   #pgModeFaceSwap > div, #pgModeScene > div { grid-template-columns: 1fr !important; }
   #pgDropZone, #pgModelZone, #pgSubjectZone, #pgStyleZone,
@@ -3053,6 +3103,61 @@ function resetExtraCmd(){
   document.getElementById('pgExtraCmd').value = getDefaultExtraCmd();
 }
 
+// ── HINT PRÉ-ANÁLISE ──
+const PG_HINT_CHIPS = [
+  { label:'🧑‍🦲 Careca',   value:'person is completely bald — shaved head, zero hair.' },
+  { label:'🔙 Costas',    value:'photo is a back pose — person is turned away from camera.' },
+  { label:'🧔 Barba',     value:'person has a full beard.' },
+  { label:'🕶 Óculos',    value:'person is wearing sunglasses.' },
+  { label:'👓 Óculos grau', value:'person is wearing prescription glasses (not sunglasses).' },
+  { label:'🏋️ Plus size', value:'person has a plus-size / heavyset body type — do NOT slim down.' },
+  { label:'👩 Mulher',    value:'person is a woman.' },
+  { label:'👦 Criança',   value:'person is a child.' },
+];
+
+function pgBuildHintChips() {
+  const container = document.getElementById('pgHintChips');
+  if (!container) return;
+  container.innerHTML = PG_HINT_CHIPS.map(c =>
+    `<button type="button" onclick="pgToggleHintChip(this,'${c.value.replace(/'/g,"\\'")}','${c.label}')"
+      style="font-size:11px;font-family:'DM Sans',sans-serif;padding:4px 10px;border-radius:6px;border:1px solid rgba(245,200,66,0.3);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;"
+      onmouseover="if(!this.classList.contains('hc-on')){this.style.background='rgba(245,200,66,0.08)';this.style.color='var(--gold)';}"
+      onmouseout="if(!this.classList.contains('hc-on')){this.style.background='transparent';this.style.color='var(--muted)';}">
+      ${c.label}
+    </button>`
+  ).join('');
+}
+
+function pgToggleHintChip(btn, value, label) {
+  const ta = document.getElementById('pgHint');
+  const isOn = btn.classList.toggle('hc-on');
+  if (isOn) {
+    btn.style.background = 'rgba(245,200,66,0.15)';
+    btn.style.color = 'var(--gold)';
+    btn.style.borderColor = 'rgba(245,200,66,0.6)';
+    // Append if not already in textarea
+    const cur = ta.value.trim();
+    if (!cur.includes(value)) {
+      ta.value = cur ? cur + '\n' + value : value;
+    }
+  } else {
+    btn.style.background = 'transparent';
+    btn.style.color = 'var(--muted)';
+    btn.style.borderColor = 'rgba(245,200,66,0.3)';
+    ta.value = ta.value.replace(value, '').replace(/\n\n+/g, '\n').trim();
+  }
+}
+
+function pgClearHint() {
+  document.getElementById('pgHint').value = '';
+  document.querySelectorAll('#pgHintChips .hc-on').forEach(b => {
+    b.classList.remove('hc-on');
+    b.style.background = 'transparent';
+    b.style.color = 'var(--muted)';
+    b.style.borderColor = 'rgba(245,200,66,0.3)';
+  });
+}
+
 function openPromptGen(){
   const k=loadApiKey();
   document.getElementById('pgApiWarn').style.display=k?'none':'block';
@@ -3062,6 +3167,7 @@ function openPromptGen(){
   const grid = document.getElementById('pgSimpleGrid');
   if (wrap) wrap.style.display = 'block';
   if (grid) grid.style.gridTemplateColumns = '1fr 1fr';
+  pgBuildHintChips();
   setTimeout(pgAutoActivateFirstZone, 100);
 }
 function closePromptGen(){
@@ -3226,6 +3332,16 @@ function pgAutoActivateFirstZone() {
   const zones = PG_ZONES[pgGenMode] || [];
   pgSetActiveZone(zones[0] || null);
 }
+
+// ── Ctrl+Enter para gerar (quando modal aberto) ──
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('promptGenOverlay').classList.contains('open')) return;
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    const btn = document.getElementById('pgGenBtn');
+    if (btn && !btn.disabled) btn.click();
+  }
+});
 
 // ── PASTE DE IMAGEM (Ctrl+V) ──
 document.addEventListener('paste', function(e) {
@@ -3757,7 +3873,12 @@ async function _pgGenerateInner(){
   },400);
 
   const schema=pgSchemas[pgMode];
-  const system=pgModePrompts[pgMode];
+  // ── Injeta hint pré-análise no system prompt ──
+  const hintRaw = (document.getElementById('pgHint')?.value || '').trim();
+  const systemBase = pgModePrompts[pgMode];
+  const system = hintRaw
+    ? `⚠ PRE-ANALYSIS HINTS FROM USER (treat as CONFIRMED FACTS — do NOT contradict these, even if the image seems to suggest otherwise):\n${hintRaw}\n\n${systemBase}`
+    : systemBase;
 
   let userContent;
 
@@ -4196,11 +4317,36 @@ ${schema}
 
       try {
         const parsed = JSON.parse(text);
+
+        // ── POST-PARSE FIX: back pose enforcement ──
+        const isBackPose = parsed?.body_orientation?.back_visible === true
+          || parsed?.body_orientation?.facing === 'away_from_camera'
+          || (parsed?.body_orientation?.facing || '').includes('back');
+        if (isBackPose) {
+          if (parsed.prompt_ready && !parsed.prompt_ready.trim().toUpperCase().startsWith('BACK VIEW')) {
+            parsed.prompt_ready = 'BACK VIEW — ' + parsed.prompt_ready;
+          }
+          if (!parsed.negative_prompt?.includes('facing camera')) {
+            parsed.negative_prompt = (parsed.negative_prompt || '') + ', facing camera, front view, face visible';
+          }
+        }
+
+        // ── POST-PARSE FIX: bald detection robustness ──
+        const hairRaw = (parsed?.subject?.main || parsed?.hair || '').toLowerCase();
+        const isBaldDetected = /bald|shaved head|cabeça raspada|careca|raspado|no hair/.test(hairRaw)
+          || /bald|shaved|careca|calvície|raspado/.test((parsed?.face_preservation || '').toLowerCase());
+        if (isBaldDetected && parsed.negative_prompt) {
+          const baldTerms = 'hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair';
+          if (!parsed.negative_prompt.includes('toupee')) {
+            parsed.negative_prompt = parsed.negative_prompt + ', ' + baldTerms;
+          }
+        }
+
         // Injetar comando extra no prompt_ready se preenchido
         const extraCmd = document.getElementById('pgExtraCmd').value.trim();
         if(extraCmd && parsed.prompt_ready){
           parsed.extra_commands = extraCmd;
-          parsed.flow_prompt_final = parsed.prompt_ready + '\n\n' + extraCmd;
+          parsed.flow_prompt_final = (parsed.flow_prompt_final || parsed.prompt_ready) + '\n\n' + extraCmd;
         }
         jsonOut.textContent = JSON.stringify(parsed, null, 2);
       } catch { jsonOut.textContent = text; }
@@ -4406,30 +4552,66 @@ function pgPopulateClientPrompt() {
   const ta  = document.getElementById('pgClientPromptText');
   if (!box || !ta) return;
 
-  // Só mostra no modo "Analisar imagem" (simple)
-  if (pgGenMode !== 'simple') {
-    box.style.display = 'none';
-    return;
-  }
-  box.style.display = 'block';
+  // Gera o comando certo por modo
+  let clientPrompt = '';
 
-  const clientPrompt = `USE O JSON ACIMA COMO REFERÊNCIA DE CENA — mas SUBSTITUA a pessoa pelas características físicas EXATAS da pessoa na foto anexa.
-
-REGRAS ABSOLUTAS (não negocie nenhuma delas):
+  const REGRAS_BIOTIPO = `REGRAS ABSOLUTAS (não negocie nenhuma delas):
 • Preserve 100% a identidade visual do cliente: tom de pele, formato do rosto, nariz, boca, olhos, sobrancelhas, orelhas, traços únicos.
 • Se o cliente é CARECA → mantenha careca. Não adicione cabelo, peruca ou implante.
 • Se o cliente tem BARBA → mantenha a barba com a mesma forma e cor.
 • Se o cliente é GORDO ou tem sobrepeso → mantenha o mesmo biotipo, não emagreça.
-• Se o cliente tem ESTATURA BAIXA → mantenha a mesma proporção corporal.
 • Se o cliente usa ÓCULOS → mantenha os óculos.
 • Se o cliente tem TATUAGENS visíveis → mantenha as tatuagens.
-• Se o cliente tem características únicas (sardas, manchas, cicatrizes) → mantenha tudo.
+• Se o cliente tem características únicas (sardas, manchas, cicatrizes) → mantenha tudo.`;
+
+  if (pgGenMode === 'simple') {
+    clientPrompt = `Crie uma imagem usando este JSON como referência de cena — mas substituindo o personagem pela pessoa da foto em anexo.
+
+${REGRAS_BIOTIPO}
 
 DO JSON: aplique apenas cenário, iluminação, composição, pose geral, roupas e estilo fotográfico.
 NÃO aplique: cabelo, cor de cabelo, cor de olhos, formato de rosto, biotipo, etnia — use sempre os do cliente.
 
 O resultado final deve parecer que É o cliente fotografado naquele cenário/estilo — não uma recriação da pessoa original do JSON.`;
 
+  } else if (pgGenMode === 'subject') {
+    clientPrompt = `Crie uma imagem usando este JSON como referência de estilo e cenário — preservando EXATAMENTE o rosto e características físicas da pessoa em [subject_photo].
+
+${REGRAS_BIOTIPO}
+
+DO JSON: aplique pose, vestuário, iluminação, fundo e composição da cena de referência.
+NÃO substitua: rosto, cabelo, barba, biotipo, tom de pele — mantenha 100% de [subject_photo].`;
+
+  } else if (pgGenMode === 'faceswap') {
+    clientPrompt = `Face Swap: substitua o rosto/corpo da foto alvo pelo rosto/corpo do cliente em [model_photo].
+
+${REGRAS_BIOTIPO}
+
+DA FOTO ALVO: use APENAS pose, vestuário, fundo e iluminação.
+DO CLIENTE ([model_photo]): use TUDO físico — rosto, cabelo/calvície, barba, biotipo, tom de pele.`;
+
+  } else if (pgGenMode === 'scene') {
+    clientPrompt = `Crie uma imagem colocando o cliente ([client_photo]) na cena da foto de referência ([scene_reference]).
+
+${REGRAS_BIOTIPO}
+
+DA CENA DE REFERÊNCIA: use apenas cenário, iluminação, pose, vestuário, composição.
+DO CLIENTE: preserve absolutamente tudo físico — rosto, cabelo/calvície, barba, biotipo.
+
+O resultado deve parecer o PRÓPRIO CLIENTE fotografado naquele ambiente.`;
+
+  } else if (pgGenMode === 'family') {
+    clientPrompt = `Use este JSON como roteiro para recriar a cena em grupo, substituindo cada pessoa pela pessoa correspondente nas fotos individuais.
+
+${REGRAS_BIOTIPO}
+
+Para cada pessoa: use os traços físicos descritos no JSON (rosto, cabelo, barba, biotipo).
+Preserve da foto de referência: posição, pose, vestuário, fundo, iluminação de cada pessoa.`;
+  }
+
+  if (!clientPrompt) { box.style.display = 'none'; return; }
+
+  box.style.display = 'block';
   ta.value = clientPrompt;
 }
 
@@ -4651,6 +4833,7 @@ function persist() {
   const meta = items.map(({img, ...rest}) => rest); // remove img
   localStorage.setItem('iafoto_items', JSON.stringify(meta));
   localStorage.setItem('iafoto_cats',  JSON.stringify(cats));
+  updateSbStats();
 }
 
 // Carrega metadados + imagens do IDB e inicializa o app
@@ -4697,6 +4880,7 @@ async function initApp() {
   buildTabs();
   render();
   updateExportNovasLabel();
+  updateSbStats();
 }
 function buildTabs() {
   document.getElementById('tc-all').textContent = items.length;
@@ -5623,6 +5807,40 @@ function openDetail(id) {
 }
 
 function closeDetail() { document.getElementById('detailOverlay').classList.remove('open'); }
+
+function copyFlowPromptDetail() {
+  const it = items.find(i => i.id === detailId);
+  if (!it || !it.prompt) { toast('⚠ Nenhum prompt salvo neste card'); return; }
+  // Tenta extrair flow_prompt_final do JSON, senão usa o prompt bruto
+  let flowPrompt = it.prompt;
+  try {
+    const parsed = JSON.parse(it.prompt);
+    flowPrompt = parsed.flow_prompt_final || parsed.prompt_ready || it.prompt;
+  } catch {}
+  copyText(flowPrompt, () => {
+    const b = document.getElementById('dFlowCopyBtn');
+    if (b) { b.textContent = '✓ Copiado!'; b.style.color = 'var(--cyan)'; b.style.borderColor = 'var(--cyan)'; setTimeout(() => { b.textContent = '📋 Flow'; b.style.color = ''; b.style.borderColor = ''; }, 2000); }
+    toast('📋 Flow Prompt copiado!');
+  });
+}
+
+function updateSbStats() {
+  document.getElementById('sbStatPhotos').textContent = items.length;
+  document.getElementById('sbStatFavs').textContent = items.filter(i => i.fav).length;
+  document.getElementById('sbStatCats').textContent = cats.length;
+  // Estimate IDB size
+  if (idb) {
+    try {
+      const tx = idb.transaction('images', 'readonly');
+      const req = tx.objectStore('images').getAll();
+      req.onsuccess = e => {
+        const totalBytes = (e.target.result || []).reduce((acc, r) => acc + (r.dataUrl ? r.dataUrl.length * 0.75 : 0), 0);
+        const mb = (totalBytes / 1024 / 1024).toFixed(1);
+        document.getElementById('sbStatMB').textContent = mb;
+      };
+    } catch {}
+  }
+}
 
 function copyPrompt() {
   copyText(document.getElementById('dPrompt').textContent, () => toast('📋 Prompt copiado!'));
@@ -6989,10 +7207,11 @@ Return ONLY valid JSON with this structure:
   }
 
   // ── Passo 2: analisa cada pessoa individualmente ──
+  const familiaHintRaw = (document.getElementById('pgHint')?.value || '').trim();
   for (const person of peopleWithPhotos) {
     btn.textContent = `⏳ Analisando ${person.name} (${personDescriptions.length + 1}/${peopleWithPhotos.length})…`;
 
-    const personPrompt = `Analyze IMAGE 1 — this is the REAL CLIENT PHOTO for ${person.name}.
+    const personPromptBase = `Analyze IMAGE 1 — this is the REAL CLIENT PHOTO for ${person.name}.
 Extract physical traits ONLY. Return ONLY valid JSON (no markdown, no backticks).
 
 ━━ RULES ━━
@@ -7046,6 +7265,10 @@ Return JSON:
   "negative_prompt": "different face, different nose shape, different jawline, wrong eye shape, wrong age, different body type, slimmer, idealized physique, plastic skin, airbrushed"
 }`;
 
+    const personPrompt = familiaHintRaw
+      ? `⚠ PRE-ANALYSIS HINTS (treat as CONFIRMED FACTS — do NOT contradict these):\n${familiaHintRaw}\n\n` + personPromptBase
+      : personPromptBase;
+
     let success = false;
     for (const model of MODELS) {
       try {
@@ -7054,7 +7277,7 @@ Return JSON:
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
           body: JSON.stringify({
             model,
-            max_tokens: 900,
+            max_tokens: 1400,
             messages: [{ role: 'user', content: [
               { type: 'text', text: personPrompt },
               { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + person.base64 } }
