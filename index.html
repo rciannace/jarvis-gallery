@@ -3750,156 +3750,240 @@ async function _pgGenerateInner(){
   if(pgGenMode==='subject'){
     userContent = [
       { type:'text', text:`You will receive TWO images:
-- IMAGE 1 (SUBJECT — the REAL person): Study this face with extreme precision. Every feature you describe WILL be used to recreate this specific person. Do NOT generalize.
-- IMAGE 2 (STYLE REFERENCE): Defines ONLY clothing, pose, gaze direction, framing, lighting, background. Do NOT use any physical traits from IMAGE 2.
+- IMAGE 1 (SUBJECT — the REAL person to preserve): Extract ONLY physical traits. Face, hair, beard, skin, body type. NOTHING ELSE from IMAGE 1.
+- IMAGE 2 (STYLE REFERENCE): Extract ONLY non-physical elements. Clothing, pose, gaze direction, framing, lighting, background. Do NOT use IMAGE 2 person's face, hair, beard, skin or body type in ANY way.
+
+⚠ CRITICAL SEPARATION RULE:
+- Everything PHYSICAL (face, hair, beard, skin, body shape) → comes EXCLUSIVELY from IMAGE 1
+- Everything NON-PHYSICAL (clothes, pose, lighting, background, framing) → comes EXCLUSIVELY from IMAGE 2
+- If IMAGE 2 person has hair and IMAGE 1 person is BALD → the result is BALD. Always.
+- If IMAGE 2 person is slim and IMAGE 1 person is heavyset → the result is heavyset. Always.
+- NEVER blend or mix physical traits between the two images.
 
 Return ONLY a JSON object using this structure:
 ${schema}
 
-━━ FACE ANALYSIS — IMAGE 1 ONLY — BE SURGICAL ━━
-face_preservation must describe ALL of these with maximum specificity:
-• Face shape: oval / round / square / heart / diamond / oblong — be exact
+━━ STEP 1: ANALYZE IMAGE 1 — PHYSICAL TRAITS ONLY ━━
+
+FACE (face_preservation) — surgical precision, every feature:
+• Face shape: oval/round/square/heart/diamond/oblong — exact
 • Forehead: broad/narrow/high/low
-• Jawline: strong/soft/square/rounded/pointed — describe exactly
-• Nose: size (small/medium/large/broad), tip (rounded/pointed/upturned/flat), bridge (straight/curved/prominent)
-• Eyes: shape (almond/round/hooded/deep-set/wide-set/close-set), color, size, any distinctive look
-• Eyebrows: thick/thin/arched/flat/bushy, color
-• Cheekbones: high/low/prominent/flat
-• Lips: thin/full/medium, shape
-• Skin: exact tone, any marks, freckles, wrinkles, texture
-• Chin: strong/weak/cleft/rounded
+• Jawline: strong/soft/square/rounded/pointed — exact
+• Nose: size (small/medium/large/broad), tip (rounded/pointed/upturned/flat/bulbous), bridge (straight/curved/prominent/wide)
+• Eyes: shape (almond/round/hooded/deep-set/wide-set/close-set), exact color, size, spacing
+• Eyebrows: thick/thin/arched/flat/bushy/sparse, color
+• Cheekbones: high/low/prominent/flat/defined
+• Lips: thin/full/medium, upper lip, lower lip shape
+• Chin: strong/weak/cleft/rounded/pointed
+• Skin: exact tone (fair/light/medium/olive/tan/brown/deep) + marks, freckles, moles, scars, wrinkles
 • Ears: if visible
 • Expression: neutral/slight smile/serious
-• Any unique distinguishing feature (scar, mole, distinctive nose, gap teeth, etc.)
+• Unique features: anything distinctive — scar, mole, gap teeth, asymmetry, dimples
 
-━━ HAIR — IMAGE 1 ONLY — CRITICAL ━━
-Look ONLY at IMAGE 1. Describe with precision:
-- If BALD or shaved head: write "BALD — completely shaved head, zero hair" — emphasize this
-- If has hair: exact color (dark brown / light brown / black / blonde / gray / salt-and-pepper), exact length, exact style (swept back / side part / curly / wavy / straight / buzzed / textured)
-- NEVER invent hair. NEVER change hair. NEVER use IMAGE 2 hair.
+HAIR — IMAGE 1 ONLY — ABSOLUTE:
+- Look ONLY at IMAGE 1. Ignore IMAGE 2 completely.
+- BALD/shaved: "BALD — completely shaved head, zero hair" — negative MUST include "hair, any hair on head, toupee, wig, hair growth"
+- Has hair: exact color (black/dark brown/medium brown/light brown/blonde/gray/salt-and-pepper), exact length, exact style (swept back/side part/curly/wavy/straight/buzzed/textured)
+- ⚠ NEVER ADD HAIR IF IMAGE 1 IS BALD. The style reference person's hair is IRRELEVANT.
 
-━━ BEARD — IMAGE 1 ONLY ━━
-Describe exactly: full beard / thick beard / short beard / stubble / goatee / mustache only / clean-shaved — include color and density
+BEARD — IMAGE 1 ONLY:
+Full beard / thick beard / short beard / stubble / goatee / mustache only / clean-shaved — color + density
+⚠ NEVER copy IMAGE 2 beard.
 
-━━ BODY TYPE — IMAGE 1 ONLY — SACRED ━━
-slim / average / athletic / heavyset / overweight / stocky / muscular — describe EXACTLY. NEVER idealize. NEVER change.
+BODY TYPE — IMAGE 1 ONLY — SACRED:
+slim / lean / average / athletic / stocky / heavyset / overweight — EXACTLY as seen. Never idealize. Never change.
 
-━━ RULES ━━
-1. face_preservation: use ALL the face analysis above — write as one detailed paragraph, every feature listed
-2. subject.main: describe IMAGE 1 person fully using above analysis
-3. All pose/outfit/gaze/framing/lighting: copy EXACTLY from IMAGE 2
-4. prompt_ready format:
+━━ STEP 2: ANALYZE IMAGE 2 — STYLE/SCENE ONLY ━━
 
+Extract ONLY (ignore all physical traits of IMAGE 2 person):
+• Clothing: every detail — garment type, color, fabric, fit, accessories, shoes
+• Pose: posture, hand/arm position, body stance
+• Body orientation: facing camera / profile / 3-quarter / back
+• Gaze direction: at camera / left / right / down / off-frame
+• Framing: close-up / portrait / half-body / 3/4 body / full body
+• Background: studio, outdoor, indoor — describe texture, color, depth
+• Lighting: direction, quality (soft/hard/dramatic/natural), color temp, shadows
+
+━━ STEP 3: BUILD THE OUTPUT ━━
+
+prompt_ready format:
 Ingredients: [subject_photo], [style_reference]
 
-Portrait of the person in [subject_photo] — PRESERVE EXACTLY this person's face: [paste full face description: face shape, jawline, nose details, eye shape and color, eyebrow shape, cheekbones, lips, chin, any marks], [exact hair from IMAGE 1: bald/exact description], [exact beard from IMAGE 1], [skin tone], [body type from IMAGE 1 — do NOT change], wearing [IMAGE 2 exact outfit], [IMAGE 2 exact pose], [IMAGE 2 exact gaze: LEFT/RIGHT/camera], [IMAGE 2 framing], [IMAGE 2 background], [IMAGE 2 lighting], photorealistic, sharp focus on face, Canon 5D, 85mm, f/1.8, 4K
+Portrait of the person from [subject_photo] in the style of [style_reference]. PRESERVE EXACTLY from [subject_photo] — face: [complete face description: face shape, jawline, nose tip and bridge, eye shape and color, eyebrows, cheekbones, lips, chin, skin tone, any marks]. Hair: [BALD — shaved head / OR exact color+length+style from IMAGE 1]. Beard: [exact beard from IMAGE 1]. Skin: [exact tone]. Body: [exact body type — do NOT change weight]. Wearing [IMAGE 2 exact outfit]. [IMAGE 2 exact pose]. Gaze: [IMAGE 2 gaze direction — LEFT/RIGHT/camera]. [IMAGE 2 framing]. [IMAGE 2 background]. [IMAGE 2 lighting]. Photorealistic, sharp focus on face, Canon 5D, 85mm, f/1.8, 4K.
 
-5. flow_instructions: "Como usar no Google Flow: 1) flow.google.com → novo projeto. 2) ADD (+) → suba SUA FOTO como subject_photo. 3) Suba FOTO DE ESTILO como style_reference. 4) Cole o prompt_ready. 5) Nano Banana Pro → Generate."
-6. negative_prompt: ALWAYS include "different face, different nose, different jawline, different eye shape, CGI, airbrushed, plastic skin, different body type, slimmer, idealized physique". Add "hair, hairstyle, any hair on head, toupee, wig" ONLY if bald. Add "different hair color, different hairstyle" if has hair.
-7. Return ONLY valid JSON.` },
+flow_instructions: "Como usar no Google Flow: 1) flow.google.com → novo projeto. 2) ADD (+) → suba SUA FOTO como subject_photo. 3) Suba FOTO DE ESTILO como style_reference. 4) Cole o prompt_ready. 5) Nano Banana Pro → Generate."
+
+negative_prompt: ALWAYS "different face, different nose, different jawline, different eye shape, CGI, airbrushed, plastic skin, different body type, slimmer, thinner, idealized physique, different person".
+If IMAGE 1 is BALD: add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair".
+If IMAGE 1 has hair: add "bald, shaved head, different hair color, different hairstyle".
+If IMAGE 1 has beard: add "clean-shaved, no beard".
+If IMAGE 1 is clean-shaved: add "beard, stubble, facial hair".
+
+Return ONLY valid JSON. No markdown. No backticks. No explanation.` },
       { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgSubjectBase64 }},
       { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgStyleBase64 }}
     ];
   } else if(pgGenMode==='faceswap'){
     userContent = [
       { type:'text', text:`You will receive TWO images:
-- IMAGE 1 (MODEL — the REAL person): Study every facial feature with surgical precision. This person's face, hair, beard, and body REPLACE the person in IMAGE 2.
-- IMAGE 2 (TARGET PHOTO): Keep EVERYTHING except the person: same pose, same gaze direction, same body orientation, same clothing, same background, same lighting, same framing. ONLY replace with IMAGE 1 person.
+- IMAGE 1 (MODEL — the REAL person whose face and body replace the one in IMAGE 2): Extract ONLY physical traits. Face, hair, beard, skin, body type. NOTHING ELSE from IMAGE 1.
+- IMAGE 2 (TARGET PHOTO — the scene to keep exactly): Keep EVERYTHING except the person. Same pose, same gaze direction, same body orientation, same clothing, same background, same lighting, same framing. ONLY replace the person with IMAGE 1 person.
+
+⚠ CRITICAL SEPARATION RULE:
+- Everything PHYSICAL (face, hair, beard, skin, body shape, weight) → comes EXCLUSIVELY from IMAGE 1
+- Everything NON-PHYSICAL (pose, outfit, background, lighting, framing, gaze) → comes EXCLUSIVELY from IMAGE 2
+- If IMAGE 2 person has hair and IMAGE 1 person is BALD → the result is BALD. Always.
+- If IMAGE 2 person is slim and IMAGE 1 person is heavyset → the result is heavyset. Always.
+- NEVER blend physical traits between the two images.
 
 Return ONLY a JSON object using this structure:
 ${schema}
 
-━━ FACE ANALYSIS — IMAGE 1 ONLY — SURGICAL PRECISION ━━
-face_preservation must describe ALL:
+━━ STEP 1: ANALYZE IMAGE 1 — PHYSICAL TRAITS ONLY ━━
+
+FACE (face_preservation) — surgical precision, every feature:
 • Face shape: oval/round/square/heart/diamond — exact
 • Forehead: broad/narrow/high/low
-• Jawline: strong/soft/square/rounded/pointed
-• Nose: size, tip shape (rounded/pointed/upturned/flat/broad), bridge (straight/curved/prominent/wide)
-• Eyes: shape (almond/round/hooded/deep-set/wide-set), color, size, spacing
+• Jawline: strong/soft/square/rounded/pointed — exact
+• Nose: size, tip shape (rounded/pointed/upturned/flat/broad/bulbous), bridge (straight/curved/prominent/wide)
+• Eyes: shape (almond/round/hooded/deep-set/wide-set), exact color, size, spacing
 • Eyebrows: thick/thin/arched/flat/bushy, color
 • Cheekbones: high/low/prominent/flat
 • Lips: thin/full, upper/lower ratio, shape
 • Chin: strong/weak/cleft/rounded
-• Skin tone: exact (fair/light/medium/olive/tan/brown/deep)
-• Any unique features: mole, scar, freckle, gap, dimple, asymmetry
+• Skin tone: exact (fair/light/medium/olive/tan/brown/deep) + any marks, moles, scars, freckles
+• Unique features: mole, scar, freckle, gap teeth, dimple, asymmetry
 
-━━ HAIR — IMAGE 1 ONLY ━━
-- If BALD/shaved: "BALD — completely shaved, no hair at all" — add to negative_prompt: "hair, any hair on head, toupee, wig, hair growth"
-- If has hair: exact color + length + style + texture — NEVER change it
+HAIR — IMAGE 1 ONLY — ABSOLUTE:
+- BALD/shaved: "BALD — completely shaved head, no hair at all" — negative MUST include "hair, any hair on head, toupee, wig, hair growth"
+- Has hair: exact color + length + style + texture — NEVER change it
+- ⚠ NEVER ADD HAIR IF IMAGE 1 IS BALD. IMAGE 2 person's hair is IRRELEVANT.
 
-━━ BEARD — IMAGE 1 ONLY ━━
-Exact: full beard / thick beard / short beard / stubble / goatee / clean-shaved + color
+BEARD — IMAGE 1 ONLY:
+Full beard / thick beard / short beard / stubble / goatee / clean-shaved + color + density
+⚠ NEVER copy IMAGE 2 person's beard.
 
-━━ BODY TYPE — IMAGE 1 ONLY — SACRED ━━
-Describe exactly. Never idealize. Never slim. Never add muscle.
+BODY TYPE — IMAGE 1 ONLY — SACRED:
+slim / lean / average / athletic / stocky / heavyset / overweight — EXACTLY as seen. Never idealize. Never slim.
 
-━━ FROM IMAGE 2 — COPY EXACTLY, DO NOT CHANGE ━━
-- body_orientation (facing/back/profile), back_visible, head_turn
-- back_details (if back pose): collar from back, back panel, belt, back pockets, shoes
-- pose, gaze direction, framing, outfit, background, lighting
+━━ STEP 2: ANALYZE IMAGE 2 — SCENE/POSE ONLY ━━
 
-━━ PROMPT RULES ━━
-1. face_preservation: full surgical description of IMAGE 1 face — every feature listed above
-2. prompt_ready — if IMAGE 2 faces camera:
-Face and body swap: replace the person in [target_photo] with [model_photo]. KEEP EXACTLY from [target_photo]: same pose, same gaze ([IMAGE 2 exact gaze direction]), same framing, same outfit ([IMAGE 2 clothing]), same background, same lighting. Apply face AND body from [model_photo]: [full face description: face shape, jawline, nose, eye shape and color, eyebrows, cheekbones, lips, chin, any marks], [exact hair status: bald/exact], [exact beard], [exact skin tone], [exact body type — do NOT change]. Photorealistic, sharp focus on face, Canon 5D, 85mm, f/1.8, 4K.
+Extract ONLY (ignore all physical traits of IMAGE 2 person):
+• Body orientation: facing camera / 3-quarter / profile / back to camera
+• If back pose: back_visible=true — describe back of clothing (collar from back, back panel, belt, back pockets, shoes from behind)
+• Head turn direction: none / turned left / turned right / looking back over shoulder
+• Gaze direction: at camera / left / right / down
+• Pose details: posture, hand/arm position, stance
+• Outfit: every garment detail — type, color, fabric, fit, accessories, shoes
+• Background: studio, outdoor, indoor — texture, color, depth
+• Lighting: direction, quality, color temperature, shadows
+• Framing: close-up / portrait / half-body / 3/4 / full body
 
-   If IMAGE 2 is BACK POSE:
-BACK VIEW — Face and body swap: replace person in [target_photo] with [model_photo]. KEEP EXACTLY: same back pose, same head turn ([IMAGE 2 head turn direction]), same framing, same outfit back view ([IMAGE 2 back details]), same background, same lighting. Apply body of [model_photo]: [exact hair from behind/bald], [exact beard], [exact skin tone], [exact body type]. Photorealistic, Canon 5D, 85mm, f/1.8, 4K.
+━━ STEP 3: BUILD THE OUTPUT ━━
 
-3. flow_instructions: "Como usar no Google Flow: 1) flow.google.com. 2) ADD → suba SUA FOTO como model_photo. 3) Suba FOTO ALVO como target_photo. 4) Cole o prompt_ready. 5) Nano Banana Pro → Generate."
-4. negative_prompt: ALWAYS "different face, different nose shape, different jawline, different eye shape, CGI, airbrushed, plastic skin, different body type, slimmer, idealized physique, different pose, different background, different outfit". Add "hair, any hair on head, toupee, wig" if bald. Add "no glasses, without sunglasses" if IMAGE 1 wears sunglasses.
-5. Return ONLY valid JSON.` },
+prompt_ready — if IMAGE 2 faces camera:
+Ingredients: [model_photo], [target_photo]
+
+Face and body swap: replace the person in [target_photo] with the person from [model_photo]. KEEP EXACTLY from [target_photo]: same pose, same gaze ([IMAGE 2 exact gaze direction]), same framing, same outfit ([IMAGE 2 exact clothing — every detail]), same background, same lighting. Apply face AND body from [model_photo]: PRESERVE EXACTLY — face: [full face description: face shape, jawline, nose tip and bridge, eye shape and color, eyebrows, cheekbones, lips, chin, skin tone, any marks]. Hair: [BALD — shaved head / OR exact hair from IMAGE 1]. Beard: [exact beard from IMAGE 1]. Body: [exact body type from IMAGE 1 — do NOT change weight or proportions]. Photorealistic, sharp focus on face, natural skin texture, Canon 5D, 85mm, f/1.8, 4K.
+
+If IMAGE 2 is BACK POSE:
+Ingredients: [model_photo], [target_photo]
+
+BACK VIEW — Face and body swap: replace the person in [target_photo] with the person from [model_photo]. KEEP EXACTLY from [target_photo]: same back pose, same head turn ([IMAGE 2 head turn direction]), same framing, same outfit back view ([IMAGE 2 back clothing details: back panel, collar from back, belt, back pockets, shoes from behind]), same background, same lighting. Apply body from [model_photo]: hair [BALD from behind / OR exact hair from IMAGE 1], beard [exact beard], skin [exact tone], body [exact body type — do NOT change weight]. Photorealistic, Canon 5D, 85mm, f/1.8, 4K.
+
+flow_prompt_final: same as prompt_ready with this appended:
+"\n\n⚠ REMINDER: [model_photo] = IMAGE 1 (use ALL physical traits: face, hair, beard, body). [target_photo] = IMAGE 2 (use ONLY pose, outfit, background, lighting — do NOT copy IMAGE 2 person's face, hair or body)."
+
+flow_instructions: "Como usar no Google Flow: 1) flow.google.com. 2) ADD → suba SUA FOTO como model_photo. 3) Suba FOTO ALVO como target_photo. 4) Cole o prompt_ready. 5) Nano Banana Pro → Generate."
+
+negative_prompt: ALWAYS "different face, different nose shape, different jawline, different eye shape, CGI, airbrushed, plastic skin, different body type, different person, wrong identity, different pose, different background, different outfit".
+If IMAGE 1 is BALD: add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair".
+If IMAGE 1 has hair: add "bald, shaved head, different hair color, different hairstyle".
+If IMAGE 1 has beard: add "clean-shaved, no beard".
+If IMAGE 1 is clean-shaved: add "beard, stubble, facial hair".
+If IMAGE 1 wears sunglasses: add "no glasses, without sunglasses, bare face".
+
+Return ONLY valid JSON. No markdown. No backticks. No explanation.` },
       { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgFaceSubjectBase64 }},
       { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgFaceTargetBase64 }}
     ];
   } else if(pgGenMode==='scene'){
     userContent = [
       { type:'text', text:`You will receive TWO images:
-- IMAGE 1 (CLIENT PHOTO — the REAL person): Study this face with surgical precision. This person's exact appearance MUST be reproduced faithfully. Do NOT use any traits from IMAGE 2.
-- IMAGE 2 (SCENE REFERENCE): Defines ONLY: clothing style, setting, background, lighting, color mood, body orientation (pose direction, including back pose if applicable). The IMAGE 1 person will be placed into this scene.
+- IMAGE 1 (CLIENT — the REAL person to be cloned): Extract ONLY physical traits. Face, hair, beard, skin, body type. NOTHING ELSE from IMAGE 1.
+- IMAGE 2 (SCENE REFERENCE — the style/scene to copy): Extract ONLY non-physical elements. Clothing, outfit details, pose, body orientation, gaze direction, background/setting, lighting, framing, color mood. DO NOT use IMAGE 2 person's face, hair, beard, skin or body type in ANY way.
+
+⚠ CRITICAL SEPARATION RULE:
+- Everything PHYSICAL (face, hair, beard, skin, body shape, weight) → comes EXCLUSIVELY from IMAGE 1
+- Everything NON-PHYSICAL (clothes, pose, scene, lighting, background) → comes EXCLUSIVELY from IMAGE 2
+- If IMAGE 2 person has hair and IMAGE 1 person is BALD → the result is BALD. Always.
+- If IMAGE 2 person is slim and IMAGE 1 person is heavyset → the result is heavyset. Always.
+- NEVER blend, merge or mix physical traits between the two images. Zero compromise.
 
 Return ONLY a JSON object using this structure:
 ${schema}
 
-━━ FACE ANALYSIS — IMAGE 1 ONLY — SURGICAL PRECISION ━━
-face_preservation must cover ALL of these:
-• Face shape: oval/round/square/heart/diamond — exact
+━━ STEP 1: ANALYZE IMAGE 1 — PHYSICAL TRAITS ONLY ━━
+
+FACE (face_preservation) — describe with surgical precision every feature:
+• Face shape: oval/round/square/heart/diamond/oblong — exact
 • Forehead: broad/narrow/high/low
-• Jawline: strong/soft/square/rounded/pointed — describe exactly
-• Nose: size, tip (rounded/pointed/upturned/flat/broad), bridge (straight/curved/prominent/wide)
-• Eyes: shape (almond/round/hooded/deep-set/wide-set), color (brown/blue/green/hazel/gray), size, spacing
-• Eyebrows: thick/thin/arched/flat/bushy, color
-• Cheekbones: high/low/prominent/flat
-• Lips: thin/full, upper/lower shape
-• Chin: strong/weak/cleft/rounded
-• Skin: exact tone + any marks, freckles, moles, wrinkles
-• Any unique features: scars, dimples, gap teeth, asymmetry, distinctive nose or jaw
+• Jawline: strong/soft/square/rounded/pointed — exact description
+• Nose: size (small/medium/large/broad/wide), tip shape (rounded/pointed/upturned/flat/bulbous), bridge (straight/curved/prominent/wide/narrow)
+• Eyes: shape (almond/round/hooded/deep-set/wide-set/close-set), exact color (brown/dark brown/black/blue/green/hazel/gray), size, spacing
+• Eyebrows: thick/thin/arched/flat/bushy/sparse, color
+• Cheekbones: high/low/prominent/flat/defined
+• Lips: thin/full/medium, upper lip shape, lower lip shape
+• Chin: strong/weak/cleft/rounded/pointed
+• Skin: exact tone (fair/light/medium/olive/tan/brown/deep) + any marks, freckles, moles, scars, wrinkles
+• Unique features: anything distinctive that identifies this specific person
 
-━━ HAIR — IMAGE 1 ONLY — NON-NEGOTIABLE ━━
-- If BALD/shaved: "BALD — completely shaved head, no hair whatsoever" — negative MUST include "hair, any hair on head, toupee, wig, hair growth"
-- If has hair: exact color, exact length, exact style, exact texture (straight/wavy/curly/coily) — do NOT change it
+HAIR — IMAGE 1 ONLY — ABSOLUTE RULE:
+- Look ONLY at IMAGE 1. Ignore IMAGE 2 person's hair completely.
+- If BALD or shaved head: write "BALD — completely shaved head, no hair whatsoever, smooth scalp" — negative_prompt MUST include "hair, any hair on head, toupee, wig, hair growth, hairstyle"
+- If has hair: exact color, exact length (very short/short/medium/long), exact style (straight/wavy/curly/swept back/side part/textured)
+- ⚠ NEVER ADD HAIR IF IMAGE 1 IS BALD. The reference scene person's hair is IRRELEVANT.
 
-━━ BEARD — IMAGE 1 ONLY ━━
-Full beard / thick beard / short beard / stubble / goatee / mustache / clean-shaved + color + density
+BEARD — IMAGE 1 ONLY:
+Clean-shaved / light stubble / short beard / medium beard / full thick beard / goatee / mustache only — include color and density
+⚠ NEVER copy IMAGE 2 person's beard. Only IMAGE 1.
 
-━━ BODY TYPE — IMAGE 1 ONLY — SACRED ━━
-slim / average / athletic / heavyset / overweight / stocky — EXACTLY as seen. Never idealize. Body stays the same.
+BODY TYPE — IMAGE 1 ONLY — SACRED AND NON-NEGOTIABLE:
+slim / lean / average / athletic / stocky / heavyset / overweight — EXACTLY as visible. Never idealize. Never slim down. Never add muscle. The client keeps their exact body in the new scene.
 
-━━ FROM IMAGE 2 — COPY EXACTLY ━━
-body_orientation (if back pose → facing="away_from_camera", back_visible=true), pose, gaze, outfit, background, lighting
+━━ STEP 2: ANALYZE IMAGE 2 — SCENE/STYLE ONLY ━━
 
-━━ PROMPT RULES ━━
-1. face_preservation: full surgical paragraph — every feature from the analysis above
-2. subject.main: IMAGE 1 person's exact appearance placed in IMAGE 2 scene
-3. prompt_ready — if IMAGE 2 is front pose:
-Full body portrait: place the person from [client_photo] into the scene of [scene_reference]. PRESERVE EXACTLY from [client_photo] — face: [face shape, jawline description, nose description, eye shape and color, eyebrows, cheekbones, lips, chin, any marks], hair: [exact hair status — bald or exact description], beard: [exact beard], skin: [exact tone], body: [exact body type — do NOT change weight or proportions]. Wearing [IMAGE 2 exact clothing]. Scene: [IMAGE 2 background]. Lighting: [IMAGE 2 lighting]. Photorealistic, full body visible, sharp focus, Canon 5D, 85mm, f/1.8, 4K.
+Extract ONLY (do NOT use any physical traits of IMAGE 2 person):
+• Clothing: every detail — type of garment, color, fabric, collar, buttons, fit, accessories, shoes
+• Body orientation: facing camera / 3/4 angle / profile / back to camera
+• Head orientation and gaze: facing camera / turned left / turned right / looking down / off-frame
+• Pose details: posture, hand/arm position, stance
+• If back pose: describe back of clothing — collar from back, back panel, belt, back pockets, shoe backs
+• Background/setting: environment — studio wall, outdoor, indoor, texture, color, depth
+• Lighting: direction, quality (soft/hard/dramatic/natural), color temperature, shadows
+• Framing: close-up / portrait / half-body / 3/4 body / full body
 
-   If IMAGE 2 is BACK POSE:
-BACK VIEW — place the person from [client_photo] into the back-facing scene of [scene_reference]. PRESERVE from [client_photo]: [hair/bald status from behind], [beard], [skin tone], [exact body type/weight]. Wearing [IMAGE 2 clothing — BACK VIEW: back panel, collar from behind, belt, back pockets, shoes from behind]. Scene: [IMAGE 2 background]. [IMAGE 2 lighting]. Body turned away from camera. [head turn if any]. Photorealistic, full body visible, 4K.
+━━ STEP 3: BUILD THE OUTPUT ━━
 
-4. flow_instructions: "Como usar no Google Flow: 1) flow.google.com. 2) ADD → suba FOTO DO CLIENTE como client_photo. 3) Suba FOTO DE REFERÊNCIA como scene_reference. 4) Cole o prompt_ready. 5) Nano Banana Pro → Generate."
-5. negative_prompt: ALWAYS "different face, different nose, different jawline, wrong eye shape, CGI, airbrushed, plastic skin, different body type, slimmer, thinner, idealized physique, wrong age". If bald: "hair, any hair on head, toupee, wig, hair growth". If has hair: "different hair color, different hairstyle, bald". If sunglasses: "no glasses, without sunglasses, bare face".
-6. Return ONLY valid JSON.` },
+prompt_ready — if IMAGE 2 is front/3-quarter pose:
+Ingredients: [client_photo], [scene_reference]
+
+Place the person from [client_photo] into the scene of [scene_reference]. PRESERVE EXACTLY from [client_photo] — face: [complete face description: face shape, jawline, nose tip and bridge, eye shape and color, eyebrow description, cheekbones, lips, chin, skin tone, any distinctive marks]. Hair: [BALD — completely shaved head / OR exact hair color+length+style from IMAGE 1]. Beard: [exact beard from IMAGE 1 — full thick/short/stubble/clean-shaved + color]. Body: [exact body type from IMAGE 1 — do NOT change weight, do NOT slim down]. Wearing [IMAGE 2 exact outfit — every garment detail, color, accessories]. [IMAGE 2 pose and body orientation]. Gaze: [IMAGE 2 gaze direction]. [IMAGE 2 framing]. Background: [IMAGE 2 background description]. Lighting: [IMAGE 2 lighting]. Photorealistic, natural skin texture, sharp focus on face, Canon 5D, 85mm, f/1.8, 4K.
+
+If IMAGE 2 is BACK POSE, add "BACK VIEW — " at start and describe clothing from behind.
+
+flow_prompt_final: same as prompt_ready but append: "\n\n⚠ REMINDER: [client_photo] = IMAGE 1 (use ALL physical traits: face, hair, beard, body). [scene_reference] = IMAGE 2 (use ONLY clothing, pose, background, lighting — do NOT copy IMAGE 2 person's face, hair or body)."
+
+flow_instructions: "Como usar no Google Flow: 1) flow.google.com → novo projeto. 2) ADD (+) → suba a FOTO DO CLIENTE como client_photo. 3) Suba a FOTO DE REFERÊNCIA como scene_reference. 4) Cole o prompt_ready. 5) Nano Banana Pro → Generate."
+
+negative_prompt: ALWAYS "different face, different nose, different jawline, wrong eye shape, CGI, airbrushed, plastic skin, different body type, different person, wrong identity".
+If IMAGE 1 is BALD: add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair, long hair, short hair".
+If IMAGE 1 has hair: add "bald, shaved head, different hair color, different hairstyle".
+If IMAGE 1 has beard: add "clean-shaved, no beard, bare face".
+If IMAGE 1 is clean-shaved: add "beard, stubble, facial hair".
+Always add "slimmer, thinner, idealized physique, weight loss, muscular, taller, different build".
+
+Return ONLY valid JSON. No markdown. No backticks. No explanation.` },
       { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgSceneSubjectBase64 }},
       { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgSceneRefBase64 }}
     ];
@@ -3910,53 +3994,84 @@ BACK VIEW — place the person from [client_photo] into the back-facing scene of
     if(hasModel){
       userContent = [
         { type:'text', text:`You will receive TWO images:
-- IMAGE 1 (STYLE/POSE REFERENCE): Analyze ONLY for: pose, body orientation (if back pose: facing="away_from_camera"), exact clothing (front AND back if back pose), accessories visible on clothes/props, background, lighting, framing, gaze direction, hand/arm position. DO NOT use IMAGE 1 person's physical traits.
-- IMAGE 2 (REAL MODEL/CLIENT — the REAL person): Study every facial feature with surgical precision. Extract ONLY physical traits: face, hair, beard, skin, body type. THESE OVERRIDE IMAGE 1 completely.
+- IMAGE 1 (STYLE/POSE REFERENCE): Extract ONLY non-physical elements. Pose, body orientation, clothing, accessories, background, lighting, framing, gaze direction, hand/arm position. Do NOT use IMAGE 1 person's face, hair, beard, skin or body type.
+- IMAGE 2 (REAL MODEL/CLIENT — the REAL person): Extract ONLY physical traits. Face, hair, beard, skin, body type. These OVERRIDE IMAGE 1 completely. NOTHING from IMAGE 1 person's appearance.
+
+⚠ CRITICAL SEPARATION RULE:
+- Everything PHYSICAL (face, hair, beard, skin, body shape, weight) → comes EXCLUSIVELY from IMAGE 2
+- Everything NON-PHYSICAL (pose, outfit, background, lighting, framing) → comes EXCLUSIVELY from IMAGE 1
+- If IMAGE 1 person has hair and IMAGE 2 person is BALD → the result is BALD. Always.
+- If IMAGE 1 person is slim and IMAGE 2 person is heavyset → the result is heavyset. Always.
+- NEVER blend or mix physical traits between images.
 
 Return ONLY a JSON object using this structure:
 ${schema}
 
-━━ WHAT COMES FROM IMAGE 1 (reference — pose/scene only) ━━
-body_orientation, back_details (if back pose), pose_and_body, composition.framing, composition.shot_distance, composition.camera_angle, gaze_direction, lighting, environment, outfit, color_palette, style, technical
+━━ STEP 1: ANALYZE IMAGE 1 — SCENE/STYLE ONLY ━━
 
-━━ WHAT COMES FROM IMAGE 2 (model — physical traits only, OVERRIDE IMAGE 1) ━━
-ALL physical traits: face, hair, beard, skin, body type, sunglasses if worn
+Extract ONLY (ignore IMAGE 1 person's physical traits):
+• Body orientation: facing camera / 3-quarter / profile / back to camera (back_visible=true)
+• If back pose: describe back of clothing — collar from back, back panel, belt, back pockets, shoes from behind
+• Pose: posture, hand/arm position, stance, any movement
+• Gaze direction: at camera / left / right / down / off-frame
+• Outfit: every detail — type of garment, color, fabric, fit, accessories, shoes
+• Background/setting: studio, outdoor, indoor — texture, color, depth
+• Lighting: direction, quality (soft/hard/dramatic/natural), color temp, shadows
+• Framing: close-up / portrait / half-body / 3/4 / full body
+• Camera angle: eye-level / low / high
 
-━━ FACE ANALYSIS — IMAGE 2 ONLY — SURGICAL ━━
-face_preservation must describe ALL:
+━━ STEP 2: ANALYZE IMAGE 2 — PHYSICAL TRAITS ONLY ━━
+
+FACE (face_preservation) — surgical precision:
 • Face shape: oval/round/square/heart/diamond
 • Jawline: strong/soft/square/rounded/pointed
-• Nose: size, tip shape, bridge
-• Eyes: shape, color, spacing
-• Eyebrows: thickness, arch, color
+• Nose: size, tip shape (rounded/pointed/upturned/flat/broad), bridge
+• Eyes: shape (almond/round/hooded/deep-set/wide-set), exact color, spacing
+• Eyebrows: thick/thin/arched/flat/bushy, color
 • Cheekbones: prominent/flat/high/low
-• Lips: thin/full, shape
+• Lips: thin/full, upper/lower shape
 • Chin: strong/weak/cleft/rounded
-• Skin tone + any marks, moles, freckles
-• Any unique distinguishing feature
+• Skin tone: exact + any marks, moles, freckles, scars
+• Unique features: scar, dimple, gap teeth, asymmetry, any distinctive trait
 
-━━ HAIR — IMAGE 2 ONLY — NON-NEGOTIABLE ━━
-- If BALD: "BALD — shaved head, no hair" — negative MUST include "hair, any hair on head, toupee, wig"
-- If has hair: exact color + length + style + texture. NEVER change. NEVER use IMAGE 1 hair.
+HAIR — IMAGE 2 ONLY — ABSOLUTE:
+- BALD/shaved: "BALD — shaved head, no hair at all" — negative MUST include "hair, any hair on head, toupee, wig, hair growth"
+- Has hair: exact color + length + style + texture — NEVER use IMAGE 1 hair
+- ⚠ NEVER ADD HAIR IF IMAGE 2 IS BALD.
 
-━━ BEARD — IMAGE 2 ONLY ━━
-full beard / thick / short / stubble / goatee / clean-shaved + color
+BEARD — IMAGE 2 ONLY:
+Full beard / thick / short / stubble / goatee / clean-shaved + color
+⚠ NEVER copy IMAGE 1 person's beard.
 
-━━ BODY TYPE — IMAGE 2 ONLY — SACRED ━━
-Describe exactly. Never idealize.
+BODY TYPE — IMAGE 2 ONLY — SACRED:
+slim / lean / average / athletic / stocky / heavyset / overweight — EXACTLY as seen. Never idealize.
 
-━━ PROMPT RULES ━━
-1. face_preservation: full surgical paragraph from IMAGE 2 face analysis
-2. subject_override field: "PRESERVE FROM MODEL [IMAGE 2]: [full face description], [exact hair/bald], [beard], [skin tone], [body type]. DO NOT use IMAGE 1 traits."
-3. prompt_ready — if IMAGE 1 is back pose:
-BACK VIEW — [IMAGE 2 body type] [IMAGE 2 hair/bald from behind] [IMAGE 2 beard] person, wearing [IMAGE 1 exact outfit BACK VIEW: back panel, collar, belt, back pockets, shoes from behind], [IMAGE 2 sunglasses if worn], [IMAGE 1 exact back pose], body turned away from camera, [IMAGE 1 hand/arm position], [IMAGE 1 head turn], [IMAGE 1 framing], [IMAGE 1 background], [IMAGE 1 lighting], photorealistic, Canon 5D, 85mm, f/1.8, 4K
+SUNGLASSES — IMAGE 2 ONLY:
+none OR describe style, lens color, frame color exactly.
 
-   If IMAGE 1 faces camera:
-[IMAGE 2 body type] [IMAGE 2 hair/bald] [IMAGE 2 beard] person — PRESERVE EXACTLY face: [full face description: face shape, jawline, nose, eyes, eyebrows, cheekbones, lips, chin, skin tone, any marks], wearing [IMAGE 1 exact outfit], [IMAGE 2 sunglasses if worn], [IMAGE 1 exact pose], body facing camera, [IMAGE 1 hand/arm position], [IMAGE 1 gaze direction], [IMAGE 1 framing], [IMAGE 1 background], [IMAGE 1 lighting], photorealistic, Canon 5D, 85mm, f/1.8, 4K
+━━ STEP 3: BUILD THE OUTPUT ━━
 
-4. flow_prompt_final: same as prompt_ready but prepend "Ingredients: [model_photo], [reference_photo]\n\n" and add "\n\nIMPORTANT: Use [model_photo] for ALL physical traits (face, hair, beard, body). Use [reference_photo] ONLY for pose, clothing, background, lighting."
-5. negative_prompt: ALWAYS "different face, different nose, different jawline, wrong eye shape, CGI, airbrushed, plastic skin, different body type, slimmer, idealized physique". If bald: "hair, any hair on head, toupee, wig, hair growth". If has hair: "different hair color, different hairstyle". If sunglasses: "no glasses, without sunglasses, bare face".
-6. Return ONLY valid JSON.` },
+prompt_ready — if IMAGE 1 is back pose:
+Ingredients: [model_photo], [reference_photo]
+
+BACK VIEW — [IMAGE 2 body type] [IMAGE 2 hair: BALD/exact from behind] [IMAGE 2 beard] person, wearing [IMAGE 1 exact outfit BACK VIEW: back panel, collar from back, belt, back pockets, shoes from behind], [IMAGE 2 sunglasses if worn], [IMAGE 1 exact back pose], body turned away from camera, [IMAGE 1 hand/arm position], [IMAGE 1 head turn if any], [IMAGE 1 framing], [IMAGE 1 background], [IMAGE 1 lighting], photorealistic, Canon 5D, 85mm, f/1.8, 4K.
+
+If IMAGE 1 faces camera:
+Ingredients: [model_photo], [reference_photo]
+
+[IMAGE 2 body type] [IMAGE 2 hair: BALD/exact] [IMAGE 2 beard] person — PRESERVE EXACTLY face from [model_photo]: [full face description: face shape, jawline, nose, eye shape and color, eyebrows, cheekbones, lips, chin, skin tone, any marks]. [IMAGE 2 sunglasses if worn]. Wearing [IMAGE 1 exact outfit]. [IMAGE 1 exact pose], body facing camera. [IMAGE 1 hand/arm position]. Gaze: [IMAGE 1 gaze direction]. [IMAGE 1 framing]. [IMAGE 1 background]. [IMAGE 1 lighting]. Photorealistic, sharp focus on face, Canon 5D, 85mm, f/1.8, 4K.
+
+flow_prompt_final: same as prompt_ready with this appended:
+"\n\nIMPORTANT: [model_photo] = IMAGE 2 (use ALL physical traits: face, hair, beard, body). [reference_photo] = IMAGE 1 (use ONLY pose, clothing, background, lighting — do NOT use IMAGE 1 person's face or body)."
+
+negative_prompt: ALWAYS "different face, different nose, different jawline, wrong eye shape, CGI, airbrushed, plastic skin, different body type, slimmer, idealized physique, different person".
+If IMAGE 2 is BALD: add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair".
+If IMAGE 2 has hair: add "bald, shaved head, different hair color, different hairstyle".
+If IMAGE 2 has beard: add "clean-shaved, no beard".
+If IMAGE 2 is clean-shaved: add "beard, stubble, facial hair".
+If IMAGE 2 wears sunglasses: add "no glasses, without sunglasses, bare face".
+
+Return ONLY valid JSON. No markdown. No backticks. No explanation.` },
         { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgImageBase64 }},
         { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgModelBase64 }}
       ];
