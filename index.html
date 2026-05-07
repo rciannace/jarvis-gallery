@@ -5341,7 +5341,7 @@ Return ONLY a single valid JSON object (no markdown, no backticks, no explanatio
 function copyAnalyzedPrompt() {
   const txt = document.getElementById('fPrompt').value;
   if (!txt) { toast('⚠ Nenhum prompt para copiar'); return; }
-  navigator.clipboard.writeText(txt).then(() => {
+  copyText(txt, () => {
     const btn = document.getElementById('copyPromptJsonBtn');
     const orig = btn.innerHTML;
     btn.innerHTML = '✓ Copiado!';
@@ -5497,12 +5497,6 @@ function closeDetail() { document.getElementById('detailOverlay').classList.remo
 
 function copyPrompt() {
   copyText(document.getElementById('dPrompt').textContent, () => toast('📋 Prompt copiado!'));
-  toast('📋 Prompt copiado!');
-}
-
-function copyText(txt) {
-  copyText(txt, () => toast('📋 Copiado!'));
-  toast('📋 Prompt copiado!');
 }
 
 function editDetail() {
