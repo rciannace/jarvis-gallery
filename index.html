@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jarvis Gallery v14</title>
+<title>Jarvis Gallery v11</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -831,6 +831,144 @@ body{
   box-shadow:0 20px 50px rgba(0,0,0,.6);
 }
 .toast.show{transform:translateY(0);opacity:1;}
+/* ── GALLERY PICKER (zona → galeria) ── */
+#galleryPickerOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+}
+#galleryPickerOverlay.open { display: flex; }
+#galleryPickerModal {
+  background: var(--s1);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  width: min(680px, 96vw);
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.gp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.gp-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 1.5px;
+  color: var(--cyan);
+}
+.gp-subtitle {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.gp-search {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.gp-search input {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+}
+.gp-search input:focus { border-color: var(--cyan); }
+.gp-body {
+  overflow-y: auto;
+  padding: 14px 14px 10px;
+  flex: 1;
+}
+.gp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.gp-card {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color .15s, transform .12s;
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--s2);
+}
+.gp-card:hover { border-color: var(--cyan); transform: scale(1.03); }
+.gp-card img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.gp-card-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,.8));
+  color: #fff;
+  font-size: 9px;
+  padding: 14px 5px 4px;
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gp-card-no-img {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  opacity: .3;
+}
+.gp-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 40px 20px;
+  font-family: 'DM Mono', monospace;
+}
+/* Gallery picker button on each zone */
+.gp-zone-btn {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  padding: 3px 10px;
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  background: var(--s2);
+  color: var(--cyan);
+  cursor: pointer;
+  white-space: nowrap;
+  z-index: 10;
+  transition: all .15s;
+}
+.gp-zone-btn:hover { background: var(--cyan2); border-color: var(--cyan); }
+@media (max-width: 640px) {
+  .gp-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  #galleryPickerModal { border-radius: 16px 16px 0 0; max-height: 88vh; width: 100%; }
+  #galleryPickerOverlay.open { align-items: flex-end; }
+}
+
 .toast-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);}
 
 /* scrollbar */
@@ -889,26 +1027,24 @@ body{
   </div>
 
   <div class="sb-divider"></div>
-  <div class="sb-footer">
-    <!-- Stats strip -->
-    <div id="sbStats" style="display:flex;justify-content:space-around;padding:7px 4px 4px;margin-bottom:2px;border-top:1px solid var(--border);">
-      <div style="text-align:center;">
-        <div id="sbStatPhotos" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--cyan);line-height:1;">0</div>
-        <div style="font-size:9px;color:var(--muted);letter-spacing:.5px;margin-top:2px;">FOTOS</div>
-      </div>
-      <div style="text-align:center;">
-        <div id="sbStatFavs" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--red);line-height:1;">0</div>
-        <div style="font-size:9px;color:var(--muted);letter-spacing:.5px;margin-top:2px;">FAVS</div>
-      </div>
-      <div style="text-align:center;">
-        <div id="sbStatCats" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--gold);line-height:1;">0</div>
-        <div style="font-size:9px;color:var(--muted);letter-spacing:.5px;margin-top:2px;">CATS</div>
-      </div>
-      <div style="text-align:center;">
-        <div id="sbStatMB" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--muted);line-height:1;">—</div>
-        <div style="font-size:9px;color:var(--muted);letter-spacing:.5px;margin-top:2px;">MB</div>
-      </div>
+
+  <!-- Stats strip -->
+  <div id="sbStatsStrip" style="padding:8px 14px;display:flex;justify-content:space-around;gap:4px;">
+    <div style="text-align:center;flex:1;">
+      <div id="sbStatFotos" style="font-size:16px;font-weight:700;color:var(--cyan);font-family:'DM Mono',monospace;line-height:1.1;">0</div>
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">fotos</div>
     </div>
+    <div style="text-align:center;flex:1;">
+      <div id="sbStatCats" style="font-size:16px;font-weight:700;color:var(--gold);font-family:'DM Mono',monospace;line-height:1.1;">0</div>
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">categ.</div>
+    </div>
+    <div style="text-align:center;flex:1;">
+      <div id="sbStatFavs" style="font-size:16px;font-weight:700;color:#ff6b9d;font-family:'DM Mono',monospace;line-height:1.1;">0</div>
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">favs</div>
+    </div>
+  </div>
+
+  <div class="sb-divider"></div>
     <button class="sb-footer-btn cyan" onclick="openPromptGen()">
       <span>✦</span> Gerar Prompt
     </button>
@@ -1501,7 +1637,6 @@ body{
     </div>
     <div class="detail-actions">
       <button class="btn-outline" onclick="downloadDetail()" id="dDownloadBtn" title="Baixar foto">⬇ Baixar</button>
-      <button class="btn-outline" onclick="copyFlowPromptDetail()" id="dFlowCopyBtn" title="Copiar flow_prompt_final para o Flow">📋 Flow</button>
       <button class="btn-outline" onclick="editDetail()">✎ Editar</button>
       <button class="btn-danger" onclick="deleteDetail()">Excluir</button>
     </div>
@@ -1981,6 +2116,7 @@ body{
               <div style="font-size:32px;opacity:.4;" id="pgUpIcon">🖼</div>
               <div id="pgUpLabel" style="font-weight:500;font-size:13px;">Arraste, clique ou Ctrl+V</div>
               <div id="pgUpSub" style="font-size:10px;color:var(--subtle);">Cole com <kbd style="background:var(--s3);border:1px solid var(--border2);border-radius:4px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:9px;">Ctrl+V</kbd> ou arraste a imagem</div>
+              <button class="gp-zone-btn" onclick="event.stopPropagation();openGalleryPicker('simple')" id="gpBtnSimple">📁 Da galeria</button>
               <img id="pgPreview" style="display:none;width:100%;max-height:240px;object-fit:contain;border-radius:8px;border:1px solid var(--border);">
             </div>
             <input type="file" id="pgFileInput" accept="image/*" style="display:none" onchange="pgHandleFile(event)">
@@ -1999,6 +2135,7 @@ body{
               <div style="font-size:26px;opacity:.4;" id="pgModelIcon">👤</div>
               <div id="pgModelLabel" style="font-weight:500;font-size:12px;">Foto do cliente</div>
               <div style="font-size:10px;color:var(--subtle);">Ctrl+V · clique · arraste</div>
+              <button class="gp-zone-btn" onclick="event.stopPropagation();openGalleryPicker('simplemodel')">📁 Da galeria</button>
               <img id="pgModelPreview" style="display:none;width:100%;max-height:200px;object-fit:contain;border-radius:8px;">
               <button id="pgModelChangeBtn" style="display:none;font-size:10px;padding:4px 10px;border:1px solid var(--border2);border-radius:6px;background:var(--s3);color:var(--muted);cursor:pointer;margin-top:4px;" onclick="event.stopPropagation();document.getElementById('pgModelInput').click()">Trocar foto</button>
             </div>
@@ -2029,7 +2166,7 @@ body{
               ondrop="pgHandleSubjectDrop(event)">
               <div style="font-size:24px;opacity:.4" id="pgSubjectIcon">👤</div>
               <div id="pgSubjectLabel">Clique ou <kbd style="background:var(--s3);border:1px solid var(--border2);border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:10px;">Ctrl+V</kbd></div>
-              
+              <button class="gp-zone-btn" onclick="event.stopPropagation();openGalleryPicker('subject')">📁 Da galeria</button>
               <button id="pgSubjectClearBtn" style="display:none;position:absolute;top:6px;right:6px;background:rgba(255,77,109,.9);border:1px solid rgba(255,77,109,.8);color:#fff;border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;line-height:1;z-index:20;font-weight:700;" onclick="event.stopPropagation();pgClearSubject()" title="Remover foto">✕</button>
               <img id="pgSubjectPreview" style="display:none;width:100%;max-height:160px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
             </div>
@@ -2046,7 +2183,7 @@ body{
               ondrop="pgHandleStyleDrop(event)">
               <div style="font-size:24px;opacity:.4" id="pgStyleIcon">🎨</div>
               <div id="pgStyleLabel">Clique ou <kbd style="background:var(--s3);border:1px solid var(--border2);border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:10px;">Ctrl+V</kbd></div>
-              
+              <button class="gp-zone-btn" onclick="event.stopPropagation();openGalleryPicker('style')">📁 Da galeria</button>
               <button id="pgStyleClearBtn" style="display:none;position:absolute;top:6px;right:6px;background:rgba(255,77,109,.9);border:1px solid rgba(255,77,109,.8);color:#fff;border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;line-height:1;z-index:20;font-weight:700;" onclick="event.stopPropagation();pgClearStyle()" title="Remover foto">✕</button>
               <img id="pgStylePreview" style="display:none;width:100%;max-height:160px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
             </div>
@@ -2070,7 +2207,7 @@ body{
               ondrop="pgHandleFaceSubjectDrop(event)">
               <div style="font-size:24px;opacity:.4" id="pgFaceSubjectIcon">👤</div>
               <div id="pgFaceSubjectLabel">Sua foto (<kbd style="background:var(--s3);border:1px solid var(--border2);border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:10px;">Ctrl+V</kbd>)</div>
-              
+              <button class="gp-zone-btn" onclick="event.stopPropagation();openGalleryPicker('facesubject')">📁 Da galeria</button>
               <button id="pgFaceSubjectClearBtn" style="display:none;position:absolute;top:6px;right:6px;background:rgba(255,77,109,.9);border:1px solid rgba(255,77,109,.8);color:#fff;border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;line-height:1;z-index:20;font-weight:700;" onclick="event.stopPropagation();pgClearFaceSubject()" title="Remover foto">✕</button>
               <img id="pgFaceSubjectPreview" style="display:none;width:100%;max-height:160px;object-fit:cover;border-radius:6px;border:1px solid var(--cyan);">
             </div>
@@ -2086,7 +2223,7 @@ body{
               ondrop="pgHandleFaceTargetDrop(event)">
               <div style="font-size:24px;opacity:.4" id="pgFaceTargetIcon">🎯</div>
               <div id="pgFaceTargetLabel">Foto alvo (<kbd style="background:var(--s3);border:1px solid var(--border2);border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:10px;">Ctrl+V</kbd>)</div>
-              
+              <button class="gp-zone-btn" onclick="event.stopPropagation();openGalleryPicker('facetarget')">📁 Da galeria</button>
               <button id="pgFaceTargetClearBtn" style="display:none;position:absolute;top:6px;right:6px;background:rgba(255,77,109,.9);border:1px solid rgba(255,77,109,.8);color:#fff;border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;line-height:1;z-index:20;font-weight:700;" onclick="event.stopPropagation();pgClearFaceTarget()" title="Remover foto">✕</button>
               <img id="pgFaceTargetPreview" style="display:none;width:100%;max-height:160px;object-fit:cover;border-radius:6px;border:1px solid rgba(245,200,66,.5);">
             </div>
@@ -2111,7 +2248,7 @@ body{
               ondrop="pgHandleSceneSubjectDrop(event)">
               <div style="font-size:24px;opacity:.4" id="pgSceneSubjectIcon">🧍</div>
               <div id="pgSceneSubjectLabel">Cliente (<kbd style="background:var(--s3);border:1px solid var(--border2);border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:10px;">Ctrl+V</kbd>)</div>
-              
+              <button class="gp-zone-btn" onclick="event.stopPropagation();openGalleryPicker('scenesubject')">📁 Da galeria</button>
               <button id="pgSceneSubjectClearBtn" style="display:none;position:absolute;top:6px;right:6px;background:rgba(255,77,109,.9);border:1px solid rgba(255,77,109,.8);color:#fff;border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;line-height:1;z-index:20;font-weight:700;" onclick="event.stopPropagation();pgClearSceneSubject()" title="Remover foto">✕</button>
               <img id="pgSceneSubjectPreview" style="display:none;width:100%;max-height:160px;object-fit:cover;border-radius:6px;border:1px solid var(--cyan);">
             </div>
@@ -2127,7 +2264,7 @@ body{
               ondrop="pgHandleSceneRefDrop(event)">
               <div style="font-size:24px;opacity:.4" id="pgSceneRefIcon">🌆</div>
               <div id="pgSceneRefLabel">Cenário (<kbd style="background:var(--s3);border:1px solid var(--border2);border-radius:3px;padding:1px 5px;font-family:'DM Mono',monospace;font-size:10px;">Ctrl+V</kbd>)</div>
-              
+              <button class="gp-zone-btn" onclick="event.stopPropagation();openGalleryPicker('sceneref')">📁 Da galeria</button>
               <button id="pgSceneRefClearBtn" style="display:none;position:absolute;top:6px;right:6px;background:rgba(255,77,109,.9);border:1px solid rgba(255,77,109,.8);color:#fff;border-radius:6px;width:28px;height:28px;font-size:14px;cursor:pointer;line-height:1;z-index:20;font-weight:700;" onclick="event.stopPropagation();pgClearSceneRef()" title="Remover foto">✕</button>
               <img id="pgSceneRefPreview" style="display:none;width:100%;max-height:160px;object-fit:cover;border-radius:6px;border:1px solid rgba(245,200,66,.5);">
             </div>
@@ -2197,6 +2334,7 @@ body{
               <span style="font-size:11px;color:var(--muted);">Foto modelo — será clonada para todos</span>
               <span style="font-size:10px;color:var(--muted);opacity:.6;">clique · arraste · Ctrl+V</span>
             </div>
+            <button class="gp-zone-btn" onclick="event.stopPropagation();openGalleryPicker('familiaalvo')" style="pointer-events:auto;">📁 Da galeria</button>
           </div>
           <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:5px;opacity:.7;">
             💡 Esta foto define a pose, cenário, roupa e iluminação que cada pessoa irá replicar
@@ -2205,24 +2343,6 @@ body{
 
       </div>
 
-
-      <!-- ⚡ HINT PRÉ-ANÁLISE -->
-      <div class="field" id="pgHintField">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-          <div class="field-label" style="margin:0;color:var(--gold);">⚡ Hint pré-análise <span style="font-size:10px;color:var(--muted);font-weight:400;">(injetado no system prompt — aumenta precisão da IA)</span></div>
-          <button onclick="pgClearHint()" title="Limpar hint" style="font-size:10px;font-family:'DM Mono',monospace;padding:3px 8px;border:1px solid var(--border2);border-radius:4px;background:transparent;color:var(--muted);cursor:pointer;">✕ Limpar</button>
-        </div>
-        <!-- Chips de hint rápido -->
-        <div id="pgHintChips" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;"></div>
-        <textarea id="pgHint" rows="2"
-          style="width:100%;background:rgba(245,200,66,0.05);border:1px solid rgba(245,200,66,0.3);border-radius:8px;padding:9px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);line-height:1.7;resize:vertical;box-sizing:border-box;outline:none;transition:border-color .2s;"
-          placeholder="Ex: pessoa é careca. foto de costas. tem barba cheia. usa óculos escuros. corpo plus size..."
-          onfocus="this.style.borderColor='rgba(245,200,66,0.7)'"
-          onblur="this.style.borderColor='rgba(245,200,66,0.3)'"></textarea>
-        <div style="font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5;opacity:.7;">
-          💡 Digite características que a IA pode não identificar corretamente pela foto — careca, costas, óculos, barba, corpo.
-        </div>
-      </div>
 
       <div class="field">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -2238,6 +2358,21 @@ body{
           <div class="field-label" style="margin:0;">📝 Lembrete pessoal <span style="font-size:10px;color:var(--muted);font-weight:400;">(só para você — não é enviado ao gerador)</span></div>
         </div>
         <textarea id="pgPersonalNote" rows="3" style="width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);line-height:1.7;resize:vertical;box-sizing:border-box;outline:none;" placeholder="Ex: lembrar de subir as 2 fotos no Flow, usar Nano Banana Pro, ajustar iluminação..."></textarea>
+      </div>
+
+      <!-- Contexto adicional → VAI ao gerador como hint -->
+      <div class="field" id="pgHintField">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+          <div class="field-label" style="margin:0;">💬 Contexto adicional <span style="font-size:10px;color:var(--cyan);font-weight:400;">(enviado ao gerador como instrução extra)</span></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;" id="pgHintChips">
+          <button onclick="pgInjectHint('Cliente é careca — não adicione cabelo')" style="font-size:10px;font-family:'DM Mono',monospace;padding:3px 9px;border:1px solid var(--cyan3);border-radius:12px;background:var(--cyan2);color:var(--cyan);cursor:pointer;">👴 Careca</button>
+          <button onclick="pgInjectHint('Cliente tem barba cheia — mantenha a barba')" style="font-size:10px;font-family:'DM Mono',monospace;padding:3px 9px;border:1px solid var(--cyan3);border-radius:12px;background:var(--cyan2);color:var(--cyan);cursor:pointer;">🧔 Barba</button>
+          <button onclick="pgInjectHint('A pose é de costas — descreva detalhes da roupa por trás')" style="font-size:10px;font-family:'DM Mono',monospace;padding:3px 9px;border:1px solid var(--cyan3);border-radius:12px;background:var(--cyan2);color:var(--cyan);cursor:pointer;">🔄 Costas</button>
+          <button onclick="pgInjectHint('Cliente usa óculos — mantenha os óculos no resultado')" style="font-size:10px;font-family:'DM Mono',monospace;padding:3px 9px;border:1px solid var(--cyan3);border-radius:12px;background:var(--cyan2);color:var(--cyan);cursor:pointer;">🕶️ Óculos</button>
+          <button onclick="pgInjectHint('Cliente tem sobrepeso — não emagreça nem idealize o biotipo')" style="font-size:10px;font-family:'DM Mono',monospace;padding:3px 9px;border:1px solid var(--cyan3);border-radius:12px;background:var(--cyan2);color:var(--cyan);cursor:pointer;">⚖️ Biotipo</button>
+        </div>
+        <textarea id="pgHint" rows="2" style="width:100%;background:var(--s2);border:1px solid var(--cyan3);border-radius:8px;padding:9px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text);line-height:1.7;resize:vertical;box-sizing:border-box;outline:none;" placeholder="Ex: cliente é careca, tem barba cheia, a pose é de costas, usa óculos..."></textarea>
       </div>
 
       <!-- Generate button -->
@@ -2270,7 +2405,7 @@ body{
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
             <div style="display:flex;align-items:center;gap:8px;">
               <span style="width:7px;height:7px;border-radius:50%;background:var(--gold);display:inline-block;flex-shrink:0;"></span>
-              <span id="pgClientPromptLabel" style="font-size:10px;font-family:'DM Mono',monospace;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;">Comando para aplicar ao cliente</span>
+              <span style="font-size:10px;font-family:'DM Mono',monospace;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;">Prompt de Aplicação para Cliente</span>
             </div>
             <button onclick="pgCopyClientPrompt()" id="pgCopyClientBtn"
               style="font-size:11px;font-family:'DM Mono',monospace;padding:4px 14px;border:1px solid rgba(245,200,66,0.5);border-radius:4px;background:rgba(245,200,66,0.1);color:var(--gold);cursor:pointer;transition:all .15s;font-weight:600;white-space:nowrap;">
@@ -2278,7 +2413,7 @@ body{
             </button>
           </div>
           <div style="font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:10px;padding:8px 10px;background:rgba(0,0,0,0.2);border-radius:6px;border-left:3px solid rgba(245,200,66,0.3);">
-            💡 Cole o <strong style="color:var(--text);">JSON gerado acima</strong> + este comando no Flow ou em outra IA, junto com a foto do cliente. Garante que a IA preserve 100% do biotipo real da pessoa.
+            💡 <strong style="color:var(--text);">Como usar:</strong> Cole o JSON acima + este comando em qualquer ferramenta de IA (Midjourney, Flux, ChatGPT…) junto com a foto do seu cliente. A IA irá aplicar o estilo/cenário do JSON preservando 100% das características físicas do cliente.
           </div>
           <textarea id="pgClientPromptText" rows="7"
             style="width:100%;background:#050e0d;border:1px solid rgba(245,200,66,0.2);border-radius:8px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:11px;color:#e8c840;line-height:1.75;resize:vertical;box-sizing:border-box;outline:none;letter-spacing:0.1px;"
@@ -2750,18 +2885,6 @@ body{
   #pgOutputCard > div:first-child > div { width: 100%; display: flex; gap: 6px; }
   #pgOutputCard > div:first-child > div button { flex: 1; text-align: center; }
 
-  /* Hint field — mobile adjustments */
-  #pgHintField textarea { font-size: 14px !important; } /* prevent iOS zoom */
-  #pgHintChips { gap: 4px !important; }
-  #pgHintChips button { font-size: 10px !important; padding: 3px 8px !important; }
-
-  /* Stats strip — compact on mobile */
-  #sbStats { padding: 5px 2px 2px !important; }
-  #sbStatPhotos, #sbStatFavs, #sbStatCats, #sbStatMB { font-size: 11px !important; }
-
-  /* Detail modal — flow copy button visible always */
-  #dFlowCopyBtn { opacity: 1 !important; }
-
   #pgModeSimple > div, #pgModeSubject > div,
   #pgModeFaceSwap > div, #pgModeScene > div { grid-template-columns: 1fr !important; }
   #pgDropZone, #pgModelZone, #pgSubjectZone, #pgStyleZone,
@@ -3055,9 +3178,9 @@ let pgImageBase64=null;
 let pgMode='ultra';
 
 const pgModePrompts={
-  ultra:`You are an expert AI image analyst and prompt engineer. Analyze this image with extreme precision and return ONLY a valid JSON object (no markdown, no explanation, no backticks).`,
-  photo:`You are a professional photographer and AI prompt engineer. Focus on photography-specific details: camera, lens, depth of field, lighting setup, bokeh, grain, and photographic style. Return ONLY valid JSON.`,
-  fashion:`You are a fashion photographer and AI prompt engineer. Focus on clothing details, fabric textures, styling, pose, expression, skin tone, hair, makeup, accessories. Return ONLY valid JSON.`,
+  ultra:`You are an expert AI image analyst and prompt engineer. Your PRIMARY MISSION when analyzing person photos is IDENTITY PRESERVATION — the face must be reproduced with 100% fidelity. Analyze images with extreme precision. CRITICAL: always capture exact eye color (dark brown/black/blue/green/hazel — never vague), exact nose geometry (tip shape + bridge), exact jawline, exact lip volume, exact skin tone, all visible marks. These traits are NON-NEGOTIABLE and must never be altered, softened or idealized. Return ONLY a valid JSON object (no markdown, no explanation, no backticks).`,
+  photo:`You are a professional photographer and AI prompt engineer. Your PRIMARY MISSION when analyzing person photos is IDENTITY PRESERVATION — always capture exact eye color, nose geometry, jawline, lip shape, skin tone and all marks with surgical precision. These must appear 100% identical in the output. Focus on photography-specific details: camera, lens, depth of field, lighting setup, bokeh, grain, and photographic style. Return ONLY valid JSON.`,
+  fashion:`You are a fashion photographer and AI prompt engineer. Your PRIMARY MISSION when analyzing person photos is IDENTITY PRESERVATION — always capture exact eye color, nose geometry, jawline, lip shape, skin tone and all marks with surgical precision. These must appear 100% identical in the output. Focus on clothing details, fabric textures, styling, pose, expression, skin tone, hair, accessories. Return ONLY valid JSON.`,
   illustration:`You are an expert in digital art and illustration. Focus on artistic style, brush strokes, color palette, line work, shading technique, and artistic influences. Return ONLY valid JSON.`,
   product:`You are a commercial photographer and AI prompt engineer. Focus on product placement, surface materials, reflections, lighting setup, background, and studio context. Return ONLY valid JSON.`
 };
@@ -3081,18 +3204,20 @@ document.querySelectorAll('.pg-chip[data-mode]').forEach(c=>{
 const EXTRA_CMD_BY_MODE = {
   simple: ``,
   subject: ``,
-  faceswap: `CLONAGEM COMPLETA v8 — preserve TUDO do modelo em [model_photo]:
-- ROSTO: formato do rosto, tom de pele, olhos, nariz, maxilar, barba (exatamente como na foto — barba cheia mantém barba cheia; barbeado mantém barbeado), CALVÍCIE (se careca/cabeça raspada: NUNCA colocar cabelo — calvície é permanente), óculos se usar (estilo, cor das lentes e armação).
-- CORPO: biotipo EXATO e SAGRADO — se gordinho/robusto/pesado, mantém gordinho/robusto/pesado. NUNCA emagrecer, NUNCA musculizar. Preserve o peso, a barriga, os ombros, as proporções reais.
-- ORIENTAÇÃO: preserve a orientação corporal da foto alvo (body_orientation) — se de costas, manter de costas; iniciar prompt com BACK VIEW —.
-- Photorealistic, natural skin texture, skin pores visible, Canon 5D, 85mm, f/1.8, 4K.
-Negative: different body type, slimmer, thinner, muscular, weight loss, idealized physique, plastic skin, airbrushed, CGI, hair, hairstyle, any hair on head, toupee, wig, hair growth (se careca).`,
-  scene: `CLONAGEM COMPLETA v8 — preserve TUDO do cliente em [client_photo]:
-- ROSTO: formato do rosto, tom de pele, olhos, nariz, maxilar, barba (exatamente como na foto — barba cheia mantém barba cheia; barbeado mantém barbeado), CALVÍCIE (se careca/cabeça raspada: NUNCA colocar cabelo — calvície é permanente), óculos se usar (estilo, cor das lentes e armação).
-- CORPO: biotipo EXATO e SAGRADO — se gordinho/robusto/pesado, mantém gordinho/robusto/pesado. NUNCA emagrecer, NUNCA musculizar. Preserve o peso, a barriga, os ombros, as proporções reais. O cliente deve parecer ele mesmo no novo cenário, não uma versão idealizada.
-- ORIENTAÇÃO: se na foto de referência o corpo está de costas (away_from_camera), o prompt deve começar com BACK VIEW — e descrever as costas da roupa, colarinho de trás, etc.
-- Photorealistic, natural skin texture, skin pores visible, Canon 5D, 85mm, f/1.8, 4K.
-Negative: different body type, slimmer, thinner, muscular, weight loss, idealized physique, plastic skin, airbrushed, CGI, hair, hairstyle, any hair on head, toupee, wig, hair growth (se careca).`
+  faceswap: `⚠ IDENTITY LOCK — FACE E CORPO DO MODELO SÃO SAGRADOS E NÃO NEGOCIÁVEIS:
+ROSTO: formato do rosto, nariz (tamanho + ponta + ponte), COR EXATA DOS OLHOS (não mude a cor dos olhos), formato dos olhos, sobrancelhas, maçãs do rosto, lábios (volume + formato), queixo, TOM DE PELE EXATO, marcas visíveis (pintas, sardas, cicatrizes) — tudo deve ser 100% idêntico ao modelo. NÃO suavize, NÃO embeleze, NÃO altere NENHUM traço facial.
+CABELO: se CARECA → cabeça raspada, ZERO cabelo. Se tem cabelo → cor, comprimento e estilo EXATOS.
+BARBA: se tem barba → mantenha barba completa com mesma forma e cor. Se barbeado → mantenha barbeado.
+CORPO: biotipo EXATO e SAGRADO — se gordo/robusto/pesado → mantém. NUNCA emagrecer, NUNCA musculizar.
+- Photorealistic, hyperrealistic facial detail, natural skin pores, Canon 5D, 85mm, f/1.8, 4K.
+Negative: different face, wrong identity, changed nose shape, different nose tip, different nose bridge, different jawline, different eye shape, wrong eye color, different lip shape, skin tone changed, face morphed, beautified face, different body type, slimmer, thinner, muscular, weight loss, idealized physique, plastic skin, airbrushed, CGI, hair (se careca), toupee (se careca), wig (se careca).`,
+  scene: `⚠ IDENTITY LOCK — FACE E CORPO DO CLIENTE SÃO SAGRADOS E NÃO NEGOCIÁVEIS:
+ROSTO: formato do rosto, nariz (tamanho + ponta + ponte), COR EXATA DOS OLHOS (não mude a cor dos olhos), formato dos olhos, sobrancelhas, maçãs do rosto, lábios (volume + formato), queixo, TOM DE PELE EXATO, marcas visíveis (pintas, sardas, cicatrizes) — tudo deve ser 100% idêntico ao cliente. NÃO suavize, NÃO embeleze, NÃO altere NENHUM traço facial. O cliente deve parecer ele mesmo no novo cenário.
+CABELO: se CARECA → cabeça raspada, ZERO cabelo — calvície é permanente. Se tem cabelo → cor, comprimento e estilo EXATOS.
+BARBA: se tem barba → mantenha barba completa com mesma forma e cor. Se barbeado → mantenha barbeado.
+CORPO: biotipo EXATO e SAGRADO — se gordo/robusto/pesado → mantém o peso e proporções reais. NUNCA emagrecer, NUNCA musculizar. O cliente deve aparecer com o corpo real dele na nova cena.
+- Photorealistic, hyperrealistic facial detail, natural skin pores, Canon 5D, 85mm, f/1.8, 4K.
+Negative: different face, wrong identity, changed nose shape, different nose tip, different nose bridge, different jawline, different eye shape, wrong eye color, different lip shape, skin tone changed, face morphed, beautified face, different body type, slimmer, thinner, muscular, weight loss, idealized physique, plastic skin, airbrushed, CGI, hair (se careca), toupee (se careca), wig (se careca).`
 };
 
 function getDefaultExtraCmd(){
@@ -3103,59 +3228,12 @@ function resetExtraCmd(){
   document.getElementById('pgExtraCmd').value = getDefaultExtraCmd();
 }
 
-// ── HINT PRÉ-ANÁLISE ──
-const PG_HINT_CHIPS = [
-  { label:'🧑‍🦲 Careca',   value:'person is completely bald — shaved head, zero hair.' },
-  { label:'🔙 Costas',    value:'photo is a back pose — person is turned away from camera.' },
-  { label:'🧔 Barba',     value:'person has a full beard.' },
-  { label:'🕶 Óculos',    value:'person is wearing sunglasses.' },
-  { label:'👓 Óculos grau', value:'person is wearing prescription glasses (not sunglasses).' },
-  { label:'🏋️ Plus size', value:'person has a plus-size / heavyset body type — do NOT slim down.' },
-  { label:'👩 Mulher',    value:'person is a woman.' },
-  { label:'👦 Criança',   value:'person is a child.' },
-];
-
-function pgBuildHintChips() {
-  const container = document.getElementById('pgHintChips');
-  if (!container) return;
-  container.innerHTML = PG_HINT_CHIPS.map(c =>
-    `<button type="button" onclick="pgToggleHintChip(this,'${c.value.replace(/'/g,"\\'")}','${c.label}')"
-      style="font-size:11px;font-family:'DM Sans',sans-serif;padding:4px 10px;border-radius:6px;border:1px solid rgba(245,200,66,0.3);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;"
-      onmouseover="if(!this.classList.contains('hc-on')){this.style.background='rgba(245,200,66,0.08)';this.style.color='var(--gold)';}"
-      onmouseout="if(!this.classList.contains('hc-on')){this.style.background='transparent';this.style.color='var(--muted)';}">
-      ${c.label}
-    </button>`
-  ).join('');
-}
-
-function pgToggleHintChip(btn, value, label) {
+function pgInjectHint(text) {
   const ta = document.getElementById('pgHint');
-  const isOn = btn.classList.toggle('hc-on');
-  if (isOn) {
-    btn.style.background = 'rgba(245,200,66,0.15)';
-    btn.style.color = 'var(--gold)';
-    btn.style.borderColor = 'rgba(245,200,66,0.6)';
-    // Append if not already in textarea
-    const cur = ta.value.trim();
-    if (!cur.includes(value)) {
-      ta.value = cur ? cur + '\n' + value : value;
-    }
-  } else {
-    btn.style.background = 'transparent';
-    btn.style.color = 'var(--muted)';
-    btn.style.borderColor = 'rgba(245,200,66,0.3)';
-    ta.value = ta.value.replace(value, '').replace(/\n\n+/g, '\n').trim();
-  }
-}
-
-function pgClearHint() {
-  document.getElementById('pgHint').value = '';
-  document.querySelectorAll('#pgHintChips .hc-on').forEach(b => {
-    b.classList.remove('hc-on');
-    b.style.background = 'transparent';
-    b.style.color = 'var(--muted)';
-    b.style.borderColor = 'rgba(245,200,66,0.3)';
-  });
+  if (!ta) return;
+  const cur = ta.value.trim();
+  ta.value = cur ? cur + '; ' + text : text;
+  ta.focus();
 }
 
 function openPromptGen(){
@@ -3167,7 +3245,6 @@ function openPromptGen(){
   const grid = document.getElementById('pgSimpleGrid');
   if (wrap) wrap.style.display = 'block';
   if (grid) grid.style.gridTemplateColumns = '1fr 1fr';
-  pgBuildHintChips();
   setTimeout(pgAutoActivateFirstZone, 100);
 }
 function closePromptGen(){
@@ -3284,6 +3361,196 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// Ctrl+Enter para gerar (quando modal do gerador estiver aberto)
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('promptGenOverlay').classList.contains('open')) return;
+  if (document.getElementById('galleryPickerOverlay').classList.contains('open')) return; // picker aberto, ignora
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    const btn = document.getElementById('pgGenBtn');
+    if (btn && !btn.disabled) btn.click();
+  }
+  if (e.key === 'Escape') closePromptGen();
+});
+
+// ══════════════════════════════════════════════════
+// GALLERY PICKER — selecionar foto da galeria para zonas de upload
+// ══════════════════════════════════════════════════
+
+let _gpTargetZone = null;
+let _gpFilteredItems = [];
+
+// Labels descritivos por zona
+const GP_ZONE_LABELS = {
+  simple:       '🖼 Foto de referência',
+  simplemodel:  '👤 Foto do modelo',
+  subject:      '📌 Foto do modelo (rosto a preservar)',
+  style:        '🎨 Imagem de estilo (pose / iluminação)',
+  facesubject:  '👤 Foto do modelo (rosto a colocar)',
+  facetarget:   '🎯 Foto alvo (corpo + pose a manter)',
+  scenesubject: '🧍 Foto do cliente',
+  sceneref:     '🌆 Foto de referência de cena',
+  familiaalvo:  '🎯 Foto alvo (modelo da família)',
+};
+
+function openGalleryPicker(zoneKey, personIdx) {
+  _gpTargetZone = personIdx !== undefined ? `familiaperson_${personIdx}` : zoneKey;
+  const label = personIdx !== undefined
+    ? `👤 Foto da pessoa ${personIdx + 1}`
+    : (GP_ZONE_LABELS[zoneKey] || 'Escolha uma foto');
+  document.getElementById('gpSubtitle').textContent = label;
+  document.getElementById('gpSearchInput').value = '';
+  document.getElementById('galleryPickerOverlay').classList.add('open');
+  gpFilterGallery('');
+}
+
+function closeGalleryPicker() {
+  document.getElementById('galleryPickerOverlay').classList.remove('open');
+  _gpTargetZone = null;
+}
+
+function gpFilterGallery(q) {
+  const lower = q.toLowerCase();
+  _gpFilteredItems = lower
+    ? items.filter(it => (it.title||'').toLowerCase().includes(lower) || (it.tags||[]).some(t=>t.toLowerCase().includes(lower)))
+    : [...items];
+  gpRenderGrid();
+}
+
+function gpRenderGrid() {
+  const grid = document.getElementById('gpGrid');
+  if (!_gpFilteredItems.length) {
+    grid.innerHTML = `<div class="gp-empty" style="grid-column:1/-1;">
+      ${items.length === 0
+        ? 'Nenhuma foto na galeria.<br><span style="font-size:10px;opacity:.6;">Adicione fotos primeiro para usá-las aqui.</span>'
+        : 'Nenhuma foto encontrada para essa busca.'}
+    </div>`;
+    return;
+  }
+  grid.innerHTML = _gpFilteredItems.map(it => `
+    <div class="gp-card" onclick="gpPickItem('${it.id}')" title="${(it.title||'').replace(/"/g,'&quot;')}">
+      ${it.img
+        ? `<img src="${it.img}" loading="lazy">`
+        : `<div class="gp-card-no-img" id="gpCardThumb_${it.id}">⏳</div>`}
+      <div class="gp-card-label">${it.title || '—'}</div>
+    </div>
+  `).join('');
+
+  // Carrega do IDB os thumbs que não estão em memória
+  if (idb) {
+    _gpFilteredItems.filter(it => !it.img).forEach(it => {
+      const tx = idb.transaction('images','readonly');
+      const req = tx.objectStore('images').get(it.id);
+      req.onsuccess = e => {
+        const dataUrl = e.target.result?.dataUrl;
+        if (!dataUrl) return;
+        const placeholder = document.getElementById(`gpCardThumb_${it.id}`);
+        if (placeholder) {
+          placeholder.outerHTML = `<img src="${dataUrl}" loading="lazy">`;
+        }
+        // Cache na memória para próximas aberturas
+        it.img = dataUrl;
+      };
+    });
+  }
+}
+
+async function gpPickItem(id) {
+  const it = items.find(i => i.id === id);
+  if (!it) return;
+
+  let dataUrl = it.img || null;
+  if (!dataUrl && idb) {
+    dataUrl = await new Promise(res => {
+      const tx = idb.transaction('images','readonly');
+      const req = tx.objectStore('images').get(id);
+      req.onsuccess = e => res(e.target.result?.dataUrl || null);
+      req.onerror = () => res(null);
+    });
+  }
+  if (!dataUrl) { toast('⚠ Imagem não encontrada no banco'); return; }
+
+  const base64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+  gpApplyToZone(_gpTargetZone, base64, dataUrl);
+  closeGalleryPicker();
+  toast('✓ Foto carregada da galeria!');
+}
+
+function gpApplyToZone(zone, base64, dataUrl) {
+  const show = (previewId, iconId, labelId, clearId, changeBtnId) => {
+    const p = document.getElementById(previewId);
+    if (p) { p.src = dataUrl; p.style.display = 'block'; }
+    if (iconId)   { const el = document.getElementById(iconId);   if(el) el.style.display='none'; }
+    if (labelId)  { const el = document.getElementById(labelId);  if(el) el.style.display='none'; }
+    if (clearId)  { const el = document.getElementById(clearId);  if(el) el.style.display='block'; }
+    if (changeBtnId) { const el = document.getElementById(changeBtnId); if(el) el.style.display='block'; }
+  };
+  switch(zone) {
+    case 'simple':
+      pgSetImage(base64, dataUrl); break;
+    case 'simplemodel':
+      pgModelBase64 = base64;
+      show('pgModelPreview','pgModelIcon','pgModelLabel','pgModelClearBtn','pgModelChangeBtn');
+      pgUpdateSimpleInfo(); checkGenBtnReady(); break;
+    case 'subject':
+      pgSubjectBase64 = base64;
+      show('pgSubjectPreview','pgSubjectIcon','pgSubjectLabel','pgSubjectClearBtn',null);
+      checkGenBtnReady(); break;
+    case 'style':
+      pgStyleBase64 = base64;
+      show('pgStylePreview','pgStyleIcon','pgStyleLabel','pgStyleClearBtn',null);
+      checkGenBtnReady(); break;
+    case 'facesubject':
+      pgFaceSubjectBase64 = base64;
+      show('pgFaceSubjectPreview','pgFaceSubjectIcon','pgFaceSubjectLabel','pgFaceSubjectClearBtn',null);
+      checkGenBtnReady(); break;
+    case 'facetarget':
+      pgFaceTargetBase64 = base64;
+      show('pgFaceTargetPreview','pgFaceTargetIcon','pgFaceTargetLabel','pgFaceTargetClearBtn',null);
+      checkGenBtnReady(); break;
+    case 'scenesubject':
+      pgSceneSubjectBase64 = base64;
+      show('pgSceneSubjectPreview','pgSceneSubjectIcon','pgSceneSubjectLabel','pgSceneSubjectClearBtn',null);
+      checkGenBtnReady(); break;
+    case 'sceneref':
+      pgSceneRefBase64 = base64;
+      show('pgSceneRefPreview','pgSceneRefIcon','pgSceneRefLabel','pgSceneRefClearBtn',null);
+      checkGenBtnReady(); break;
+    case 'familiaalvo':
+      familiaRefBase64 = base64;
+      const faz = document.getElementById('pgFamiliaAlvoZone');
+      if (faz) { faz.style.borderColor = 'var(--gold)'; faz.style.background = 'transparent'; }
+      const inner = document.getElementById('pgFamiliaAlvoInner');
+      if (inner) {
+        inner.innerHTML = `<img src="${dataUrl}" style="max-height:130px;max-width:100%;border-radius:8px;object-fit:contain;display:block;">
+          <button onclick="event.stopPropagation();pgClearFamiliaAlvo()" style="font-size:10px;padding:3px 10px;border:1px solid var(--red);border-radius:5px;background:transparent;color:var(--red);cursor:pointer;margin-top:4px;">✕ Remover</button>`;
+      }
+      checkGenBtnReady(); break;
+    default:
+      // familia person: 'familiaperson_N'
+      if (zone && zone.startsWith('familiaperson_')) {
+        const idx = parseInt(zone.split('_')[1]);
+        if (!isNaN(idx) && familiaPersons[idx] !== undefined) {
+          familiaPersons[idx].base64 = base64;
+          const prev = document.getElementById(`fpPreview_${idx}`);
+          if (prev) { prev.src = dataUrl; prev.style.display = 'block'; }
+          ['fpIcon_','fpLabel_'].forEach(pfx => {
+            const el = document.getElementById(pfx + idx); if(el) el.style.display='none';
+          });
+          checkGenBtnReady();
+        }
+      }
+  }
+}
+
+// Esc fecha o picker
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('galleryPickerOverlay').classList.contains('open')) {
+    e.stopPropagation();
+    closeGalleryPicker();
+  }
+});
+
 // Clique na zona: 1º clique = ativa; 2º clique = abre upload
 function pgZoneClick(zoneKey) {
   // Modo simple (coluna única): clique único já abre o file picker
@@ -3332,16 +3599,6 @@ function pgAutoActivateFirstZone() {
   const zones = PG_ZONES[pgGenMode] || [];
   pgSetActiveZone(zones[0] || null);
 }
-
-// ── Ctrl+Enter para gerar (quando modal aberto) ──
-document.addEventListener('keydown', function(e) {
-  if (!document.getElementById('promptGenOverlay').classList.contains('open')) return;
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    e.preventDefault();
-    const btn = document.getElementById('pgGenBtn');
-    if (btn && !btn.disabled) btn.click();
-  }
-});
 
 // ── PASTE DE IMAGEM (Ctrl+V) ──
 document.addEventListener('paste', function(e) {
@@ -3873,86 +4130,114 @@ async function _pgGenerateInner(){
   },400);
 
   const schema=pgSchemas[pgMode];
-  // ── Injeta hint pré-análise no system prompt ──
-  const hintRaw = (document.getElementById('pgHint')?.value || '').trim();
-  const systemBase = pgModePrompts[pgMode];
-  const system = hintRaw
-    ? `⚠ PRE-ANALYSIS HINTS FROM USER (treat as CONFIRMED FACTS — do NOT contradict these, even if the image seems to suggest otherwise):\n${hintRaw}\n\n${systemBase}`
-    : systemBase;
+  const pgHintVal = (document.getElementById('pgHint')?.value || '').trim();
+  const system = pgHintVal
+    ? pgModePrompts[pgMode] + '\n\n⚠ CONTEXTO ADICIONAL DO OPERADOR (PRIORIDADE MÁXIMA):\n' + pgHintVal
+    : pgModePrompts[pgMode];
 
   let userContent;
 
   if(pgGenMode==='subject'){
     userContent = [
       { type:'text', text:`You will receive TWO images:
-- IMAGE 1 (SUBJECT — the REAL person to preserve): Extract ONLY physical traits. Face, hair, beard, skin, body type. NOTHING ELSE from IMAGE 1.
-- IMAGE 2 (STYLE REFERENCE): Extract ONLY non-physical elements. Clothing, pose, gaze direction, framing, lighting, background. Do NOT use IMAGE 2 person's face, hair, beard, skin or body type in ANY way.
+- IMAGE 1 (SUBJECT — the REAL person to preserve): Extract ONLY physical traits. Face, hair, beard, SKIN TONE, body type. NOTHING ELSE from IMAGE 1.
+- IMAGE 2 (STYLE REFERENCE): The final image must look like IMAGE 2 where ONLY the person is replaced. Clothing, GAZE DIRECTION, HEAD ANGLE, FACE SCALE IN FRAME, pose, background, lighting — ALL locked to IMAGE 2. IMAGE 1 person's gaze and head position are IRRELEVANT.
 
-⚠ CRITICAL SEPARATION RULE:
-- Everything PHYSICAL (face, hair, beard, skin, body shape) → comes EXCLUSIVELY from IMAGE 1
-- Everything NON-PHYSICAL (clothes, pose, lighting, background, framing) → comes EXCLUSIVELY from IMAGE 2
-- If IMAGE 2 person has hair and IMAGE 1 person is BALD → the result is BALD. Always.
-- If IMAGE 2 person is slim and IMAGE 1 person is heavyset → the result is heavyset. Always.
-- NEVER blend or mix physical traits between the two images.
+⚠ CRITICAL SEPARATION RULES:
+- FACE FEATURES (shape, nose, eyes, jaw, lips) → EXCLUSIVELY from IMAGE 1
+- SKIN TONE → EXCLUSIVELY from IMAGE 1. NEVER use IMAGE 2 person's skin tone. Fair stays fair.
+- GAZE DIRECTION → EXCLUSIVELY from IMAGE 2. IMAGE 1 gaze is IRRELEVANT.
+- HEAD ANGLE / HEAD TILT → EXCLUSIVELY from IMAGE 2. Do NOT copy IMAGE 1 head angle.
+- FACE SCALE IN FRAME → matches IMAGE 2 exactly. Do NOT resize the face.
+- POSE / BODY ORIENTATION → EXCLUSIVELY from IMAGE 2.
+- HAIR (color, style, length) → EXCLUSIVELY from IMAGE 1.
+- BODY TYPE / WEIGHT → EXCLUSIVELY from IMAGE 1.
+- NEVER blend physical traits between images.
 
 Return ONLY a JSON object using this structure:
 ${schema}
 
 ━━ STEP 1: ANALYZE IMAGE 1 — PHYSICAL TRAITS ONLY ━━
 
-FACE (face_preservation) — surgical precision, every feature:
+SKIN TONE — IMAGE 1 ONLY — CRITICAL:
+Exact tone: fair / light / light-medium / medium / olive / tan / brown / dark brown / deep
+⚠ NON-NEGOTIABLE. Output MUST have this exact skin tone.
+
+FACE (face_preservation) — surgical precision:
 • Face shape: oval/round/square/heart/diamond/oblong — exact
 • Forehead: broad/narrow/high/low
 • Jawline: strong/soft/square/rounded/pointed — exact
 • Nose: size (small/medium/large/broad), tip (rounded/pointed/upturned/flat/bulbous), bridge (straight/curved/prominent/wide)
-• Eyes: shape (almond/round/hooded/deep-set/wide-set/close-set), exact color, size, spacing
+• Eyes: shape (almond/round/hooded/deep-set/wide-set/close-set), EXACT color (dark brown/black/blue/green/hazel/gray — never vague), size, spacing
 • Eyebrows: thick/thin/arched/flat/bushy/sparse, color
 • Cheekbones: high/low/prominent/flat/defined
 • Lips: thin/full/medium, upper lip, lower lip shape
 • Chin: strong/weak/cleft/rounded/pointed
-• Skin: exact tone (fair/light/medium/olive/tan/brown/deep) + marks, freckles, moles, scars, wrinkles
-• Ears: if visible
-• Expression: neutral/slight smile/serious
-• Unique features: anything distinctive — scar, mole, gap teeth, asymmetry, dimples
+• Unique features: scar, mole, gap teeth, asymmetry, dimples, freckles, wrinkles
 
 HAIR — IMAGE 1 ONLY — ABSOLUTE:
-- Look ONLY at IMAGE 1. Ignore IMAGE 2 completely.
 - BALD/shaved: "BALD — completely shaved head, zero hair" — negative MUST include "hair, any hair on head, toupee, wig, hair growth"
-- Has hair: exact color (black/dark brown/medium brown/light brown/blonde/gray/salt-and-pepper), exact length, exact style (swept back/side part/curly/wavy/straight/buzzed/textured)
-- ⚠ NEVER ADD HAIR IF IMAGE 1 IS BALD. The style reference person's hair is IRRELEVANT.
+- Has hair: exact color, exact length, exact style
+- ⚠ NEVER ADD HAIR IF IMAGE 1 IS BALD.
 
 BEARD — IMAGE 1 ONLY:
-Full beard / thick beard / short beard / stubble / goatee / mustache only / clean-shaved — color + density
+Full beard / thick beard / short beard / stubble / goatee / clean-shaved — color + density
 ⚠ NEVER copy IMAGE 2 beard.
 
 BODY TYPE — IMAGE 1 ONLY — SACRED:
-slim / lean / average / athletic / stocky / heavyset / overweight — EXACTLY as seen. Never idealize. Never change.
+slim / lean / average / athletic / stocky / heavyset / overweight — EXACTLY as seen. Never idealize.
 
 ━━ STEP 2: ANALYZE IMAGE 2 — STYLE/SCENE ONLY ━━
 
-Extract ONLY (ignore all physical traits of IMAGE 2 person):
+Extract ONLY (ignore ALL physical traits of IMAGE 2 person — skin, face, hair are IRRELEVANT):
 • Clothing: every detail — garment type, color, fabric, fit, accessories, shoes
 • Pose: posture, hand/arm position, body stance
 • Body orientation: facing camera / profile / 3-quarter / back
-• Gaze direction: at camera / left / right / down / off-frame
+• HEAD ANGLE: exact head tilt/rotation — straight / tilted left / tilted right / tilted down / tilted up
+• GAZE DIRECTION: exactly — looking directly at camera / looking LEFT / looking RIGHT / looking down / looking up / off-frame. LOCKED.
+• FACE SCALE IN FRAME: close-up filling frame / medium portrait / small figure in wide shot
 • Framing: close-up / portrait / half-body / 3/4 body / full body
-• Background: studio, outdoor, indoor — describe texture, color, depth
+• Background: texture, color, depth
 • Lighting: direction, quality (soft/hard/dramatic/natural), color temp, shadows
 
 ━━ STEP 3: BUILD THE OUTPUT ━━
 
+face_preservation field — single comprehensive paragraph: face shape, jawline, nose (size + tip + bridge), eye shape + EXACT color, eyebrows, cheekbones, lip shape + volume, chin, EXACT skin tone, ALL marks. This is the IDENTITY LOCK.
+
 prompt_ready format:
 Ingredients: [subject_photo], [style_reference]
 
-Portrait of the person from [subject_photo] in the style of [style_reference]. PRESERVE EXACTLY from [subject_photo] — face: [complete face description: face shape, jawline, nose tip and bridge, eye shape and color, eyebrows, cheekbones, lips, chin, skin tone, any marks]. Hair: [BALD — shaved head / OR exact color+length+style from IMAGE 1]. Beard: [exact beard from IMAGE 1]. Skin: [exact tone]. Body: [exact body type — do NOT change weight]. Wearing [IMAGE 2 exact outfit]. [IMAGE 2 exact pose]. Gaze: [IMAGE 2 gaze direction — LEFT/RIGHT/camera]. [IMAGE 2 framing]. [IMAGE 2 background]. [IMAGE 2 lighting]. Photorealistic, sharp focus on face, Canon 5D, 85mm, f/1.8, 4K.
+⚠ IDENTITY LOCK + SCENE LOCK — NON-NEGOTIABLE:
+
+SCENE LOCK from [style_reference]:
+• Gaze: [IMAGE 2 EXACT gaze — "looking directly at camera" / "looking LEFT" / "looking RIGHT" / "looking down"] — DO NOT use IMAGE 1 gaze.
+• Head angle: [IMAGE 2 exact head tilt — "head straight" / "head tilted left" / "head turned right"] — DO NOT use IMAGE 1 head angle.
+• Face scale: [IMAGE 2 face scale in frame]. Do NOT resize.
+• Pose: [IMAGE 2 exact pose and body stance]
+• Outfit: [IMAGE 2 exact outfit — every garment, color, fabric, fit, accessories, shoes]
+• Background: [IMAGE 2 background]
+• Lighting: [IMAGE 2 lighting]
+• Framing: [IMAGE 2 framing]
+
+IDENTITY LOCK from [subject_photo]:
+• Skin tone: [IMAGE 1 EXACT skin tone — e.g. "fair skin", "light skin" — NEVER darken]. Sacred.
+• Face: [face shape] face, [jawline] jawline, [nose: size + tip + bridge], [eye shape] eyes with [EXACT eye color], [eyebrows], [cheekbones], [lip shape + volume], [chin], [ALL marks/moles/freckles]. DO NOT alter, soften or beautify any feature.
+• Hair: [BALD — completely shaved scalp / OR exact color+length+style].
+• Beard: [exact beard from IMAGE 1].
+• Body: [exact body type — do NOT slim down, do NOT idealize].
+Photorealistic, hyperrealistic facial detail, sharp focus on face, natural skin pores, Canon 5D, 85mm, f/1.8, 4K.
+
+flow_prompt_final: same as prompt_ready, then append exactly:
+"\n\n⚠ REMINDER: [subject_photo] = IMAGE 1 — physical traits ONLY: face (100% identical — same nose, eye color, jawline, lips, SAME SKIN TONE), hair, beard, body. [style_reference] = IMAGE 2 — scene is LOCKED: gaze direction, head angle, face scale, pose, outfit, background, lighting ALL come from IMAGE 2. DO NOT use IMAGE 1 gaze or head position. DO NOT alter skin tone."
 
 flow_instructions: "Como usar no Google Flow: 1) flow.google.com → novo projeto. 2) ADD (+) → suba SUA FOTO como subject_photo. 3) Suba FOTO DE ESTILO como style_reference. 4) Cole o prompt_ready. 5) Nano Banana Pro → Generate."
 
-negative_prompt: ALWAYS "different face, different nose, different jawline, different eye shape, CGI, airbrushed, plastic skin, different body type, slimmer, thinner, idealized physique, different person".
-If IMAGE 1 is BALD: add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair".
-If IMAGE 1 has hair: add "bald, shaved head, different hair color, different hairstyle".
-If IMAGE 1 has beard: add "clean-shaved, no beard".
-If IMAGE 1 is clean-shaved: add "beard, stubble, facial hair".
+negative_prompt: ALWAYS "different face, different person, wrong identity, changed nose shape, different nose, different jawline, different eye shape, wrong eye color, different lip shape, skin tone changed, face darkened, skin darkened, wrong skin tone, face morphed, face altered, beautified face, idealized face, CGI, airbrushed, plastic skin, different body type, wrong gaze direction, head angle changed, face too large, face too small, face rescaled, slimmer, thinner, muscular, weight loss, idealized physique".
+If IMAGE 1 is BALD: also add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair, hair added".
+If IMAGE 1 has hair: also add "bald, shaved head, different hair color, different hairstyle, wrong hair".
+If IMAGE 1 has beard: also add "clean-shaved, no beard, beard removed".
+If IMAGE 1 is clean-shaved: also add "beard, stubble, facial hair, added beard".
+If IMAGE 1 has distinctive marks: also add "mole removed, scar removed, marks removed, freckles removed".
 
 Return ONLY valid JSON. No markdown. No backticks. No explanation.` },
       { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgSubjectBase64 }},
@@ -3961,38 +4246,49 @@ Return ONLY valid JSON. No markdown. No backticks. No explanation.` },
   } else if(pgGenMode==='faceswap'){
     userContent = [
       { type:'text', text:`You will receive TWO images:
-- IMAGE 1 (MODEL — the REAL person whose face and body replace the one in IMAGE 2): Extract ONLY physical traits. Face, hair, beard, skin, body type. NOTHING ELSE from IMAGE 1.
-- IMAGE 2 (TARGET PHOTO — the scene to keep exactly): Keep EVERYTHING except the person. Same pose, same gaze direction, same body orientation, same clothing, same background, same lighting, same framing. ONLY replace the person with IMAGE 1 person.
+- IMAGE 1 (MODEL — the REAL person: face, hair, beard, skin tone, body type come ONLY from here): Extract physical traits with surgical precision. NOTHING from IMAGE 1 except physical traits.
+- IMAGE 2 (TARGET PHOTO — everything non-physical is locked here): The final image must be a COPY of IMAGE 2 where ONLY the person is replaced. Pose, gaze direction, head angle, body orientation, framing, outfit, background, lighting, face size/scale in frame — ALL locked to IMAGE 2. IMAGE 1 person's pose, gaze, head position are IRRELEVANT.
 
-⚠ CRITICAL SEPARATION RULE:
-- Everything PHYSICAL (face, hair, beard, skin, body shape, weight) → comes EXCLUSIVELY from IMAGE 1
-- Everything NON-PHYSICAL (pose, outfit, background, lighting, framing, gaze) → comes EXCLUSIVELY from IMAGE 2
-- If IMAGE 2 person has hair and IMAGE 1 person is BALD → the result is BALD. Always.
-- If IMAGE 2 person is slim and IMAGE 1 person is heavyset → the result is heavyset. Always.
-- NEVER blend physical traits between the two images.
+⚠ CRITICAL SEPARATION RULES — READ CAREFULLY:
+- FACE FEATURES (shape, nose, eyes, skin tone, jaw, lips) → come EXCLUSIVELY from IMAGE 1
+- SKIN TONE → comes EXCLUSIVELY from IMAGE 1. NEVER use IMAGE 2 person's skin tone. Fair is fair. Dark is dark. Do NOT darken a fair person.
+- GAZE DIRECTION → comes EXCLUSIVELY from IMAGE 2. If IMAGE 2 person looks left, the result looks left. If IMAGE 2 person looks at camera, result looks at camera. IMAGE 1 person's gaze is IRRELEVANT.
+- HEAD ANGLE / HEAD TILT → comes EXCLUSIVELY from IMAGE 2. Do NOT use IMAGE 1 person's head position.
+- FACE SCALE / FACE SIZE IN FRAME → matches IMAGE 2 exactly. If IMAGE 2 is a bust portrait, the face fills the frame like IMAGE 2. Do NOT resize the face.
+- POSE / BODY ORIENTATION → comes EXCLUSIVELY from IMAGE 2.
+- OUTFIT / CLOTHING → comes EXCLUSIVELY from IMAGE 2.
+- BACKGROUND / LIGHTING → comes EXCLUSIVELY from IMAGE 2.
+- HAIR (color, style, length) → comes EXCLUSIVELY from IMAGE 1.
+- BODY TYPE / WEIGHT → comes EXCLUSIVELY from IMAGE 1. Never idealize.
+- If IMAGE 2 person is slim and IMAGE 1 person is heavyset → result is heavyset. Always.
+- If IMAGE 2 person is dark-skinned and IMAGE 1 person is fair-skinned → result is FAIR-SKINNED. Always.
+- NEVER blend physical traits between images. Zero compromise.
 
 Return ONLY a JSON object using this structure:
 ${schema}
 
 ━━ STEP 1: ANALYZE IMAGE 1 — PHYSICAL TRAITS ONLY ━━
 
+SKIN TONE — IMAGE 1 ONLY — CRITICAL:
+Describe EXACT skin tone: fair / light / light-medium / medium / olive / tan / brown / dark brown / deep
+⚠ This skin tone is NON-NEGOTIABLE. The output person MUST have this exact skin tone.
+
 FACE (face_preservation) — surgical precision, every feature:
-• Face shape: oval/round/square/heart/diamond — exact
+• Face shape: oval/round/square/heart/diamond/oblong — exact
 • Forehead: broad/narrow/high/low
 • Jawline: strong/soft/square/rounded/pointed — exact
-• Nose: size, tip shape (rounded/pointed/upturned/flat/broad/bulbous), bridge (straight/curved/prominent/wide)
-• Eyes: shape (almond/round/hooded/deep-set/wide-set), exact color, size, spacing
-• Eyebrows: thick/thin/arched/flat/bushy, color
-• Cheekbones: high/low/prominent/flat
-• Lips: thin/full, upper/lower ratio, shape
-• Chin: strong/weak/cleft/rounded
-• Skin tone: exact (fair/light/medium/olive/tan/brown/deep) + any marks, moles, scars, freckles
-• Unique features: mole, scar, freckle, gap teeth, dimple, asymmetry
+• Nose: size (small/medium/large/broad), tip shape (rounded/pointed/upturned/flat/broad/bulbous), bridge (straight/curved/prominent/wide/narrow)
+• Eyes: shape (almond/round/hooded/deep-set/wide-set/close-set), EXACT color (dark brown/black/blue/green/hazel/gray — never vague), size, spacing
+• Eyebrows: thick/thin/arched/flat/bushy/sparse, color
+• Cheekbones: high/low/prominent/flat/defined
+• Lips: thin/full/medium, upper lip shape, lower lip shape, volume
+• Chin: strong/weak/cleft/rounded/pointed
+• Unique features: mole, scar, freckle, gap teeth, dimple, asymmetry, any distinctive mark
 
 HAIR — IMAGE 1 ONLY — ABSOLUTE:
 - BALD/shaved: "BALD — completely shaved head, no hair at all" — negative MUST include "hair, any hair on head, toupee, wig, hair growth"
 - Has hair: exact color + length + style + texture — NEVER change it
-- ⚠ NEVER ADD HAIR IF IMAGE 1 IS BALD. IMAGE 2 person's hair is IRRELEVANT.
+- ⚠ NEVER ADD HAIR IF IMAGE 1 IS BALD.
 
 BEARD — IMAGE 1 ONLY:
 Full beard / thick beard / short beard / stubble / goatee / clean-shaved + color + density
@@ -4001,13 +4297,14 @@ Full beard / thick beard / short beard / stubble / goatee / clean-shaved + color
 BODY TYPE — IMAGE 1 ONLY — SACRED:
 slim / lean / average / athletic / stocky / heavyset / overweight — EXACTLY as seen. Never idealize. Never slim.
 
-━━ STEP 2: ANALYZE IMAGE 2 — SCENE/POSE ONLY ━━
+━━ STEP 2: ANALYZE IMAGE 2 — SCENE, POSE, GAZE, FRAMING ONLY ━━
 
-Extract ONLY (ignore all physical traits of IMAGE 2 person):
+Extract ONLY (ignore ALL physical traits of IMAGE 2 person — their skin tone, face, hair, beard are IRRELEVANT):
 • Body orientation: facing camera / 3-quarter / profile / back to camera
 • If back pose: back_visible=true — describe back of clothing (collar from back, back panel, belt, back pockets, shoes from behind)
-• Head turn direction: none / turned left / turned right / looking back over shoulder
-• Gaze direction: at camera / left / right / down
+• HEAD ANGLE: describe exact head tilt and rotation — straight/tilted left/tilted right/tilted down/tilted up
+• GAZE DIRECTION: describe exactly — looking directly at camera / looking LEFT / looking RIGHT / looking down / looking up / looking off-frame. This is LOCKED for the output.
+• FACE SCALE IN FRAME: describe how large the face/head appears in the frame — close-up filling most of frame / medium portrait / small figure in wide shot
 • Pose details: posture, hand/arm position, stance
 • Outfit: every garment detail — type, color, fabric, fit, accessories, shoes
 • Background: studio, outdoor, indoor — texture, color, depth
@@ -4016,27 +4313,50 @@ Extract ONLY (ignore all physical traits of IMAGE 2 person):
 
 ━━ STEP 3: BUILD THE OUTPUT ━━
 
+face_preservation field — write a single comprehensive paragraph with EVERY facial trait of IMAGE 1 at maximum precision. Include: face shape, jawline, nose (size + tip + bridge), eye shape + EXACT color, eyebrows, cheekbones, lip shape + volume, chin, EXACT skin tone (fair/light/medium/olive/tan/brown/deep), ALL visible marks. State the skin tone explicitly. This is the IDENTITY LOCK.
+
 prompt_ready — if IMAGE 2 faces camera:
 Ingredients: [model_photo], [target_photo]
 
-Face and body swap: replace the person in [target_photo] with the person from [model_photo]. KEEP EXACTLY from [target_photo]: same pose, same gaze ([IMAGE 2 exact gaze direction]), same framing, same outfit ([IMAGE 2 exact clothing — every detail]), same background, same lighting. Apply face AND body from [model_photo]: PRESERVE EXACTLY — face: [full face description: face shape, jawline, nose tip and bridge, eye shape and color, eyebrows, cheekbones, lips, chin, skin tone, any marks]. Hair: [BALD — shaved head / OR exact hair from IMAGE 1]. Beard: [exact beard from IMAGE 1]. Body: [exact body type from IMAGE 1 — do NOT change weight or proportions]. Photorealistic, sharp focus on face, natural skin texture, Canon 5D, 85mm, f/1.8, 4K.
+⚠ IDENTITY LOCK + SCENE LOCK — ALL RULES BELOW ARE NON-NEGOTIABLE:
+Face and body swap: replace the person in [target_photo] with the person from [model_photo].
+
+SCENE LOCK from [target_photo] — DO NOT CHANGE ANY OF THESE:
+• Gaze: [IMAGE 2 EXACT gaze direction — "looking directly at camera" / "looking LEFT" / "looking RIGHT" / "looking down"] — USE THIS EXACT GAZE. Do NOT use IMAGE 1 person's gaze.
+• Head angle: [IMAGE 2 exact head tilt/rotation — "head straight" / "head tilted left" / "head turned right"] — DO NOT use IMAGE 1 person's head angle.
+• Face scale: [IMAGE 2 face scale in frame — the face must occupy the same proportion of frame as IMAGE 2]. Do NOT resize the face.
+• Pose: [IMAGE 2 exact pose and body stance]
+• Outfit: [IMAGE 2 exact outfit — every garment, color, fabric, accessories, shoes]
+• Background: [IMAGE 2 background]
+• Lighting: [IMAGE 2 lighting]
+• Framing: [IMAGE 2 framing]
+
+IDENTITY LOCK from [model_photo] — REPRODUCE 100% IDENTICALLY:
+• Skin tone: [IMAGE 1 EXACT skin tone — e.g. "fair skin", "light skin", "medium-olive skin" — NEVER darken or change]. This is sacred.
+• Face: [face shape] face, [jawline] jawline, [nose: size + tip + bridge], [eye shape] eyes with [EXACT eye color], [eyebrows], [cheekbones], [lip shape and volume], [chin], [ALL marks/moles/scars/freckles]. DO NOT alter, soften, beautify or change any feature.
+• Hair: [BALD — completely shaved smooth scalp, zero hair / OR exact hair color+length+style].
+• Beard: [exact beard from IMAGE 1].
+• Body: [exact body type from IMAGE 1 — do NOT slim down, do NOT add muscle].
+Photorealistic, hyperrealistic facial detail, sharp focus on face, natural skin pores, Canon 5D, 85mm, f/1.8, 4K.
 
 If IMAGE 2 is BACK POSE:
 Ingredients: [model_photo], [target_photo]
 
-BACK VIEW — Face and body swap: replace the person in [target_photo] with the person from [model_photo]. KEEP EXACTLY from [target_photo]: same back pose, same head turn ([IMAGE 2 head turn direction]), same framing, same outfit back view ([IMAGE 2 back clothing details: back panel, collar from back, belt, back pockets, shoes from behind]), same background, same lighting. Apply body from [model_photo]: hair [BALD from behind / OR exact hair from IMAGE 1], beard [exact beard], skin [exact tone], body [exact body type — do NOT change weight]. Photorealistic, Canon 5D, 85mm, f/1.8, 4K.
+BACK VIEW — Replace the person in [target_photo] with person from [model_photo]. KEEP from [target_photo]: same back pose, same head turn ([IMAGE 2 head turn direction]), same framing, same outfit back view ([IMAGE 2 back clothing: collar from back, back panel, belt, back pockets, shoes from behind]), same background, same lighting. Apply from [model_photo]: skin tone [EXACT tone from IMAGE 1], hair [BALD — smooth scalp / OR exact hair from IMAGE 1 viewed from behind], beard [exact beard], body [exact body type — do NOT change weight]. Photorealistic, Canon 5D, 85mm, f/1.8, 4K.
 
-flow_prompt_final: same as prompt_ready with this appended:
-"\n\n⚠ REMINDER: [model_photo] = IMAGE 1 (use ALL physical traits: face, hair, beard, body). [target_photo] = IMAGE 2 (use ONLY pose, outfit, background, lighting — do NOT copy IMAGE 2 person's face, hair or body)."
+flow_prompt_final: same as prompt_ready, then append exactly:
+"\n\n⚠ REMINDER: [model_photo] = IMAGE 1 — physical traits ONLY: face features, skin tone, hair, beard, body type. [target_photo] = IMAGE 2 — scene is LOCKED: gaze direction, head angle, face scale, pose, outfit, background, lighting ALL come from IMAGE 2. DO NOT use IMAGE 1 person's gaze, head position or face scale."
 
 flow_instructions: "Como usar no Google Flow: 1) flow.google.com. 2) ADD → suba SUA FOTO como model_photo. 3) Suba FOTO ALVO como target_photo. 4) Cole o prompt_ready. 5) Nano Banana Pro → Generate."
 
-negative_prompt: ALWAYS "different face, different nose shape, different jawline, different eye shape, CGI, airbrushed, plastic skin, different body type, different person, wrong identity, different pose, different background, different outfit".
-If IMAGE 1 is BALD: add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair".
-If IMAGE 1 has hair: add "bald, shaved head, different hair color, different hairstyle".
-If IMAGE 1 has beard: add "clean-shaved, no beard".
-If IMAGE 1 is clean-shaved: add "beard, stubble, facial hair".
-If IMAGE 1 wears sunglasses: add "no glasses, without sunglasses, bare face".
+negative_prompt: ALWAYS "different face, different person, wrong identity, changed nose shape, different nose tip, different nose bridge, different jawline, different eye shape, wrong eye color, different lip shape, skin tone changed, face darkened, skin darkened, wrong skin tone, face morphed, face altered, beautified face, idealized face, CGI, airbrushed, plastic skin, different body type, wrong pose, wrong gaze direction, head angle changed, face too large, face too small, face rescaled, different background, different outfit, wrong clothing".
+If IMAGE 1 is BALD: also add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair".
+If IMAGE 1 has hair: also add "bald, shaved head, different hair color, different hairstyle, wrong hair".
+If IMAGE 1 has beard: also add "clean-shaved, no beard, beard removed".
+If IMAGE 1 is clean-shaved: also add "beard, stubble, facial hair".
+If IMAGE 1 wears sunglasses: also add "no glasses, without sunglasses, bare face".
+If IMAGE 1 has distinctive marks: also add "marks removed, moles removed, scars removed".
+Always add: "slimmer, thinner, idealized physique, weight loss, muscular, different build".
 
 Return ONLY valid JSON. No markdown. No backticks. No explanation.` },
       { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgFaceSubjectBase64 }},
@@ -4045,78 +4365,112 @@ Return ONLY valid JSON. No markdown. No backticks. No explanation.` },
   } else if(pgGenMode==='scene'){
     userContent = [
       { type:'text', text:`You will receive TWO images:
-- IMAGE 1 (CLIENT — the REAL person to be cloned): Extract ONLY physical traits. Face, hair, beard, skin, body type. NOTHING ELSE from IMAGE 1.
-- IMAGE 2 (SCENE REFERENCE — the style/scene to copy): Extract ONLY non-physical elements. Clothing, outfit details, pose, body orientation, gaze direction, background/setting, lighting, framing, color mood. DO NOT use IMAGE 2 person's face, hair, beard, skin or body type in ANY way.
+- IMAGE 1 (CLIENT — the REAL person to be cloned): Extract ONLY physical traits. Face, hair, beard, SKIN TONE, body type. NOTHING ELSE from IMAGE 1.
+- IMAGE 2 (SCENE REFERENCE — the style/scene to copy): The final image must look like IMAGE 2 where ONLY the person is replaced. Clothing, pose, GAZE DIRECTION, HEAD ANGLE, FACE SCALE IN FRAME, body orientation, background, lighting, framing — ALL locked to IMAGE 2. IMAGE 1 person's pose, gaze and head position are IRRELEVANT.
 
-⚠ CRITICAL SEPARATION RULE:
-- Everything PHYSICAL (face, hair, beard, skin, body shape, weight) → comes EXCLUSIVELY from IMAGE 1
-- Everything NON-PHYSICAL (clothes, pose, scene, lighting, background) → comes EXCLUSIVELY from IMAGE 2
-- If IMAGE 2 person has hair and IMAGE 1 person is BALD → the result is BALD. Always.
-- If IMAGE 2 person is slim and IMAGE 1 person is heavyset → the result is heavyset. Always.
-- NEVER blend, merge or mix physical traits between the two images. Zero compromise.
+⚠ CRITICAL SEPARATION RULES:
+- FACE FEATURES (shape, nose, eyes, jaw, lips) → EXCLUSIVELY from IMAGE 1
+- SKIN TONE → EXCLUSIVELY from IMAGE 1. NEVER use IMAGE 2 person's skin tone. Fair stays fair. Dark stays dark.
+- GAZE DIRECTION → EXCLUSIVELY from IMAGE 2. If IMAGE 2 person looks left, result looks left. IMAGE 1 gaze is IRRELEVANT.
+- HEAD ANGLE / HEAD TILT → EXCLUSIVELY from IMAGE 2. Do NOT copy IMAGE 1 person's head angle.
+- FACE SCALE IN FRAME → matches IMAGE 2 exactly. Do NOT resize the face.
+- POSE / BODY ORIENTATION → EXCLUSIVELY from IMAGE 2.
+- OUTFIT / CLOTHING → EXCLUSIVELY from IMAGE 2.
+- HAIR (color, style, length) → EXCLUSIVELY from IMAGE 1.
+- BODY TYPE / WEIGHT → EXCLUSIVELY from IMAGE 1. Never idealize.
+- If IMAGE 2 person is slim and IMAGE 1 is heavyset → result is heavyset. Always.
+- If IMAGE 2 person is dark-skinned and IMAGE 1 is fair-skinned → result is FAIR-SKINNED. Always.
+- NEVER blend physical traits between images.
 
 Return ONLY a JSON object using this structure:
 ${schema}
 
 ━━ STEP 1: ANALYZE IMAGE 1 — PHYSICAL TRAITS ONLY ━━
 
-FACE (face_preservation) — describe with surgical precision every feature:
+SKIN TONE — IMAGE 1 ONLY — CRITICAL:
+Exact skin tone: fair / light / light-medium / medium / olive / tan / brown / dark brown / deep
+⚠ This skin tone is NON-NEGOTIABLE. The output MUST have this exact skin tone.
+
+FACE (face_preservation) — surgical precision:
 • Face shape: oval/round/square/heart/diamond/oblong — exact
 • Forehead: broad/narrow/high/low
-• Jawline: strong/soft/square/rounded/pointed — exact description
-• Nose: size (small/medium/large/broad/wide), tip shape (rounded/pointed/upturned/flat/bulbous), bridge (straight/curved/prominent/wide/narrow)
-• Eyes: shape (almond/round/hooded/deep-set/wide-set/close-set), exact color (brown/dark brown/black/blue/green/hazel/gray), size, spacing
+• Jawline: strong/soft/square/rounded/pointed — exact
+• Nose: size (small/medium/large/broad), tip (rounded/pointed/upturned/flat/bulbous), bridge (straight/curved/prominent/wide/narrow)
+• Eyes: shape (almond/round/hooded/deep-set/wide-set/close-set), EXACT color (dark brown/black/blue/green/hazel/gray — never vague), size, spacing
 • Eyebrows: thick/thin/arched/flat/bushy/sparse, color
 • Cheekbones: high/low/prominent/flat/defined
-• Lips: thin/full/medium, upper lip shape, lower lip shape
+• Lips: thin/full/medium, upper lip shape, lower lip shape, volume
 • Chin: strong/weak/cleft/rounded/pointed
-• Skin: exact tone (fair/light/medium/olive/tan/brown/deep) + any marks, freckles, moles, scars, wrinkles
-• Unique features: anything distinctive that identifies this specific person
+• Unique features: mole, scar, freckle, gap teeth, dimple, asymmetry, any distinctive mark
 
-HAIR — IMAGE 1 ONLY — ABSOLUTE RULE:
-- Look ONLY at IMAGE 1. Ignore IMAGE 2 person's hair completely.
-- If BALD or shaved head: write "BALD — completely shaved head, no hair whatsoever, smooth scalp" — negative_prompt MUST include "hair, any hair on head, toupee, wig, hair growth, hairstyle"
-- If has hair: exact color, exact length (very short/short/medium/long), exact style (straight/wavy/curly/swept back/side part/textured)
-- ⚠ NEVER ADD HAIR IF IMAGE 1 IS BALD. The reference scene person's hair is IRRELEVANT.
+HAIR — IMAGE 1 ONLY — ABSOLUTE:
+- BALD: "BALD — completely shaved head, no hair, smooth scalp" — negative MUST include "hair, any hair on head, toupee, wig, hair growth"
+- Has hair: exact color + length + style + texture
+- ⚠ NEVER ADD HAIR IF IMAGE 1 IS BALD.
 
 BEARD — IMAGE 1 ONLY:
-Clean-shaved / light stubble / short beard / medium beard / full thick beard / goatee / mustache only — include color and density
-⚠ NEVER copy IMAGE 2 person's beard. Only IMAGE 1.
+Clean-shaved / stubble / short beard / full thick beard / goatee + color + density
+⚠ NEVER copy IMAGE 2 person's beard.
 
-BODY TYPE — IMAGE 1 ONLY — SACRED AND NON-NEGOTIABLE:
-slim / lean / average / athletic / stocky / heavyset / overweight — EXACTLY as visible. Never idealize. Never slim down. Never add muscle. The client keeps their exact body in the new scene.
+BODY TYPE — IMAGE 1 ONLY — SACRED:
+slim / lean / average / athletic / stocky / heavyset / overweight — exactly as seen. Never idealize.
 
-━━ STEP 2: ANALYZE IMAGE 2 — SCENE/STYLE ONLY ━━
+━━ STEP 2: ANALYZE IMAGE 2 — SCENE, POSE, GAZE, FRAMING ONLY ━━
 
-Extract ONLY (do NOT use any physical traits of IMAGE 2 person):
-• Clothing: every detail — type of garment, color, fabric, collar, buttons, fit, accessories, shoes
+Extract ONLY (ignore ALL physical traits of IMAGE 2 person — skin tone, face, hair, beard are IRRELEVANT):
+• Clothing: every detail — type, color, fabric, collar, buttons, fit, accessories, shoes
 • Body orientation: facing camera / 3/4 angle / profile / back to camera
-• Head orientation and gaze: facing camera / turned left / turned right / looking down / off-frame
-• Pose details: posture, hand/arm position, stance
 • If back pose: describe back of clothing — collar from back, back panel, belt, back pockets, shoe backs
-• Background/setting: environment — studio wall, outdoor, indoor, texture, color, depth
+• HEAD ANGLE: exact head tilt/rotation — straight / tilted left / tilted right / tilted down / tilted up
+• GAZE DIRECTION: exactly — looking directly at camera / looking LEFT / looking RIGHT / looking down / looking up / off-frame. THIS IS LOCKED.
+• FACE SCALE IN FRAME: how large the face appears — close-up filling frame / medium portrait / small figure in wide shot
+• Pose: posture, hand/arm position, stance
+• Background: environment, texture, color, depth
 • Lighting: direction, quality (soft/hard/dramatic/natural), color temperature, shadows
 • Framing: close-up / portrait / half-body / 3/4 body / full body
 
 ━━ STEP 3: BUILD THE OUTPUT ━━
 
+face_preservation field — single comprehensive paragraph: face shape, jawline, nose (size + tip + bridge), eye shape + EXACT color, eyebrows, cheekbones, lip shape + volume, chin, EXACT skin tone, ALL marks. State skin tone explicitly. This is the IDENTITY LOCK.
+
 prompt_ready — if IMAGE 2 is front/3-quarter pose:
 Ingredients: [client_photo], [scene_reference]
 
-Place the person from [client_photo] into the scene of [scene_reference]. PRESERVE EXACTLY from [client_photo] — face: [complete face description: face shape, jawline, nose tip and bridge, eye shape and color, eyebrow description, cheekbones, lips, chin, skin tone, any distinctive marks]. Hair: [BALD — completely shaved head / OR exact hair color+length+style from IMAGE 1]. Beard: [exact beard from IMAGE 1 — full thick/short/stubble/clean-shaved + color]. Body: [exact body type from IMAGE 1 — do NOT change weight, do NOT slim down]. Wearing [IMAGE 2 exact outfit — every garment detail, color, accessories]. [IMAGE 2 pose and body orientation]. Gaze: [IMAGE 2 gaze direction]. [IMAGE 2 framing]. Background: [IMAGE 2 background description]. Lighting: [IMAGE 2 lighting]. Photorealistic, natural skin texture, sharp focus on face, Canon 5D, 85mm, f/1.8, 4K.
+⚠ IDENTITY LOCK + SCENE LOCK — ALL RULES BELOW ARE NON-NEGOTIABLE:
+Place the person from [client_photo] into the scene of [scene_reference].
 
-If IMAGE 2 is BACK POSE, add "BACK VIEW — " at start and describe clothing from behind.
+SCENE LOCK from [scene_reference] — DO NOT CHANGE ANY OF THESE:
+• Gaze: [IMAGE 2 EXACT gaze — "looking directly at camera" / "looking LEFT" / "looking RIGHT" / "looking down"] — USE THIS EXACT GAZE. Do NOT use IMAGE 1 person's gaze.
+• Head angle: [IMAGE 2 exact head tilt — "head straight" / "head tilted left" / "head turned right"] — DO NOT use IMAGE 1 person's head angle.
+• Face scale: [IMAGE 2 face scale — face must occupy same proportion of frame as IMAGE 2]. Do NOT resize.
+• Pose: [IMAGE 2 exact pose and body stance]
+• Outfit: [IMAGE 2 exact outfit — every garment, color, fabric, collar, buttons, fit, accessories, shoes]
+• Background: [IMAGE 2 background]
+• Lighting: [IMAGE 2 lighting]
+• Framing: [IMAGE 2 framing]
 
-flow_prompt_final: same as prompt_ready but append: "\n\n⚠ REMINDER: [client_photo] = IMAGE 1 (use ALL physical traits: face, hair, beard, body). [scene_reference] = IMAGE 2 (use ONLY clothing, pose, background, lighting — do NOT copy IMAGE 2 person's face, hair or body)."
+IDENTITY LOCK from [client_photo] — REPRODUCE 100% IDENTICALLY:
+• Skin tone: [IMAGE 1 EXACT skin tone — e.g. "fair skin", "light skin", "medium-olive skin" — NEVER darken]. Sacred.
+• Face: [face shape] face, [jawline] jawline, [nose: size + tip + bridge], [eye shape] eyes with [EXACT eye color], [eyebrows], [cheekbones], [lip shape + volume], [chin], [ALL marks/moles/freckles]. DO NOT alter, soften or beautify any feature.
+• Hair: [BALD — completely shaved scalp / OR exact color+length+style].
+• Beard: [exact beard from IMAGE 1].
+• Body: [exact body type — do NOT slim down, do NOT add muscle].
+Photorealistic, hyperrealistic facial detail, sharp focus on face, natural skin pores, Canon 5D, 85mm, f/1.8, 4K.
+
+If IMAGE 2 is BACK POSE, start with "BACK VIEW — " and describe clothing from behind.
+
+flow_prompt_final: same as prompt_ready, then append exactly:
+"\n\n⚠ REMINDER: [client_photo] = IMAGE 1 — physical traits ONLY: face (100% identical — same nose, same exact eye color, same jawline, same lips, SAME SKIN TONE, same marks), hair, beard, body type. [scene_reference] = IMAGE 2 — scene is LOCKED: gaze direction, head angle, face scale, pose, outfit, background, lighting ALL come from IMAGE 2. DO NOT use IMAGE 1 person's gaze, head angle or face scale. DO NOT alter skin tone."
 
 flow_instructions: "Como usar no Google Flow: 1) flow.google.com → novo projeto. 2) ADD (+) → suba a FOTO DO CLIENTE como client_photo. 3) Suba a FOTO DE REFERÊNCIA como scene_reference. 4) Cole o prompt_ready. 5) Nano Banana Pro → Generate."
 
-negative_prompt: ALWAYS "different face, different nose, different jawline, wrong eye shape, CGI, airbrushed, plastic skin, different body type, different person, wrong identity".
-If IMAGE 1 is BALD: add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair, long hair, short hair".
-If IMAGE 1 has hair: add "bald, shaved head, different hair color, different hairstyle".
-If IMAGE 1 has beard: add "clean-shaved, no beard, bare face".
-If IMAGE 1 is clean-shaved: add "beard, stubble, facial hair".
-Always add "slimmer, thinner, idealized physique, weight loss, muscular, taller, different build".
+negative_prompt: ALWAYS "different face, different person, wrong identity, changed nose shape, different nose tip, different nose bridge, different jawline angle, different eye shape, wrong eye color, different lip shape, skin tone changed, face darkened, skin darkened, wrong skin tone, face morphed, face beautified, face idealized, CGI, airbrushed, plastic skin, different body type, wrong gaze direction, head angle changed, face too large, face too small, face rescaled, wrong clothing, different scene".
+If IMAGE 1 is BALD: also add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair, added hair".
+If IMAGE 1 has hair: also add "bald, shaved head, different hair color, different hairstyle".
+If IMAGE 1 has beard: also add "clean-shaved, no beard, beard removed".
+If IMAGE 1 is clean-shaved: also add "beard, stubble, facial hair".
+Always also add "slimmer, thinner, idealized physique, weight loss, muscular, taller, different build, different proportions".
+If IMAGE 1 has distinctive marks: also add "marks removed, moles removed, scars removed, freckles removed".
 
 Return ONLY valid JSON. No markdown. No backticks. No explanation.` },
       { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgSceneSubjectBase64 }},
@@ -4186,25 +4540,29 @@ none OR describe style, lens color, frame color exactly.
 
 ━━ STEP 3: BUILD THE OUTPUT ━━
 
+face_preservation field — write a single comprehensive paragraph with EVERY facial trait of IMAGE 2 at maximum precision: face shape, jawline, nose (size + tip + bridge), eye shape + EXACT eye color (dark brown/black/blue/green/hazel — never vague), eyebrow thickness and arch, cheekbone prominence, lip shape + volume, chin type, exact skin tone, ALL visible marks, any asymmetry. This is the IDENTITY LOCK for reproducing this exact face.
+
 prompt_ready — if IMAGE 1 is back pose:
 Ingredients: [model_photo], [reference_photo]
 
-BACK VIEW — [IMAGE 2 body type] [IMAGE 2 hair: BALD/exact from behind] [IMAGE 2 beard] person, wearing [IMAGE 1 exact outfit BACK VIEW: back panel, collar from back, belt, back pockets, shoes from behind], [IMAGE 2 sunglasses if worn], [IMAGE 1 exact back pose], body turned away from camera, [IMAGE 1 hand/arm position], [IMAGE 1 head turn if any], [IMAGE 1 framing], [IMAGE 1 background], [IMAGE 1 lighting], photorealistic, Canon 5D, 85mm, f/1.8, 4K.
+BACK VIEW — [IMAGE 2 body type] [IMAGE 2 hair: BALD — smooth shaved scalp / OR exact hair from behind], [IMAGE 2 beard] person, wearing [IMAGE 1 exact outfit BACK VIEW: back panel, collar from back, belt, back pockets, shoes from behind], [IMAGE 2 sunglasses if worn], [IMAGE 1 exact back pose], body turned away from camera, [IMAGE 1 hand/arm position], [IMAGE 1 head turn if any], [IMAGE 1 framing], [IMAGE 1 background], [IMAGE 1 lighting], photorealistic, Canon 5D, 85mm, f/1.8, 4K.
 
 If IMAGE 1 faces camera:
 Ingredients: [model_photo], [reference_photo]
 
-[IMAGE 2 body type] [IMAGE 2 hair: BALD/exact] [IMAGE 2 beard] person — PRESERVE EXACTLY face from [model_photo]: [full face description: face shape, jawline, nose, eye shape and color, eyebrows, cheekbones, lips, chin, skin tone, any marks]. [IMAGE 2 sunglasses if worn]. Wearing [IMAGE 1 exact outfit]. [IMAGE 1 exact pose], body facing camera. [IMAGE 1 hand/arm position]. Gaze: [IMAGE 1 gaze direction]. [IMAGE 1 framing]. [IMAGE 1 background]. [IMAGE 1 lighting]. Photorealistic, sharp focus on face, Canon 5D, 85mm, f/1.8, 4K.
+⚠ IDENTITY LOCK — THE FACE BELOW MUST BE REPRODUCED 100% IDENTICAL — ZERO CHANGES ALLOWED:
+[IMAGE 2 body type] [IMAGE 2 hair: BALD — completely shaved smooth scalp / OR exact hair color+length+style] [IMAGE 2 beard] person — PRESERVE EXACTLY face from [model_photo] — FACE IDENTITY LOCK: [face shape] face, [jawline] jawline, [nose: size + tip + bridge], [eye shape] eyes with [exact eye color — e.g. "dark brown irises", "black eyes", "green eyes" — precise], [eyebrows], [cheekbones], [lip shape and volume], [chin], [exact skin tone], [ALL marks, moles, scars, freckles]. Same nose geometry, same eye color, same jawline, same lip proportions. DO NOT alter, soften or beautify any feature. [IMAGE 2 sunglasses if worn]. Wearing [IMAGE 1 exact outfit]. [IMAGE 1 exact pose], body facing camera. [IMAGE 1 hand/arm position]. Gaze: [IMAGE 1 gaze direction]. [IMAGE 1 framing]. [IMAGE 1 background]. [IMAGE 1 lighting]. Photorealistic, hyperrealistic facial detail, sharp focus on face, natural skin pores, Canon 5D, 85mm, f/1.8, 4K.
 
-flow_prompt_final: same as prompt_ready with this appended:
-"\n\nIMPORTANT: [model_photo] = IMAGE 2 (use ALL physical traits: face, hair, beard, body). [reference_photo] = IMAGE 1 (use ONLY pose, clothing, background, lighting — do NOT use IMAGE 1 person's face or body)."
+flow_prompt_final: same as prompt_ready, then append exactly:
+"\n\nIMPORTANT: [model_photo] = IMAGE 2 — ALL physical traits must come from here: face (100% identical — same nose shape, same exact eye color, same jawline, same lips, same skin tone), hair, beard, body. [reference_photo] = IMAGE 1 — use ONLY pose, clothing, background, lighting. DO NOT use IMAGE 1 person's face, eye color, hair, beard, skin or body."
 
-negative_prompt: ALWAYS "different face, different nose, different jawline, wrong eye shape, CGI, airbrushed, plastic skin, different body type, slimmer, idealized physique, different person".
-If IMAGE 2 is BALD: add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair".
-If IMAGE 2 has hair: add "bald, shaved head, different hair color, different hairstyle".
-If IMAGE 2 has beard: add "clean-shaved, no beard".
-If IMAGE 2 is clean-shaved: add "beard, stubble, facial hair".
-If IMAGE 2 wears sunglasses: add "no glasses, without sunglasses, bare face".
+negative_prompt: ALWAYS "different face, different person, wrong identity, changed nose shape, different nose tip, different nose bridge, different jawline, different eye shape, wrong eye color, different lip shape, different chin, skin tone changed, face morphed, face altered, beautified face, idealized face, CGI, airbrushed, plastic skin, different body type, slimmer, idealized physique".
+If IMAGE 2 is BALD: also add "hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair".
+If IMAGE 2 has hair: also add "bald, shaved head, different hair color, different hairstyle, wrong hair".
+If IMAGE 2 has beard: also add "clean-shaved, no beard, beard removed".
+If IMAGE 2 is clean-shaved: also add "beard, stubble, facial hair".
+If IMAGE 2 wears sunglasses: also add "no glasses, without sunglasses, bare face".
+If IMAGE 2 has distinctive marks: also add "marks removed, moles removed, freckles removed".
 
 Return ONLY valid JSON. No markdown. No backticks. No explanation.` },
         { type:'image_url', image_url:{ url:'data:image/jpeg;base64,'+pgImageBase64 }},
@@ -4317,36 +4675,11 @@ ${schema}
 
       try {
         const parsed = JSON.parse(text);
-
-        // ── POST-PARSE FIX: back pose enforcement ──
-        const isBackPose = parsed?.body_orientation?.back_visible === true
-          || parsed?.body_orientation?.facing === 'away_from_camera'
-          || (parsed?.body_orientation?.facing || '').includes('back');
-        if (isBackPose) {
-          if (parsed.prompt_ready && !parsed.prompt_ready.trim().toUpperCase().startsWith('BACK VIEW')) {
-            parsed.prompt_ready = 'BACK VIEW — ' + parsed.prompt_ready;
-          }
-          if (!parsed.negative_prompt?.includes('facing camera')) {
-            parsed.negative_prompt = (parsed.negative_prompt || '') + ', facing camera, front view, face visible';
-          }
-        }
-
-        // ── POST-PARSE FIX: bald detection robustness ──
-        const hairRaw = (parsed?.subject?.main || parsed?.hair || '').toLowerCase();
-        const isBaldDetected = /bald|shaved head|cabeça raspada|careca|raspado|no hair/.test(hairRaw)
-          || /bald|shaved|careca|calvície|raspado/.test((parsed?.face_preservation || '').toLowerCase());
-        if (isBaldDetected && parsed.negative_prompt) {
-          const baldTerms = 'hair, any hair on head, toupee, wig, hair growth, hairstyle, voluminous hair';
-          if (!parsed.negative_prompt.includes('toupee')) {
-            parsed.negative_prompt = parsed.negative_prompt + ', ' + baldTerms;
-          }
-        }
-
         // Injetar comando extra no prompt_ready se preenchido
         const extraCmd = document.getElementById('pgExtraCmd').value.trim();
         if(extraCmd && parsed.prompt_ready){
           parsed.extra_commands = extraCmd;
-          parsed.flow_prompt_final = (parsed.flow_prompt_final || parsed.prompt_ready) + '\n\n' + extraCmd;
+          parsed.flow_prompt_final = parsed.prompt_ready + '\n\n' + extraCmd;
         }
         jsonOut.textContent = JSON.stringify(parsed, null, 2);
       } catch { jsonOut.textContent = text; }
@@ -4552,66 +4885,30 @@ function pgPopulateClientPrompt() {
   const ta  = document.getElementById('pgClientPromptText');
   if (!box || !ta) return;
 
-  // Gera o comando certo por modo
-  let clientPrompt = '';
+  // Só mostra no modo "Analisar imagem" (simple)
+  if (pgGenMode !== 'simple') {
+    box.style.display = 'none';
+    return;
+  }
+  box.style.display = 'block';
 
-  const REGRAS_BIOTIPO = `REGRAS ABSOLUTAS (não negocie nenhuma delas):
+  const clientPrompt = `USE O JSON ACIMA COMO REFERÊNCIA DE CENA — mas SUBSTITUA a pessoa pelas características físicas EXATAS da pessoa na foto anexa.
+
+REGRAS ABSOLUTAS (não negocie nenhuma delas):
 • Preserve 100% a identidade visual do cliente: tom de pele, formato do rosto, nariz, boca, olhos, sobrancelhas, orelhas, traços únicos.
 • Se o cliente é CARECA → mantenha careca. Não adicione cabelo, peruca ou implante.
 • Se o cliente tem BARBA → mantenha a barba com a mesma forma e cor.
 • Se o cliente é GORDO ou tem sobrepeso → mantenha o mesmo biotipo, não emagreça.
+• Se o cliente tem ESTATURA BAIXA → mantenha a mesma proporção corporal.
 • Se o cliente usa ÓCULOS → mantenha os óculos.
 • Se o cliente tem TATUAGENS visíveis → mantenha as tatuagens.
-• Se o cliente tem características únicas (sardas, manchas, cicatrizes) → mantenha tudo.`;
-
-  if (pgGenMode === 'simple') {
-    clientPrompt = `Crie uma imagem usando este JSON como referência de cena — mas substituindo o personagem pela pessoa da foto em anexo.
-
-${REGRAS_BIOTIPO}
+• Se o cliente tem características únicas (sardas, manchas, cicatrizes) → mantenha tudo.
 
 DO JSON: aplique apenas cenário, iluminação, composição, pose geral, roupas e estilo fotográfico.
 NÃO aplique: cabelo, cor de cabelo, cor de olhos, formato de rosto, biotipo, etnia — use sempre os do cliente.
 
 O resultado final deve parecer que É o cliente fotografado naquele cenário/estilo — não uma recriação da pessoa original do JSON.`;
 
-  } else if (pgGenMode === 'subject') {
-    clientPrompt = `Crie uma imagem usando este JSON como referência de estilo e cenário — preservando EXATAMENTE o rosto e características físicas da pessoa em [subject_photo].
-
-${REGRAS_BIOTIPO}
-
-DO JSON: aplique pose, vestuário, iluminação, fundo e composição da cena de referência.
-NÃO substitua: rosto, cabelo, barba, biotipo, tom de pele — mantenha 100% de [subject_photo].`;
-
-  } else if (pgGenMode === 'faceswap') {
-    clientPrompt = `Face Swap: substitua o rosto/corpo da foto alvo pelo rosto/corpo do cliente em [model_photo].
-
-${REGRAS_BIOTIPO}
-
-DA FOTO ALVO: use APENAS pose, vestuário, fundo e iluminação.
-DO CLIENTE ([model_photo]): use TUDO físico — rosto, cabelo/calvície, barba, biotipo, tom de pele.`;
-
-  } else if (pgGenMode === 'scene') {
-    clientPrompt = `Crie uma imagem colocando o cliente ([client_photo]) na cena da foto de referência ([scene_reference]).
-
-${REGRAS_BIOTIPO}
-
-DA CENA DE REFERÊNCIA: use apenas cenário, iluminação, pose, vestuário, composição.
-DO CLIENTE: preserve absolutamente tudo físico — rosto, cabelo/calvície, barba, biotipo.
-
-O resultado deve parecer o PRÓPRIO CLIENTE fotografado naquele ambiente.`;
-
-  } else if (pgGenMode === 'family') {
-    clientPrompt = `Use este JSON como roteiro para recriar a cena em grupo, substituindo cada pessoa pela pessoa correspondente nas fotos individuais.
-
-${REGRAS_BIOTIPO}
-
-Para cada pessoa: use os traços físicos descritos no JSON (rosto, cabelo, barba, biotipo).
-Preserve da foto de referência: posição, pose, vestuário, fundo, iluminação de cada pessoa.`;
-  }
-
-  if (!clientPrompt) { box.style.display = 'none'; return; }
-
-  box.style.display = 'block';
   ta.value = clientPrompt;
 }
 
@@ -4880,8 +5177,14 @@ async function initApp() {
   buildTabs();
   render();
   updateExportNovasLabel();
-  updateSbStats();
 }
+function updateSbStats() {
+  const el = id => document.getElementById(id);
+  if (el('sbStatFotos')) el('sbStatFotos').textContent = items.length;
+  if (el('sbStatCats'))  el('sbStatCats').textContent  = cats.length;
+  if (el('sbStatFavs'))  el('sbStatFavs').textContent  = items.filter(i => i.fav).length;
+}
+
 function buildTabs() {
   document.getElementById('tc-all').textContent = items.length;
   document.getElementById('tc-fav').textContent = items.filter(i=>i.fav).length;
@@ -4907,6 +5210,8 @@ function buildTabs() {
   const sel = document.getElementById('fCat');
   sel.innerHTML = '<option value="">Sem categoria</option>' +
     [...cats].sort((a,b)=>a.name.localeCompare(b.name,'pt')).map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+
+  updateSbStats();
 }
 
 function selectCat(id, btn) {
@@ -5807,40 +6112,6 @@ function openDetail(id) {
 }
 
 function closeDetail() { document.getElementById('detailOverlay').classList.remove('open'); }
-
-function copyFlowPromptDetail() {
-  const it = items.find(i => i.id === detailId);
-  if (!it || !it.prompt) { toast('⚠ Nenhum prompt salvo neste card'); return; }
-  // Tenta extrair flow_prompt_final do JSON, senão usa o prompt bruto
-  let flowPrompt = it.prompt;
-  try {
-    const parsed = JSON.parse(it.prompt);
-    flowPrompt = parsed.flow_prompt_final || parsed.prompt_ready || it.prompt;
-  } catch {}
-  copyText(flowPrompt, () => {
-    const b = document.getElementById('dFlowCopyBtn');
-    if (b) { b.textContent = '✓ Copiado!'; b.style.color = 'var(--cyan)'; b.style.borderColor = 'var(--cyan)'; setTimeout(() => { b.textContent = '📋 Flow'; b.style.color = ''; b.style.borderColor = ''; }, 2000); }
-    toast('📋 Flow Prompt copiado!');
-  });
-}
-
-function updateSbStats() {
-  document.getElementById('sbStatPhotos').textContent = items.length;
-  document.getElementById('sbStatFavs').textContent = items.filter(i => i.fav).length;
-  document.getElementById('sbStatCats').textContent = cats.length;
-  // Estimate IDB size
-  if (idb) {
-    try {
-      const tx = idb.transaction('images', 'readonly');
-      const req = tx.objectStore('images').getAll();
-      req.onsuccess = e => {
-        const totalBytes = (e.target.result || []).reduce((acc, r) => acc + (r.dataUrl ? r.dataUrl.length * 0.75 : 0), 0);
-        const mb = (totalBytes / 1024 / 1024).toFixed(1);
-        document.getElementById('sbStatMB').textContent = mb;
-      };
-    } catch {}
-  }
-}
 
 function copyPrompt() {
   copyText(document.getElementById('dPrompt').textContent, () => toast('📋 Prompt copiado!'));
@@ -7036,11 +7307,12 @@ function renderFamiliaPersons() {
         ondragleave="this.style.borderColor=''"
         ondrop="handleFamiliaPersonDrop(event,'${p.id}')">
         ${p.base64
-          ? `<img src="data:image/jpeg;base64,${p.base64}" style="width:100%;max-height:130px;object-fit:cover;border-radius:8px;">
+          ? `<img id="fpPreview_${i}" src="data:image/jpeg;base64,${p.base64}" style="width:100%;max-height:130px;object-fit:cover;border-radius:8px;">
              <button onclick="event.stopPropagation();clearFamiliaPersonImg('${p.id}')" style="position:absolute;top:6px;right:6px;background:rgba(255,77,109,.15);border:1px solid rgba(255,77,109,.4);color:#ff4d6d;border-radius:6px;width:26px;height:26px;font-size:13px;cursor:pointer;line-height:1;z-index:10;" title="Remover foto">✕</button>`
-          : `<span style="font-size:26px;opacity:.4;">👤</span>
-             <span style="font-size:11px;color:var(--muted);margin-top:4px;">${p.name}</span>
-             <span style="font-size:10px;color:var(--muted);opacity:.6;">← → setas · Ctrl+V · clique · arraste</span>`
+          : `<span style="font-size:26px;opacity:.4;" id="fpIcon_${i}">👤</span>
+             <span style="font-size:11px;color:var(--muted);margin-top:4px;" id="fpLabel_${i}">${p.name}</span>
+             <span style="font-size:10px;color:var(--muted);opacity:.6;">← → setas · Ctrl+V · clique · arraste</span>
+             <button class="gp-zone-btn" onclick="event.stopPropagation();openGalleryPicker(null,${i})" style="pointer-events:auto;">📁 Da galeria</button>`
         }
       </div>
     </div>
@@ -7207,11 +7479,10 @@ Return ONLY valid JSON with this structure:
   }
 
   // ── Passo 2: analisa cada pessoa individualmente ──
-  const familiaHintRaw = (document.getElementById('pgHint')?.value || '').trim();
   for (const person of peopleWithPhotos) {
     btn.textContent = `⏳ Analisando ${person.name} (${personDescriptions.length + 1}/${peopleWithPhotos.length})…`;
 
-    const personPromptBase = `Analyze IMAGE 1 — this is the REAL CLIENT PHOTO for ${person.name}.
+    const personPrompt = `Analyze IMAGE 1 — this is the REAL CLIENT PHOTO for ${person.name}.
 Extract physical traits ONLY. Return ONLY valid JSON (no markdown, no backticks).
 
 ━━ RULES ━━
@@ -7265,10 +7536,6 @@ Return JSON:
   "negative_prompt": "different face, different nose shape, different jawline, wrong eye shape, wrong age, different body type, slimmer, idealized physique, plastic skin, airbrushed"
 }`;
 
-    const personPrompt = familiaHintRaw
-      ? `⚠ PRE-ANALYSIS HINTS (treat as CONFIRMED FACTS — do NOT contradict these):\n${familiaHintRaw}\n\n` + personPromptBase
-      : personPromptBase;
-
     let success = false;
     for (const model of MODELS) {
       try {
@@ -7277,7 +7544,7 @@ Return JSON:
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
           body: JSON.stringify({
             model,
-            max_tokens: 1400,
+            max_tokens: 900,
             messages: [{ role: 'user', content: [
               { type: 'text', text: personPrompt },
               { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + person.base64 } }
@@ -7310,6 +7577,7 @@ Return JSON:
   const namesStr = personDescriptions.map(p => p.person_label).join(', ');
   const sceneBlock = sceneAnalysis.prompt_scene_block || 'same scene and composition as the reference photo';
   const scenePersons = sceneAnalysis.persons || [];
+  const pgHintFamilia = (document.getElementById('pgHint')?.value || '').trim();
 
   const buildPersonLine = (p, i) => {
     const isBald = (p.hair || '').toLowerCase().includes('bald') || (p.hair || '').toLowerCase().includes('shaved');
@@ -7364,7 +7632,7 @@ NON-NEGOTIABLE RULES:
 5. Background and lighting: EXACTLY as in [foto_ref]
 Photorealistic, full body visible, sharp focus, 4K.
 
-NEGATIVE: different faces, wrong nose shape, different jawline, wrong eye shape, ${personDescriptions.map(p => p.hair_negative || '').filter(Boolean).join(', ')}, different body types, slimmer, idealized physique, wrong age, plastic skin, airbrushed, CGI.`;
+NEGATIVE: different faces, wrong nose shape, different jawline, wrong eye shape, ${personDescriptions.map(p => p.hair_negative || '').filter(Boolean).join(', ')}, different body types, slimmer, idealized physique, wrong age, plastic skin, airbrushed, CGI.${pgHintFamilia ? '\n\n⚠ CONTEXTO ADICIONAL (PRIORIDADE MÁXIMA): ' + pgHintFamilia : ''}`;
 
   const result = {
     mode: 'familia',
@@ -7558,7 +7826,30 @@ document.addEventListener('paste', e => {
   }
 });
 
+
 </script>
+
+<!-- ══════════════════════════════════════════════════
+     GALLERY PICKER — selecionar foto da galeria para zonas de upload
+══════════════════════════════════════════════════════ -->
+<div id="galleryPickerOverlay" onclick="if(event.target===this)closeGalleryPicker()">
+  <div id="galleryPickerModal">
+    <div class="gp-head">
+      <div>
+        <div class="gp-title">📁 Escolher da Galeria</div>
+        <div class="gp-subtitle" id="gpSubtitle">Clique numa foto para usá-la</div>
+      </div>
+      <button onclick="closeGalleryPicker()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">✕</button>
+    </div>
+    <div class="gp-search">
+      <input id="gpSearchInput" placeholder="🔍 Buscar por título ou tags…" oninput="gpFilterGallery(this.value)">
+    </div>
+    <div class="gp-body">
+      <div class="gp-grid" id="gpGrid"></div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /appMain -->
 </body>
 </html>
