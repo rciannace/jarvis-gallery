@@ -3501,7 +3501,7 @@ function gpRenderCatGrid() {
   const catBtns = [...cats]
     .sort((a, b) => a.name.localeCompare(b.name, 'pt'))
     .map(cat => {
-      const count = items.filter(it => it.catId === cat.id).length;
+      const count = items.filter(it => it.cat === cat.id).length;
       return `
         <button onclick="gpSelectCat('${cat.id}')" style="display:flex;align-items:center;gap:12px;width:100%;background:var(--s2);border:1px solid var(--s3);border-radius:10px;padding:12px 14px;cursor:pointer;text-align:left;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--s3)'">
           <span style="font-size:22px;line-height:1;">${cat.icon || '📁'}</span>
@@ -3592,7 +3592,7 @@ function gpFilterGallery(q) {
   const lower = q.toLowerCase();
   // filter by selected category first
   const pool = _gpSelectedCatId !== null
-    ? items.filter(it => it.catId === _gpSelectedCatId)
+    ? items.filter(it => it.cat === _gpSelectedCatId)
     : [...items];
   _gpFilteredItems = lower
     ? pool.filter(it => (it.title||'').toLowerCase().includes(lower) || (it.tags||[]).some(t=>t.toLowerCase().includes(lower)))
