@@ -144,6 +144,21 @@ body{
 .top-bar-left { display:flex;align-items:center;gap:10px; }
 .top-bar-right { display:flex;align-items:center;gap:8px; }
 
+/* Mobile stats pills inside top-bar */
+.tb-stat {
+  display:flex;flex-direction:column;align-items:center;
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:8px;padding:3px 8px;min-width:34px;
+}
+.tb-stat span:first-child {
+  font-family:'DM Mono',monospace;font-size:13px;font-weight:700;
+  color:var(--tb-color, var(--cyan));line-height:1.1;
+}
+.tb-stat-label {
+  font-size:8px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.4px;line-height:1.2;
+}
+
 .top-bar-title {
   font-family:'DM Sans',sans-serif;
   font-size:15px;font-weight:600;
@@ -853,6 +868,17 @@ body{
   flex-direction: column;
   overflow: hidden;
 }
+#gpStep1 {
+  overflow-y: auto;
+  padding: 12px 16px;
+  flex: 1;
+}
+#gpStep2 {
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
 .gp-head {
   display: flex;
   align-items: center;
@@ -965,8 +991,37 @@ body{
 .gp-zone-btn:hover { background: var(--cyan2); border-color: var(--cyan); }
 @media (max-width: 640px) {
   .gp-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-  #galleryPickerModal { border-radius: 16px 16px 0 0; max-height: 88vh; width: 100%; }
+  #galleryPickerModal {
+    border-radius: 16px 16px 0 0;
+    max-height: 88vh;
+    width: 100%;
+  }
   #galleryPickerOverlay.open { align-items: flex-end; }
+
+  /* Drag handle */
+  #gpDragHandle { display: flex !important; }
+
+  /* Step 1 — cat list larger tap targets on mobile */
+  #gpCatGrid { gap: 8px; }
+  #gpCatGrid button {
+    padding: 14px 16px;
+    border-radius: 12px;
+  }
+  #gpCatGrid button span:first-child { font-size: 26px; }
+  #gpCatGrid button div div:first-child { font-size: 14px; }
+  #gpCatGrid button div div:last-child  { font-size: 12px; }
+
+  /* Step 2 — search + grid */
+  #gpStep1 { padding: 10px 12px; }
+  .gp-search { padding: 8px 12px; }
+  .gp-search input { font-size: 14px; padding: 9px 12px; }
+
+  /* Back button bigger tap area */
+  #gpBackBtn { font-size: 22px; padding: 4px 10px; }
+
+  /* gp-head tighter on mobile */
+  .gp-head { padding: 12px 14px; }
+  .gp-title { font-size: 16px; }
 }
 
 .toast-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);}
@@ -1081,6 +1136,12 @@ body{
       <span></span><span></span><span></span>
     </button>
     <div class="top-bar-title" id="topBarTitle">Galeria</div>
+  </div>
+  <!-- Mobile stats strip — hidden on desktop, shown on mobile via CSS -->
+  <div id="topBarStats" style="display:none;align-items:center;gap:6px;flex:1;justify-content:center;">
+    <div class="tb-stat"><span id="tbStatFotos">0</span><span class="tb-stat-label">fotos</span></div>
+    <div class="tb-stat"><span id="tbStatCats">0</span><span class="tb-stat-label">gal.</span></div>
+    <div class="tb-stat" style="--tb-color:#ff6b9d;"><span id="tbStatFavs">0</span><span class="tb-stat-label">favs</span></div>
   </div>
   <div class="top-bar-right" id="topBarRight">
     <button class="btn btn-primary" onclick="openAdd()" style="display:flex;align-items:center;gap:6px;padding:9px 18px;">
@@ -2735,6 +2796,10 @@ body{
   .gallery-wrap { padding: 14px 12px 80px; }
   .cat-bar { padding: 8px 12px; }
   .toolbar { padding: 12px 12px 0; }
+  /* Show stats in top-bar on mobile */
+  #topBarStats { display: flex !important; }
+  /* Hide sidebar stats strip on mobile (shown in top-bar instead) */
+  #sbStatsStrip { display: none !important; }
 }
 @media (max-width: 380px) {
   .restore-modes { grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -3400,20 +3465,138 @@ function openGalleryPicker(zoneKey, personIdx) {
     : (GP_ZONE_LABELS[zoneKey] || 'Escolha uma foto');
   document.getElementById('gpSubtitle').textContent = label;
   document.getElementById('gpSearchInput').value = '';
+  // show drag handle on mobile
+  const handle = document.getElementById('gpDragHandle');
+  if (window.innerWidth <= 640) handle.style.display = 'flex';
+  else handle.style.display = 'none';
   document.getElementById('galleryPickerOverlay').classList.add('open');
+  gpShowStep1();
+  gpInitSwipeClose();
+}
+
+function gpShowStep1() {
+  document.getElementById('gpTitle').textContent = '📁 Escolher Galeria';
+  document.getElementById('gpBackBtn').style.display = 'none';
+  document.getElementById('gpStep1').style.display = 'block';
+  document.getElementById('gpStep2').style.display = 'none';
+  gpRenderCatGrid();
+}
+
+function gpRenderCatGrid() {
+  const grid = document.getElementById('gpCatGrid');
+  const allCount = items.length;
+
+  // "Todas" option first
+  const allBtn = `
+    <button onclick="gpSelectCat(null)" style="display:flex;align-items:center;gap:12px;width:100%;background:var(--s2);border:1px solid var(--s3);border-radius:10px;padding:12px 14px;cursor:pointer;text-align:left;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--s3)'">
+      <span style="font-size:22px;line-height:1;">🗂️</span>
+      <div style="flex:1;">
+        <div style="font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;color:var(--text);">Todas as fotos</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${allCount} foto${allCount !== 1 ? 's' : ''}</div>
+      </div>
+      <span style="color:var(--muted);font-size:16px;">›</span>
+    </button>`;
+
+  // one button per category (sorted)
+  const catBtns = [...cats]
+    .sort((a, b) => a.name.localeCompare(b.name, 'pt'))
+    .map(cat => {
+      const count = items.filter(it => it.catId === cat.id).length;
+      return `
+        <button onclick="gpSelectCat('${cat.id}')" style="display:flex;align-items:center;gap:12px;width:100%;background:var(--s2);border:1px solid var(--s3);border-radius:10px;padding:12px 14px;cursor:pointer;text-align:left;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--cyan)'" onmouseout="this.style.borderColor='var(--s3)'">
+          <span style="font-size:22px;line-height:1;">${cat.icon || '📁'}</span>
+          <div style="flex:1;">
+            <div style="font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;color:var(--text);">${cat.name}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${count} foto${count !== 1 ? 's' : ''}</div>
+          </div>
+          <span style="color:var(--muted);font-size:16px;">›</span>
+        </button>`;
+    }).join('');
+
+  if (!cats.length) {
+    grid.innerHTML = allBtn + `<div style="font-size:11px;color:var(--muted);text-align:center;padding:8px 0;">Nenhuma galeria criada ainda.</div>`;
+  } else {
+    grid.innerHTML = allBtn + catBtns;
+  }
+}
+
+let _gpSelectedCatId = null; // null = todas
+
+function gpSelectCat(catId) {
+  _gpSelectedCatId = catId;
+  const cat = catId ? cats.find(c => c.id === catId) : null;
+  const label = cat ? `${cat.icon || '📁'} ${cat.name}` : '🗂️ Todas as fotos';
+  document.getElementById('gpTitle').textContent = label;
+  document.getElementById('gpBackBtn').style.display = 'inline-flex';
+  document.getElementById('gpStep1').style.display = 'none';
+  document.getElementById('gpStep2').style.display = 'flex';
+  document.getElementById('gpSearchInput').value = '';
   gpFilterGallery('');
+}
+
+function gpGoBack() {
+  gpShowStep1();
 }
 
 function closeGalleryPicker() {
   document.getElementById('galleryPickerOverlay').classList.remove('open');
   _gpTargetZone = null;
+  _gpSelectedCatId = null;
+}
+
+function gpInitSwipeClose() {
+  if (window.innerWidth > 640) return; // desktop — skip
+  const modal = document.getElementById('galleryPickerModal');
+  let startY = 0, currentY = 0, dragging = false;
+  // remove old listeners to avoid duplication
+  modal.removeEventListener('touchstart', modal._gpTouchStart);
+  modal.removeEventListener('touchmove',  modal._gpTouchMove);
+  modal.removeEventListener('touchend',   modal._gpTouchEnd);
+
+  modal._gpTouchStart = e => {
+    // only trigger from drag handle or gp-head
+    const target = e.target.closest('#gpDragHandle, .gp-head');
+    if (!target) return;
+    startY = e.touches[0].clientY;
+    dragging = true;
+    modal.style.transition = 'none';
+  };
+  modal._gpTouchMove = e => {
+    if (!dragging) return;
+    currentY = e.touches[0].clientY;
+    const dy = Math.max(0, currentY - startY);
+    modal.style.transform = `translateY(${dy}px)`;
+  };
+  modal._gpTouchEnd = () => {
+    if (!dragging) return;
+    dragging = false;
+    modal.style.transition = 'transform .25s ease';
+    const dy = currentY - startY;
+    if (dy > 90) {
+      modal.style.transform = `translateY(100%)`;
+      setTimeout(() => {
+        closeGalleryPicker();
+        modal.style.transform = '';
+        modal.style.transition = '';
+      }, 250);
+    } else {
+      modal.style.transform = '';
+    }
+  };
+  modal.addEventListener('touchstart', modal._gpTouchStart, { passive: true });
+  modal.addEventListener('touchmove',  modal._gpTouchMove, { passive: true });
+  modal.addEventListener('touchend',   modal._gpTouchEnd);
 }
 
 function gpFilterGallery(q) {
   const lower = q.toLowerCase();
-  _gpFilteredItems = lower
-    ? items.filter(it => (it.title||'').toLowerCase().includes(lower) || (it.tags||[]).some(t=>t.toLowerCase().includes(lower)))
+  // filter by selected category first
+  const pool = _gpSelectedCatId !== null
+    ? items.filter(it => it.catId === _gpSelectedCatId)
     : [...items];
+  _gpFilteredItems = lower
+    ? pool.filter(it => (it.title||'').toLowerCase().includes(lower) || (it.tags||[]).some(t=>t.toLowerCase().includes(lower)))
+    : pool;
   gpRenderGrid();
 }
 
@@ -5180,9 +5363,17 @@ async function initApp() {
 }
 function updateSbStats() {
   const el = id => document.getElementById(id);
-  if (el('sbStatFotos')) el('sbStatFotos').textContent = items.length;
-  if (el('sbStatCats'))  el('sbStatCats').textContent  = cats.length;
-  if (el('sbStatFavs'))  el('sbStatFavs').textContent  = items.filter(i => i.fav).length;
+  const fotos = items.length;
+  const cats_ = cats.length;
+  const favs  = items.filter(i => i.fav).length;
+  // sidebar (desktop)
+  if (el('sbStatFotos')) el('sbStatFotos').textContent = fotos;
+  if (el('sbStatCats'))  el('sbStatCats').textContent  = cats_;
+  if (el('sbStatFavs'))  el('sbStatFavs').textContent  = favs;
+  // top-bar (mobile)
+  if (el('tbStatFotos')) el('tbStatFotos').textContent = fotos;
+  if (el('tbStatCats'))  el('tbStatCats').textContent  = cats_;
+  if (el('tbStatFavs'))  el('tbStatFavs').textContent  = favs;
 }
 
 function buildTabs() {
@@ -7834,18 +8025,34 @@ document.addEventListener('paste', e => {
 ══════════════════════════════════════════════════════ -->
 <div id="galleryPickerOverlay" onclick="if(event.target===this)closeGalleryPicker()">
   <div id="galleryPickerModal">
+    <!-- drag handle visible on mobile -->
+    <div style="display:none;justify-content:center;padding:10px 0 2px;" id="gpDragHandle">
+      <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);"></div>
+    </div>
     <div class="gp-head">
-      <div>
-        <div class="gp-title">📁 Escolher da Galeria</div>
-        <div class="gp-subtitle" id="gpSubtitle">Clique numa foto para usá-la</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button id="gpBackBtn" onclick="gpGoBack()" style="display:none;background:none;border:none;color:var(--cyan);font-size:18px;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;" title="Voltar">‹</button>
+        <div>
+          <div class="gp-title" id="gpTitle">📁 Escolher Galeria</div>
+          <div class="gp-subtitle" id="gpSubtitle">Selecione uma galeria</div>
+        </div>
       </div>
       <button onclick="closeGalleryPicker()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">✕</button>
     </div>
-    <div class="gp-search">
-      <input id="gpSearchInput" placeholder="🔍 Buscar por título ou tags…" oninput="gpFilterGallery(this.value)">
+
+    <!-- STEP 1: escolher galeria -->
+    <div id="gpStep1" class="gp-body">
+      <div id="gpCatGrid" style="display:flex;flex-direction:column;gap:6px;padding:4px 0;"></div>
     </div>
-    <div class="gp-body">
-      <div class="gp-grid" id="gpGrid"></div>
+
+    <!-- STEP 2: fotos da galeria selecionada -->
+    <div id="gpStep2" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="gp-search">
+        <input id="gpSearchInput" placeholder="🔍 Buscar por título ou tags…" oninput="gpFilterGallery(this.value)">
+      </div>
+      <div class="gp-body">
+        <div class="gp-grid" id="gpGrid"></div>
+      </div>
     </div>
   </div>
 </div>
