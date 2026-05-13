@@ -963,6 +963,26 @@ body{
   font-size: 28px;
   opacity: .3;
 }
+/* Drag mode */
+.gp-card-drag {
+  cursor: grab;
+  border-color: rgba(245,200,66,.25) !important;
+}
+.gp-card-drag:hover { transform: scale(1.02); border-color: rgba(245,200,66,.6) !important; }
+.gp-card-drag:active { cursor: grabbing; }
+.gp-drag-handle {
+  position: absolute;
+  top: 4px; right: 4px;
+  z-index: 10;
+  background: rgba(0,0,0,.55);
+  color: rgba(245,200,66,.85);
+  font-size: 14px;
+  line-height: 1;
+  padding: 3px 4px;
+  border-radius: 5px;
+  pointer-events: none;
+  letter-spacing: -1px;
+}
 .gp-empty {
   text-align: center;
   color: var(--muted);
@@ -3542,6 +3562,10 @@ function closeGalleryPicker() {
   document.getElementById('galleryPickerOverlay').classList.remove('open');
   _gpTargetZone = null;
   _gpSelectedCatId = null;
+  if (_gpReorderMode) {
+    _gpReorderMode = false;
+    document.getElementById('gpReorderBar').style.display = 'none';
+  }
 }
 
 function gpInitSwipeClose() {
@@ -3600,6 +3624,93 @@ function gpFilterGallery(q) {
   gpRenderGrid();
 }
 
+let _gpReorderMode = false;
+let _gpDragSrcId = null;
+
+function gpToggleReorder() {
+  _gpReorderMode = !_gpReorderMode;
+  const btn  = document.getElementById('gpReorderBtn');
+  const bar  = document.getElementById('gpReorderBar');
+  const search = document.getElementById('gpSearchInput');
+  if (_gpReorderMode) {
+    btn.style.borderColor = 'rgba(245,200,66,.5)';
+    btn.style.color = 'var(--gold)';
+    btn.style.background = 'rgba(245,200,66,.08)';
+    bar.style.display = 'flex';
+    search.disabled = true;
+    search.style.opacity = '.4';
+  } else {
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--muted)';
+    btn.style.background = 'var(--s2)';
+    bar.style.display = 'none';
+    search.disabled = false;
+    search.style.opacity = '1';
+  }
+  gpRenderGrid();
+}
+
+function gpRenumber() {
+  if (!_gpSelectedCatId && _gpSelectedCatId !== null) return;
+  const catId = _gpSelectedCatId ?? '';
+  renumberCatAndRefresh(catId);
+  // Refresh filtered list after renumber
+  gpFilterGallery(document.getElementById('gpSearchInput').value || '');
+  // Also refresh cat count in step 1
+  gpRenderCatGrid();
+}
+
+function gpDragStart(e, id) {
+  _gpDragSrcId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.style.opacity = '.4';
+}
+function gpDragEnd(e) {
+  e.currentTarget.style.opacity = '1';
+  document.querySelectorAll('.gp-card').forEach(c => {
+    c.style.borderColor = '';
+    c.style.background = '';
+  });
+}
+function gpDragOver(e, id) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (id !== _gpDragSrcId) {
+    e.currentTarget.style.borderColor = 'var(--cyan)';
+    e.currentTarget.style.background = 'rgba(0,229,204,.06)';
+  }
+}
+function gpDragLeave(e) {
+  e.currentTarget.style.borderColor = '';
+  e.currentTarget.style.background = '';
+}
+function gpDrop(e, targetId) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = '';
+  e.currentTarget.style.background = '';
+  if (!_gpDragSrcId || _gpDragSrcId === targetId) return;
+
+  // Swap the two items in the master items array
+  const srcIdx = items.findIndex(i => i.id === _gpDragSrcId);
+  const tgtIdx = items.findIndex(i => i.id === targetId);
+  if (srcIdx === -1 || tgtIdx === -1) return;
+
+  // Swap positions in items array
+  const tmp = items[srcIdx];
+  items[srcIdx] = items[tgtIdx];
+  items[tgtIdx] = tmp;
+
+  // Also swap their titles (numbers) so order persists
+  const tmpTitle = items[srcIdx].title;
+  items[srcIdx].title = items[tgtIdx].title;
+  items[tgtIdx].title = tmpTitle;
+
+  persist();
+  // Re-filter to refresh grid with new order
+  gpFilterGallery(document.getElementById('gpSearchInput').value || '');
+  _gpDragSrcId = null;
+}
+
 function gpRenderGrid() {
   const grid = document.getElementById('gpGrid');
   if (!_gpFilteredItems.length) {
@@ -3610,14 +3721,61 @@ function gpRenderGrid() {
     </div>`;
     return;
   }
-  grid.innerHTML = _gpFilteredItems.map(it => `
-    <div class="gp-card" onclick="gpPickItem('${it.id}')" title="${(it.title||'').replace(/"/g,'&quot;')}">
-      ${it.img
-        ? `<img src="${it.img}" loading="lazy">`
-        : `<div class="gp-card-no-img" id="gpCardThumb_${it.id}">⏳</div>`}
-      <div class="gp-card-label">${it.title || '—'}</div>
-    </div>
-  `).join('');
+
+  if (_gpReorderMode) {
+    grid.innerHTML = _gpFilteredItems.map(it => `
+      <div class="gp-card gp-card-drag"
+        draggable="true"
+        ondragstart="gpDragStart(event,'${it.id}')"
+        ondragend="gpDragEnd(event)"
+        ondragover="gpDragOver(event,'${it.id}')"
+        ondragleave="gpDragLeave(event)"
+        ondrop="gpDrop(event,'${it.id}')"
+        title="${(it.title||'').replace(/"/g,'&quot;')}">
+        <div class="gp-drag-handle">⠿</div>
+        ${it.img
+          ? `<img src="${it.img}" loading="lazy" style="pointer-events:none;">`
+          : `<div class="gp-card-no-img" id="gpCardThumb_${it.id}">⏳</div>`}
+        <div class="gp-card-label">${it.title || '—'}</div>
+      </div>
+    `).join('');
+  } else {
+    grid.innerHTML = _gpFilteredItems.map(it => `
+      <div class="gp-card" onclick="gpPickItem('${it.id}')" title="${(it.title||'').replace(/"/g,'&quot;')}">
+        ${it.img
+          ? `<img src="${it.img}" loading="lazy">`
+          : `<div class="gp-card-no-img" id="gpCardThumb_${it.id}">⏳</div>`}
+        <div class="gp-card-label">${it.title || '—'}</div>
+      </div>
+    `).join('');
+  }
+
+  // Touch drag support for mobile reorder
+  if (_gpReorderMode) {
+    let touchSrcId = null, touchGhost = null;
+    grid.querySelectorAll('.gp-card-drag').forEach(card => {
+      card.addEventListener('touchstart', e => {
+        touchSrcId = card.dataset.id || card.getAttribute('ondrop')?.match(/'([^']+)'\)$/)?.[1];
+        card.style.opacity = '.4';
+      }, { passive: true });
+      card.addEventListener('touchend', e => {
+        card.style.opacity = '1';
+        const touch = e.changedTouches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.gp-card-drag');
+        if (target && touchSrcId) {
+          const targetId = target.getAttribute('ondrop')?.match(/'([^']+)'\)$/)?.[1];
+          if (targetId && targetId !== touchSrcId) {
+            // simulate drop
+            const fakeE = { preventDefault: ()=>{}, currentTarget: target };
+            target.style.borderColor = '';
+            _gpDragSrcId = touchSrcId;
+            gpDrop(fakeE, targetId);
+          }
+        }
+        touchSrcId = null;
+      }, { passive: true });
+    });
+  }
 
   // Carrega do IDB os thumbs que não estão em memória
   if (idb) {
@@ -3629,9 +3787,8 @@ function gpRenderGrid() {
         if (!dataUrl) return;
         const placeholder = document.getElementById(`gpCardThumb_${it.id}`);
         if (placeholder) {
-          placeholder.outerHTML = `<img src="${dataUrl}" loading="lazy">`;
+          placeholder.outerHTML = `<img src="${dataUrl}" loading="lazy"${_gpReorderMode ? ' style="pointer-events:none;"' : ''}>`;
         }
-        // Cache na memória para próximas aberturas
         it.img = dataUrl;
       };
     });
@@ -8047,8 +8204,17 @@ document.addEventListener('paste', e => {
 
     <!-- STEP 2: fotos da galeria selecionada -->
     <div id="gpStep2" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
-      <div class="gp-search">
-        <input id="gpSearchInput" placeholder="🔍 Buscar por título ou tags…" oninput="gpFilterGallery(this.value)">
+      <div class="gp-search" style="display:flex;align-items:center;gap:8px;">
+        <input id="gpSearchInput" style="flex:1;" placeholder="🔍 Buscar por título ou tags…" oninput="gpFilterGallery(this.value)">
+        <button id="gpReorderBtn" onclick="gpToggleReorder()" title="Reordenar fotos" style="flex-shrink:0;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;padding:7px 11px;cursor:pointer;white-space:nowrap;transition:all .15s;" onmouseover="this.style.borderColor='rgba(245,200,66,.5)';this.style.color='var(--gold)'" onmouseout="if(!_gpReorderMode){this.style.borderColor='var(--border)';this.style.color='var(--muted)'}">⇅ Reordenar</button>
+      </div>
+      <!-- reorder toolbar (shown in reorder mode) -->
+      <div id="gpReorderBar" style="display:none;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;background:rgba(245,200,66,.06);border-bottom:1px solid rgba(245,200,66,.2);">
+        <span style="font-size:11px;color:var(--gold);font-family:'DM Mono',monospace;">✦ Arraste as fotos para reordenar</span>
+        <div style="display:flex;gap:6px;">
+          <button onclick="gpRenumber()" style="background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.3);border-radius:7px;color:var(--gold);font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;padding:5px 10px;cursor:pointer;">⟳ Renumerar</button>
+          <button onclick="gpToggleReorder()" style="background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--cyan);font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;padding:5px 10px;cursor:pointer;">✓ Concluir</button>
+        </div>
       </div>
       <div class="gp-body">
         <div class="gp-grid" id="gpGrid"></div>
