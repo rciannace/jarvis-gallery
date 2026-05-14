@@ -883,6 +883,262 @@ body {
   .gallery-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
 
+/* ── MOVE MODAL ── */
+#moveOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 460;
+  background: rgba(10,10,12,.75);
+  backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+}
+#moveOverlay.open { display: flex; }
+.move-modal {
+  background: var(--surface);
+  border-radius: 18px;
+  width: min(420px, 94vw);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border2);
+}
+.move-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.move-modal-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+.move-modal-body {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.move-preview-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+}
+.move-preview-wrap img {
+  width: 64px; height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: var(--border);
+}
+.move-preview-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+.move-modal-footer {
+  padding: 14px 22px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ── PHOTO DELETE / MOVE BTNS ── */
+.photo-delete-btn,
+.photo-move-btn {
+  position: absolute;
+  z-index: 20;
+  border: none;
+  cursor: pointer;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity .18s, transform .15s, background .15s;
+  backdrop-filter: blur(6px);
+}
+.photo-card:hover .photo-delete-btn,
+.photo-card:hover .photo-move-btn { opacity: 1; }
+
+.photo-delete-btn {
+  top: 7px; right: 7px;
+  background: rgba(224,48,80,.85);
+  color: #fff;
+}
+.photo-delete-btn:hover { background: #e03050; transform: scale(1.12); }
+
+.photo-move-btn {
+  top: 7px; right: 38px;
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  font-size: 13px;
+}
+.photo-move-btn:hover { background: rgba(0,196,174,.85); transform: scale(1.12); }
+
+/* ── PASTE OVERLAY ── */
+#pasteOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 450;
+  background: rgba(10,10,12,.75);
+  backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+}
+#pasteOverlay.open { display: flex; }
+
+.paste-modal {
+  background: var(--surface);
+  border-radius: 18px;
+  width: min(500px, 94vw);
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border2);
+}
+.paste-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.paste-modal-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+.paste-modal-body {
+  padding: 20px 22px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.paste-hint-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent3);
+  border: 1.5px dashed rgba(0,196,174,.4);
+  border-radius: 12px;
+  padding: 18px 20px;
+  font-size: 14px;
+  color: var(--muted);
+  text-align: center;
+  justify-content: center;
+}
+.paste-hint-bar.has-image { display: none; }
+.paste-hint-icon { font-size: 22px; }
+kbd {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  padding: 1px 7px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text);
+}
+.paste-preview-wrap {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  max-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.paste-preview-wrap img {
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  display: block;
+  border-radius: 12px;
+}
+.paste-clear-btn {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: rgba(0,0,0,.6);
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.paste-clear-btn:hover { background: var(--red); }
+.paste-modal-footer {
+  padding: 14px 22px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ── PASTE FAB ── */
+.paste-fab {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 200;
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 50px;
+  height: 48px;
+  padding: 0 18px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+  transition: transform .15s, box-shadow .15s, background .15s;
+  user-select: none;
+}
+.paste-fab:hover { background: #2a2a35; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.28); }
+.paste-fab-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .5px;
+  opacity: .7;
+}
+
+/* ── PASTE GLOBAL INDICATOR ── */
+.paste-global-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  border: 3px solid var(--accent);
+  border-radius: 0;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.paste-global-flash.show { opacity: 1; animation: flashPulse .5s ease-out forwards; }
+@keyframes flashPulse {
+  0% { opacity: .7; }
+  100% { opacity: 0; }
+}
+
 /* ── LOADING SKELETON ── */
 .skeleton {
   background: linear-gradient(90deg, var(--surface2) 25%, var(--surface) 50%, var(--surface2) 75%);
@@ -1194,6 +1450,67 @@ body {
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- MOVE PHOTO MODAL -->
+<div id="moveOverlay" onclick="if(event.target===this)closeMoveModal()">
+  <div class="move-modal">
+    <div class="move-modal-head">
+      <span class="move-modal-title">↗ Mover Foto</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeMoveModal()">✕ Fechar</button>
+    </div>
+    <div class="move-modal-body">
+      <div class="move-preview-wrap">
+        <img id="movePreviewImg" src="" alt="">
+        <span class="move-preview-label" id="movePreviewLabel"></span>
+      </div>
+      <div>
+        <div class="field-label">Mover para a galeria</div>
+        <select id="moveCatSel" class="select-field"></select>
+      </div>
+    </div>
+    <div class="move-modal-footer">
+      <button class="btn btn-ghost" onclick="closeMoveModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmMove()">↗ Mover</button>
+    </div>
+  </div>
+</div>
+
+<!-- PASTE OVERLAY -->
+<div id="pasteOverlay" onclick="if(event.target===this)closePasteOverlay()">
+  <div class="paste-modal">
+    <div class="paste-modal-head">
+      <span class="paste-modal-title">📋 Colar Imagem</span>
+      <button class="btn btn-ghost btn-sm" onclick="closePasteOverlay()">✕ Fechar</button>
+    </div>
+    <div class="paste-modal-body">
+      <div class="paste-hint-bar" id="pasteHintBar">
+        <span class="paste-hint-icon">⌨</span>
+        <span>Pressione <kbd>Ctrl+V</kbd> para colar a imagem</span>
+      </div>
+      <div class="paste-preview-wrap" id="pastePreviewWrap" style="display:none">
+        <img id="pastePreviewImg" src="" alt="Preview">
+        <button class="paste-clear-btn" onclick="clearPastePreview()" title="Remover">✕</button>
+      </div>
+      <div>
+        <div class="field-label">Galeria de destino</div>
+        <select id="pasteCatSel" class="select-field"></select>
+      </div>
+    </div>
+    <div class="paste-modal-footer">
+      <button class="btn btn-ghost" onclick="closePasteOverlay()">Cancelar</button>
+      <button class="btn btn-primary" id="pasteConfirmBtn" onclick="confirmPaste()" disabled>Salvar foto</button>
+    </div>
+  </div>
+</div>
+
+<!-- PASTE HOTKEY HINT (floating) -->
+<div class="paste-fab" id="pasteFab" onclick="openPasteOverlay()" title="Colar imagem (Ctrl+V)">
+  📋
+  <span class="paste-fab-label">Ctrl+V</span>
+</div>
+
+<!-- PASTE FLASH BORDER -->
+<div class="paste-global-flash" id="pasteFlash"></div>
+
 <script>
 // ── STATE ──
 let items = [];
@@ -1395,6 +1712,8 @@ function render(pool) {
         ? `<img src="${it.img}" loading="lazy" alt="${it.title || ''}">`
         : `<span>⏳</span>`}
       <div class="photo-card-num">${it.title || (idx + 1)}</div>
+      <button class="photo-delete-btn" onclick="event.stopPropagation();deleteItem('${it.id}')" title="Apagar foto">✕</button>
+      <button class="photo-move-btn" onclick="event.stopPropagation();openMoveModal('${it.id}')" title="Mover para outra galeria">↗</button>
       ${it.img ? `
         <div class="photo-card-overlay">
           <div class="photo-card-actions">
@@ -1421,6 +1740,8 @@ function render(pool) {
           card.innerHTML = `
             <img src="${dataUrl}" loading="lazy" alt="${it.title || ''}">
             <div class="photo-card-num">${it.title || (idx + 1)}</div>
+            <button class="photo-delete-btn" onclick="event.stopPropagation();deleteItem('${it.id}')" title="Apagar foto">✕</button>
+            <button class="photo-move-btn" onclick="event.stopPropagation();openMoveModal('${it.id}')" title="Mover para outra galeria">↗</button>
             <div class="photo-card-overlay">
               <div class="photo-card-actions">
                 <button class="photo-action-btn" onclick="event.stopPropagation();openLightbox(${idx})">🔍 Ver</button>
@@ -1897,6 +2218,177 @@ function cancelRenameCard(catId) {
 
 function deleteCatFromCard(catId) {
   deleteCat(catId);
+}
+
+// ── DELETE PHOTO ──
+function deleteItem(id) {
+  const it = items.find(i => i.id === id);
+  if (!it) return;
+  if (!confirm(`Apagar "${it.title || 'esta foto'}"?\n\nEssa ação não pode ser desfeita.`)) return;
+
+  // Remove from IDB
+  if (idb) {
+    const tx = idb.transaction('images', 'readwrite');
+    tx.objectStore('images').delete(id);
+  }
+  items = items.filter(i => i.id !== id);
+  persist();
+  buildSidebar();
+  render();
+  updateHeroStats();
+  toast(`🗑 Foto apagada.`);
+}
+
+// ── MOVE PHOTO ──
+let moveTargetId = null;
+
+function openMoveModal(id) {
+  const it = items.find(i => i.id === id);
+  if (!it) return;
+  moveTargetId = id;
+
+  // Preview
+  document.getElementById('movePreviewImg').src = it.img || '';
+  document.getElementById('movePreviewLabel').textContent = it.title || 'Foto';
+
+  // Populate cat select — exclude current cat
+  const sel = document.getElementById('moveCatSel');
+  sel.innerHTML = `<option value="">— Sem galeria —</option>` +
+    cats.map(c => `<option value="${c.id}" ${c.id === it.cat ? 'selected' : ''}>${c.name}</option>`).join('');
+
+  document.getElementById('moveOverlay').classList.add('open');
+}
+
+function closeMoveModal() {
+  document.getElementById('moveOverlay').classList.remove('open');
+  moveTargetId = null;
+}
+
+function confirmMove() {
+  if (!moveTargetId) return;
+  const it = items.find(i => i.id === moveTargetId);
+  if (!it) return;
+
+  const newCatId = document.getElementById('moveCatSel').value || null;
+  const newCat = newCatId ? cats.find(c => c.id === newCatId) : null;
+
+  if (newCatId === (it.cat || '')) {
+    toast('⚠ A foto já está nessa galeria.');
+    return;
+  }
+
+  it.cat = newCatId;
+  persist();
+  buildSidebar();
+  render();
+  closeMoveModal();
+  toast(`✓ Foto movida para "${newCat ? newCat.name : 'Sem galeria'}"`);
+}
+
+// ── PASTE (Ctrl+V) ──
+let pasteDataUrl = null;
+
+// Global paste listener — works anywhere on the page
+document.addEventListener('paste', function(e) {
+  // Don't intercept when typing in a text input/textarea
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  const items = e.clipboardData?.items;
+  if (!items) return;
+
+  let imgItem = null;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) { imgItem = item; break; }
+  }
+  if (!imgItem) return;
+
+  e.preventDefault();
+  const file = imgItem.getAsFile();
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pasteDataUrl = ev.target.result;
+
+    // Flash border feedback
+    const flash = document.getElementById('pasteFlash');
+    if (flash) { flash.classList.add('show'); setTimeout(() => flash.classList.remove('show'), 500); }
+
+    // If overlay already open, update preview
+    if (document.getElementById('pasteOverlay').classList.contains('open')) {
+      showPastePreview(pasteDataUrl);
+    } else {
+      openPasteOverlay(pasteDataUrl);
+    }
+  };
+  reader.readAsDataURL(file);
+});
+
+function openPasteOverlay(dataUrl) {
+  // Populate cat select
+  const sel = document.getElementById('pasteCatSel');
+  sel.innerHTML = `<option value="">— Sem galeria —</option>` +
+    cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+  // Pre-select current cat if browsing one
+  if (currentCat) sel.value = currentCat;
+
+  document.getElementById('pastePreviewWrap').style.display = 'none';
+  document.getElementById('pasteHintBar').classList.remove('has-image');
+  document.getElementById('pasteConfirmBtn').disabled = true;
+  pasteDataUrl = null;
+
+  document.getElementById('pasteOverlay').classList.add('open');
+
+  if (dataUrl) {
+    pasteDataUrl = dataUrl;
+    showPastePreview(dataUrl);
+  }
+}
+
+function showPastePreview(dataUrl) {
+  const wrap = document.getElementById('pastePreviewWrap');
+  document.getElementById('pastePreviewImg').src = dataUrl;
+  wrap.style.display = 'flex';
+  document.getElementById('pasteHintBar').classList.add('has-image');
+  document.getElementById('pasteConfirmBtn').disabled = false;
+  toast('✓ Imagem colada! Escolha a galeria e salve.');
+}
+
+function clearPastePreview() {
+  pasteDataUrl = null;
+  document.getElementById('pastePreviewImg').src = '';
+  document.getElementById('pastePreviewWrap').style.display = 'none';
+  document.getElementById('pasteHintBar').classList.remove('has-image');
+  document.getElementById('pasteConfirmBtn').disabled = true;
+}
+
+function closePasteOverlay() {
+  document.getElementById('pasteOverlay').classList.remove('open');
+  clearPastePreview();
+}
+
+async function confirmPaste() {
+  if (!pasteDataUrl) return;
+  const catId = document.getElementById('pasteCatSel').value || null;
+  const cat   = catId ? cats.find(c => c.id === catId) : null;
+  const existingInCat = items.filter(it => it.cat === catId).length;
+  const prefix = cat ? cat.name : 'Foto';
+  const num    = existingInCat + 1;
+  const title  = `${prefix} ${num}`;
+
+  const id = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+  await idbPut(id, pasteDataUrl);
+  const meta = { id, title, cat: catId, tags: [], orient: 'portrait', createdAt: Date.now() };
+  items.push({ ...meta, img: pasteDataUrl });
+
+  persist();
+  buildSidebar();
+  render();
+  updateHeroStats();
+  closePasteOverlay();
+  toast(`✓ "${title}" adicionada!`);
 }
 
 initApp();
