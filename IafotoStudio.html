@@ -657,15 +657,15 @@ body {
   .hero { padding: 32px 16px 28px; flex-direction: column; gap: 20px; }
   .hero-stats { gap: 20px; }
   .sidebar { display: none; }
-  .content { padding: 16px 14px 48px; }
-  .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .content { padding: 16px 14px 80px; }
+  .gallery-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .topbar-search { max-width: none; flex: 1; }
   .brand-tagline { display: none; }
   .upload-preview-grid { grid-template-columns: repeat(3, 1fr); }
   .gallery-cards-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
 }
 @media (max-width: 480px) {
-  .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .gallery-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
   .hero-stats { display: none; }
   .gallery-cards-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
 }
@@ -728,20 +728,24 @@ body {
   .photo-card.selectable .photo-select-check { opacity: 0.35; }
   .photo-card.selected   .photo-select-check { opacity: 1; }
 
-  /* Botão admin: vai para o canto superior direito no mobile */
+  /* Botão admin: vai para o canto inferior esquerdo no mobile, sempre visível */
   #adminLockBtn {
-    width: 38px;
-    height: 38px;
-    font-size: 16px;
-    opacity: 0.6;
-    bottom: auto;
-    left: auto;
-    top: 10px;
-    right: 12px;
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+    opacity: 1;
+    bottom: 18px;
+    left: 18px;
+    top: auto;
+    right: auto;
+    z-index: 500;
+    background: var(--surface);
+    border: 2px solid var(--border2);
+    box-shadow: 0 2px 12px rgba(0,0,0,.18);
   }
 
   /* Badge admin repositionado no mobile */
-  #adminBadge { top: 58px; left: 10px; font-size: 9px; }
+  #adminBadge { top: auto; bottom: 70px; left: 10px; font-size: 9px; }
 
   /* Barra bulk adaptada para mobile */
   #bulkBar {
@@ -2230,7 +2234,7 @@ function render(pool) {
   }
 
   // Inside a gallery — show back button on mobile
-  if (backBtn) backBtn.style.display = '';
+  if (backBtn) backBtn.style.display = 'flex';
   if (reorderBtn) reorderBtn.style.display = '';
 
   // Determine pool
@@ -3092,6 +3096,8 @@ function deactivateAdmin() {
   btn.classList.remove('admin-active');
   btn.title = 'Acesso admin';
   document.getElementById('adminBadge').classList.remove('visible');
+  buildSidebar();
+  render();
   toast('🔒 Modo admin desativado');
 }
 
