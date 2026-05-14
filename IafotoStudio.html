@@ -1413,6 +1413,127 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
 
 /* sidebar add button */
 .sidebar-add-btn {
+}
+
+/* ── UPLOAD INBOX HINT ── */
+.upload-inbox-hint {
+  background: var(--accent2);
+  border: 1px solid rgba(0,196,174,.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.upload-inbox-hint strong { color: var(--accent); }
+
+/* ── INBOX CARD ── */
+.gallery-card.inbox-card .gallery-card-thumb {
+  background: linear-gradient(135deg, rgba(0,196,174,.1), rgba(0,196,174,.03));
+}
+.inbox-label-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--accent);
+  background: var(--accent2);
+  border-radius: 20px;
+  padding: 2px 8px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* ── PHOTO SELECTION ── */
+.photo-card.selectable { cursor: pointer; user-select: none; }
+.photo-card.selected {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  transform: scale(0.97);
+}
+.photo-select-check {
+  display: none;
+  position: absolute;
+  top: 8px; left: 8px;
+  width: 26px; height: 26px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 50%;
+  z-index: 25;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  pointer-events: none;
+}
+.photo-card.selectable .photo-select-check { display: flex; opacity: 0; transition: opacity .15s; }
+.photo-card.selected .photo-select-check { opacity: 1; }
+
+/* ── BULK BAR ── */
+#bulkBar {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 400;
+  background: #1a1a1f;
+  color: #fff;
+  border-radius: 50px;
+  padding: 8px 10px 8px 22px;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.35);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid rgba(255,255,255,.08);
+}
+#bulkBar.visible { display: flex; }
+#bulkCount { font-family: 'DM Mono', monospace; font-size: 12px; opacity: .75; }
+
+/* ── MOVE BULK MODAL ── */
+#moveBulkOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  background: rgba(10,10,12,.75);
+  backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+}
+#moveBulkOverlay.open { display: flex; }
+.move-bulk-modal {
+  background: var(--surface);
+  border-radius: 18px;
+  width: min(400px, 94vw);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border2);
+  overflow: hidden;
+}
+.move-bulk-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.move-bulk-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 1px; }
+.move-bulk-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+.move-bulk-info { font-size: 13px; color: var(--muted); }
+.move-bulk-info strong { color: var(--text); }
+.move-bulk-footer {
+  padding: 14px 22px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+
+/* ── SIDEBAR add button ── */
+.sidebar-add-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1534,9 +1655,8 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
       <button class="btn btn-ghost btn-sm" onclick="closeUpload()">✕ Fechar</button>
     </div>
     <div class="upload-modal-body">
-      <div>
-        <div class="field-label">Galeria de destino</div>
-        <select id="uploadCatSel" class="select-field"></select>
+      <div class="upload-inbox-hint">
+        📥 As fotos serão salvas em <strong>Sem categoria</strong>. Depois você organiza nas galerias.
       </div>
       <div>
         <div class="field-label">Fotos</div>
@@ -1554,6 +1674,24 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
     <div class="upload-modal-footer">
       <button class="btn btn-ghost" onclick="closeUpload()">Cancelar</button>
       <button class="btn btn-primary" id="uploadConfirmBtn" onclick="confirmUpload()" disabled>Salvar fotos</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOVE BULK MODAL -->
+<div id="moveBulkOverlay" onclick="if(event.target===this)closeMoveBulk()">
+  <div class="move-bulk-modal">
+    <div class="move-bulk-head">
+      <span class="move-bulk-title">↗ Mover para galeria</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeMoveBulk()">✕</button>
+    </div>
+    <div class="move-bulk-body">
+      <div class="move-bulk-info" id="moveBulkInfo">Mover fotos selecionadas para:</div>
+      <select id="moveBulkSel" class="select-field"></select>
+    </div>
+    <div class="move-bulk-footer">
+      <button class="btn btn-ghost" onclick="closeMoveBulk()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmMoveBulk()">Mover →</button>
     </div>
   </div>
 </div>
@@ -1638,6 +1776,13 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
 <div class="paste-fab admin-only" id="pasteFab" onclick="openPasteOverlay()" title="Colar imagem (Ctrl+V)">
   📋
   <span class="paste-fab-label">Ctrl+V</span>
+</div>
+
+<!-- BULK SELECT BAR -->
+<div id="bulkBar">
+  <span id="bulkCount">0 fotos selecionadas</span>
+  <button class="btn btn-sm" style="background:var(--accent);color:#fff;border:none;" onclick="openMoveBulk()">↗ Mover para galeria</button>
+  <button class="btn btn-ghost btn-sm" style="color:rgba(255,255,255,.7);" onclick="clearSelection()">✕ Cancelar</button>
 </div>
 
 <!-- PASTE FLASH BORDER -->
@@ -1770,6 +1915,9 @@ function buildSidebar() {
 
   const allActive = currentCat === null;
   const allCount  = items.length;
+  const INBOX = '__inbox__';
+  const inboxCount = items.filter(i => i.cat === INBOX).length;
+  const inboxActive = currentCat === INBOX;
 
   let listHTML  = `
     <button class="cat-btn ${allActive ? 'active' : ''}" onclick="selectCat(null)">
@@ -1780,8 +1928,24 @@ function buildSidebar() {
     </button>
     <div class="sidebar-divider"></div>
   `;
+
+  // Inbox button in sidebar (always show if has photos, or in admin)
+  if (inboxCount > 0 || adminMode) {
+    listHTML += `
+      <button class="cat-btn ${inboxActive ? 'active' : ''}" onclick="selectCat('${INBOX}')">
+        <div class="cat-btn-info">
+          <div class="cat-btn-name">📥 Sem categoria</div>
+          <div class="cat-btn-count">${inboxCount} foto${inboxCount !== 1 ? 's' : ''}</div>
+        </div>
+      </button>`;
+  }
+
   let chipsHTML = `<div class="cat-chip ${allActive ? 'active' : ''}" onclick="selectCat(null)">Todas</div>`;
-  let selHTML   = `<option value="">— Sem galeria —</option>`;
+  if (inboxCount > 0) {
+    chipsHTML += `<div class="cat-chip ${inboxActive ? 'active' : ''}" onclick="selectCat('${INBOX}')">📥 Sem cat.</div>`;
+  }
+
+  let selHTML = `<option value="${INBOX}">📥 Sem categoria</option>`;
 
   [...cats].sort((a, b) => a.name.localeCompare(b.name, 'pt')).forEach(cat => {
     const cnt    = items.filter(i => i.cat === cat.id).length;
@@ -1799,11 +1963,12 @@ function buildSidebar() {
 
   list.innerHTML  = listHTML;
   chips.innerHTML = chipsHTML;
-  selEl.innerHTML = selHTML;
+  if (selEl) selEl.innerHTML = selHTML;
 }
 
 function selectCat(catId) {
   currentCat = catId;
+  clearSelection();
   buildSidebar();
   render();
 }
@@ -1844,6 +2009,11 @@ function render(pool) {
   // Update title
   if (currentCat === null) {
     title.textContent = `Busca: "${q}"`;
+  } else if (currentCat === '__inbox__') {
+    title.textContent = '📥 Sem categoria';
+    if (adminMode) {
+      badge.textContent = `${pool.length} foto${pool.length !== 1 ? 's' : ''} — selecione para mover`;
+    }
   } else {
     const cat = cats.find(c => c.id === currentCat);
     title.textContent = cat ? cat.name : 'Galeria';
@@ -1864,15 +2034,21 @@ function render(pool) {
     return;
   }
 
+  const isInbox = currentCat === '__inbox__';
+  const selectable = isInbox && adminMode;
+
   grid.innerHTML = pool.map((it, idx) => `
-    <div class="photo-card ${it.img ? '' : 'photo-card-empty'}" onclick="openLightbox(${idx})">
+    <div class="photo-card ${it.img ? '' : 'photo-card-empty'} ${selectable ? 'selectable' : ''}"
+         id="pcard-${it.id}"
+         onclick="${selectable ? `toggleSelect('${it.id}')` : `openLightbox(${idx})`}">
+      ${selectable ? `<div class="photo-select-check">✓</div>` : ''}
       ${it.img
         ? `<img src="${it.img}" loading="lazy" alt="${it.title || ''}">`
         : `<span>⏳</span>`}
       <div class="photo-card-num">${it.title || (idx + 1)}</div>
-      ${adminMode ? `<button class="photo-delete-btn" onclick="event.stopPropagation();deleteItem('${it.id}')" title="Apagar foto">✕</button>` : ''}
-      ${adminMode ? `<button class="photo-move-btn" onclick="event.stopPropagation();openMoveModal('${it.id}')" title="Mover para outra galeria">↗</button>` : ''}
-      ${it.img ? `
+      ${!selectable && adminMode ? `<button class="photo-delete-btn" onclick="event.stopPropagation();deleteItem('${it.id}')" title="Apagar foto">✕</button>` : ''}
+      ${!selectable && adminMode ? `<button class="photo-move-btn" onclick="event.stopPropagation();openMoveModal('${it.id}')" title="Mover para outra galeria">↗</button>` : ''}
+      ${it.img && !selectable ? `
         <div class="photo-card-overlay">
           <div class="photo-card-actions">
             <button class="photo-action-btn" onclick="event.stopPropagation();openLightbox(${idx})">🔍 Ver</button>
@@ -1914,15 +2090,18 @@ function render(pool) {
 
 // ── HOME: mostra caixas de galerias ──
 function renderHomeGalleries(grid, title, badge) {
+  const INBOX = '__inbox__';
+  const inboxItems = items.filter(i => i.cat === INBOX);
+  const totalCards = cats.length + (inboxItems.length > 0 ? 1 : 0);
+
   title.textContent = 'Galerias';
-  badge.textContent = `${cats.length} galeria${cats.length !== 1 ? 's' : ''}`;
+  badge.textContent = `${totalCards} galeria${totalCards !== 1 ? 's' : ''}`;
   currentView = [];
 
-  // Mudar grid para layout de cards
   grid.className = 'gallery-cards-grid';
   grid.id = 'galleryGrid';
 
-  if (!cats.length) {
+  if (!cats.length && !inboxItems.length) {
     grid.innerHTML = `
       <div class="home-empty">
         <div class="home-empty-icon">🗂</div>
@@ -1932,9 +2111,32 @@ function renderHomeGalleries(grid, title, badge) {
     return;
   }
 
+  // Build inbox card if it has photos
+  let inboxHTML = '';
+  if (inboxItems.length > 0) {
+    const inboxThumb = inboxItems.find(i => i.img);
+    const inboxThumbHTML = inboxThumb
+      ? `<img src="${inboxThumb.img}" loading="lazy" alt="Sem categoria" style="filter:saturate(.7);">`
+      : `<div class="gallery-card-thumb-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.25;color:var(--muted)"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
+    inboxHTML = `
+      <div class="gallery-card inbox-card" id="gcard-${INBOX}" onclick="selectCat('${INBOX}')">
+        <div class="gallery-card-thumb" style="border:2px dashed rgba(0,196,174,.35);">
+          ${inboxThumbHTML}
+          <div class="gallery-card-thumb-count">${inboxItems.length} foto${inboxItems.length !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="gallery-card-body">
+          <div class="gallery-card-info">
+            <div class="gallery-card-name">📥 Sem categoria</div>
+            <div class="gallery-card-sub">Clique para organizar nas galerias</div>
+          </div>
+          <span class="gallery-card-arrow">›</span>
+        </div>
+      </div>`;
+  }
+
   const sortedCats = [...cats].sort((a, b) => a.name.localeCompare(b.name, 'pt'));
 
-  grid.innerHTML = sortedCats.map(cat => {
+  const catsHTML = sortedCats.map(cat => {
     const catItems = items.filter(i => i.cat === cat.id);
     const cnt = catItems.length;
     const thumb = catItems.find(i => i.img);
@@ -1961,7 +2163,9 @@ function renderHomeGalleries(grid, title, badge) {
       </div>`;
   }).join('');
 
-  // Carregar thumbs que ainda não estão em memória
+  grid.innerHTML = inboxHTML + catsHTML;
+
+  // Load lazy thumbs for gallery cards
   if (idb) {
     sortedCats.forEach(cat => {
       const catItems = items.filter(i => i.cat === cat.id);
@@ -1973,8 +2177,7 @@ function renderHomeGalleries(grid, title, badge) {
         const dataUrl = e.target.result?.dataUrl;
         if (!dataUrl) return;
         needsThumb.img = dataUrl;
-        // Re-render só o card desta galeria
-        const allCards = grid.querySelectorAll('.gallery-card');
+        const allCards = grid.querySelectorAll('.gallery-card:not(.inbox-card)');
         const idx = sortedCats.findIndex(c => c.id === cat.id);
         const card = allCards[idx];
         if (card) {
@@ -2156,46 +2359,53 @@ function removePendingFile(i) {
 
 async function confirmUpload() {
   if (!pendingFiles.length) return;
-  const catId = document.getElementById('uploadCatSel').value || null;
-  const cat   = catId ? cats.find(c => c.id === catId) : null;
 
-  // Count existing items in this cat for numbering
-  const existingInCat = items.filter(it => it.cat === catId).length;
+  const INBOX = '__inbox__';
+  const existingInInbox = items.filter(it => it.cat === INBOX).length;
 
   const progressEl  = document.getElementById('uploadProgress');
   const progressBar = document.getElementById('uploadProgressBar');
   progressEl.style.display = 'block';
   document.getElementById('uploadConfirmBtn').disabled = true;
 
-  const prefix = cat ? cat.name : 'Foto';
   const newItems = [];
+  const idbBatch = [];
 
-  for (let i = 0; i < pendingFiles.length; i++) {
-    const file = pendingFiles[i];
-    const dataUrl = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = e => res(e.target.result);
-      r.readAsDataURL(file);
-    });
+  // Lê todos os arquivos em paralelo para máxima velocidade
+  const reads = pendingFiles.map((file, i) => new Promise(res => {
+    const r = new FileReader();
+    r.onload = e => res({ dataUrl: e.target.result, i });
+    r.readAsDataURL(file);
+  }));
 
+  const results = await Promise.all(reads);
+  progressBar.style.width = '50%';
+
+  for (const { dataUrl, i } of results) {
     const id    = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-    const num   = existingInCat + i + 1;
-    const title = `${prefix} ${num}`;
-
-    await idbPut(id, dataUrl);
-    const meta = { id, title, cat: catId || null, tags: [], orient: 'portrait', createdAt: Date.now() };
+    const num   = existingInInbox + i + 1;
+    const title = `Foto ${num}`;
+    const meta  = { id, title, cat: INBOX, tags: [], orient: 'portrait', createdAt: Date.now() };
     items.push({ ...meta, img: dataUrl });
     newItems.push(meta);
-
-    progressBar.style.width = `${Math.round(((i + 1) / pendingFiles.length) * 100)}%`;
+    idbBatch.push({ id, dataUrl });
   }
+
+  progressBar.style.width = '75%';
+
+  // Grava tudo no IDB de uma vez
+  await idbPutBatch(idbBatch);
+  progressBar.style.width = '100%';
 
   persist();
   buildSidebar();
   render();
   updateHeroStats();
-  closeUpload();
-  toast(`✓ ${newItems.length} foto${newItems.length !== 1 ? 's' : ''} adicionada${newItems.length !== 1 ? 's' : ''}!`);
+
+  setTimeout(() => {
+    closeUpload();
+    toast(`✓ ${newItems.length} foto${newItems.length !== 1 ? 's' : ''} salva${newItems.length !== 1 ? 's' : ''} em Sem categoria!`);
+  }, 300);
 }
 
 // ── HERO STATS ──
@@ -2635,6 +2845,72 @@ function deactivateAdmin() {
   btn.title = 'Acesso admin';
   document.getElementById('adminBadge').classList.remove('visible');
   toast('🔒 Modo admin desativado');
+}
+
+// ── SELECTION MODE (inbox) ──
+let selectedIds = new Set();
+
+function toggleSelect(id) {
+  if (selectedIds.has(id)) {
+    selectedIds.delete(id);
+  } else {
+    selectedIds.add(id);
+  }
+  const card = document.getElementById('pcard-' + id);
+  if (card) card.classList.toggle('selected', selectedIds.has(id));
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulkBar');
+  const count = selectedIds.size;
+  if (count > 0) {
+    document.getElementById('bulkCount').textContent = `${count} foto${count !== 1 ? 's' : ''} selecionada${count !== 1 ? 's' : ''}`;
+    bar.classList.add('visible');
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+function clearSelection() {
+  selectedIds.clear();
+  document.querySelectorAll('.photo-card.selected').forEach(c => c.classList.remove('selected'));
+  updateBulkBar();
+}
+
+function openMoveBulk() {
+  if (!selectedIds.size) return;
+  const sel = document.getElementById('moveBulkSel');
+  sel.innerHTML = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  if (!cats.length) {
+    toast('⚠ Crie uma galeria primeiro!');
+    return;
+  }
+  document.getElementById('moveBulkInfo').innerHTML =
+    `Mover <strong>${selectedIds.size} foto${selectedIds.size !== 1 ? 's' : ''}</strong> para:`;
+  document.getElementById('moveBulkOverlay').classList.add('open');
+}
+
+function closeMoveBulk() {
+  document.getElementById('moveBulkOverlay').classList.remove('open');
+}
+
+function confirmMoveBulk() {
+  const catId = document.getElementById('moveBulkSel').value;
+  if (!catId) return;
+  const cat = cats.find(c => c.id === catId);
+  let moved = 0;
+  selectedIds.forEach(id => {
+    const it = items.find(i => i.id === id);
+    if (it) { it.cat = catId; moved++; }
+  });
+  persist();
+  clearSelection();
+  closeMoveBulk();
+  buildSidebar();
+  render();
+  updateHeroStats();
+  toast(`✓ ${moved} foto${moved !== 1 ? 's' : ''} movida${moved !== 1 ? 's' : ''} para "${cat ? cat.name : ''}"!`);
 }
 
 initApp();
