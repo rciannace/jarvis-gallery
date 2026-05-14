@@ -320,8 +320,8 @@ body {
 }
 .cat-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 26px;
-  letter-spacing: 1.5px;
+  font-size: 18px;
+  letter-spacing: 1px;
   color: var(--text);
 }
 .cat-count-badge {
@@ -714,7 +714,7 @@ body {
   border-color: var(--text);
 }
 @media (max-width: 768px) {
-  .cat-chips { display: flex; }
+  .cat-chips { display: none; }  /* drawer substitui os chips */
   .toolbar { flex-wrap: wrap; gap: 8px; }
 }
 
@@ -786,8 +786,8 @@ body {
   /* 3 colunas de galerias no mobile */
   .gallery-cards-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
 
-  /* Botão voltar na toolbar mobile */
-  #mobileBackBtn { display: flex !important; }
+  /* Botão voltar na toolbar mobile — visibilidade controlada por JS */
+  /* #mobileBackBtn { display: flex !important; } */
 
   /* Reordenar visível no mobile dentro de galerias */
   #reorderBtn { display: inline-flex !important; }
@@ -1647,6 +1647,17 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
 }
 #mobileBackBtn .back-arrow { font-size: 18px; line-height: 1; }
 
+@media (max-width: 768px) {
+  .toolbar-home-state #catTitle,
+  .toolbar-home-state #catCountBadge { display: none; }
+}
+
+/* No desktop, mobileBackBtn nunca aparece */
+@media (min-width: 769px) {
+  #mobileBackBtn { display: none !important; }
+  #drawerToggleBtn { display: none !important; }
+}
+
 /* ── MOBILE SYNC BAR ── */
 .mobile-sync-bar {
   display: none;
@@ -1676,6 +1687,99 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
 }
 @media (max-width: 768px) {
   body.admin-mode .mobile-sync-bar { display: flex; }
+}
+
+/* ── MOBILE DRAWER ── */
+.mobile-drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(4px);
+}
+.mobile-drawer-overlay.open { display: block; }
+
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(280px, 80vw);
+  z-index: 260;
+  background: var(--surface);
+  border-right: 1px solid var(--border2);
+  box-shadow: 4px 0 24px rgba(0,0,0,.18);
+  transform: translateX(-100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.mobile-drawer.open { transform: translateX(0); }
+
+.mobile-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  flex-shrink: 0;
+}
+.mobile-drawer-head-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 1.2px;
+  color: var(--text);
+}
+.mobile-drawer-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  border-radius: 6px;
+  transition: background .12s;
+}
+.mobile-drawer-close:hover { background: var(--surface2); }
+
+.mobile-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 0;
+}
+
+/* Botão hambúrguer para abrir drawer */
+#drawerToggleBtn {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 9px;
+  padding: 7px 12px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background .12s;
+  flex-shrink: 0;
+}
+#drawerToggleBtn:hover { background: var(--surface2); }
+#drawerToggleBtn .drawer-icon { font-size: 16px; line-height: 1; }
+
+@media (max-width: 768px) {
+  #drawerToggleBtn { display: flex; }
+  
+  /* Gallery cards: 2 colunas no mobile em vez de scroll lateral */
+  .gallery-cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
 }
 
 /* ── SYNC BUTTONS ── */
@@ -1828,6 +1932,20 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
   </button>
 </div>
 
+<!-- MOBILE DRAWER OVERLAY -->
+<div class="mobile-drawer-overlay" id="mobileDrawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- MOBILE DRAWER -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="mobile-drawer-head">
+    <span class="mobile-drawer-head-title">Galerias</span>
+    <button class="mobile-drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="mobile-drawer-body" id="mobileDrawerBody">
+    <!-- populated by buildSidebar() -->
+  </div>
+</div>
+
 <!-- MAIN -->
 <div class="main">
 
@@ -1857,10 +1975,13 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
 
   <!-- CONTENT -->
   <main class="content">
-    <div class="toolbar">
+    <div class="toolbar" id="mainToolbar">
       <div class="toolbar-left">
         <button id="mobileBackBtn" onclick="selectCat(null)" title="Voltar para galerias">
           <span class="back-arrow">‹</span> Galerias
+        </button>
+        <button id="drawerToggleBtn" onclick="openDrawer()" title="Abrir galerias">
+          <span class="drawer-icon">☰</span> Galerias
         </button>
         <span class="cat-title" id="catTitle">Galerias</span>
         <span class="cat-count-badge" id="catCountBadge">0 fotos</span>
@@ -2206,6 +2327,20 @@ function buildSidebar() {
   list.innerHTML  = listHTML;
   chips.innerHTML = chipsHTML;
   if (selEl) selEl.innerHTML = selHTML;
+
+  // Drawer mobile - mesmo conteúdo da sidebar
+  const drawerBody = document.getElementById('mobileDrawerBody');
+  if (drawerBody) {
+    drawerBody.innerHTML = listHTML + `
+      <div style="padding:0 18px;margin-top:8px;" class="admin-only">
+        <button class="sidebar-add-btn" style="width:100%;margin:0;" onclick="openCatManager();closeDrawer()">
+          <span class="sidebar-add-btn-icon">＋</span> Gerenciar galerias
+        </button>
+      </div>`;
+    if (!document.body.classList.contains('admin-mode')) {
+      drawerBody.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+    }
+  }
 }
 
 function selectCat(catId) {
@@ -2213,6 +2348,19 @@ function selectCat(catId) {
   clearSelection();
   buildSidebar();
   render();
+  closeDrawer(); // fecha drawer mobile ao selecionar galeria
+}
+
+// ── MOBILE DRAWER ──
+function openDrawer() {
+  document.getElementById('mobileDrawer').classList.add('open');
+  document.getElementById('mobileDrawerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('mobileDrawer').classList.remove('open');
+  document.getElementById('mobileDrawerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 // ── RENDER ──
@@ -2221,6 +2369,7 @@ function render(pool) {
   const title = document.getElementById('catTitle');
   const badge = document.getElementById('catCountBadge');
   const backBtn = document.getElementById('mobileBackBtn');
+  const drawerBtn = document.getElementById('drawerToggleBtn');
   const reorderBtn = document.getElementById('reorderBtn');
 
   // HOME VIEW: mostra caixas de galerias quando currentCat === null e sem busca
@@ -2228,14 +2377,20 @@ function render(pool) {
 
   if (currentCat === null && !q) {
     if (backBtn) backBtn.style.display = 'none';
+    if (drawerBtn) drawerBtn.style.display = 'flex';
     if (reorderBtn) reorderBtn.style.display = '';
+    const tb = document.getElementById('mainToolbar');
+    if (tb) tb.classList.add('toolbar-home-state');
     renderHomeGalleries(grid, title, badge);
     return;
   }
 
-  // Inside a gallery — show back button on mobile
+  // Inside a gallery — show back button on mobile, hide drawer toggle
   if (backBtn) backBtn.style.display = 'flex';
+  if (drawerBtn) drawerBtn.style.display = 'none';
   if (reorderBtn) reorderBtn.style.display = '';
+  const tb2 = document.getElementById('mainToolbar');
+  if (tb2) tb2.classList.remove('toolbar-home-state');
 
   // Determine pool
   if (!pool) {
@@ -2350,6 +2505,10 @@ function renderHomeGalleries(grid, title, badge) {
 
   const backBtn = document.getElementById('mobileBackBtn');
   if (backBtn) backBtn.style.display = 'none';
+  const drawerBtn2 = document.getElementById('drawerToggleBtn');
+  if (drawerBtn2) drawerBtn2.style.display = 'flex';
+  const tb3 = document.getElementById('mainToolbar');
+  if (tb3) tb3.classList.add('toolbar-home-state');
 
   grid.className = 'gallery-cards-grid';
   grid.id = 'galleryGrid';
