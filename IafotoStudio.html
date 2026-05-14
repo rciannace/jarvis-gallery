@@ -2046,7 +2046,7 @@ function render(pool) {
         ? `<img src="${it.img}" loading="lazy" alt="${it.title || ''}">`
         : `<span>⏳</span>`}
       <div class="photo-card-num">${it.title || (idx + 1)}</div>
-      ${!selectable && adminMode ? `<button class="photo-delete-btn" onclick="event.stopPropagation();deleteItem('${it.id}')" title="Apagar foto">✕</button>` : ''}
+      ${adminMode ? `<button class="photo-delete-btn" onclick="event.stopPropagation();deleteItem('${it.id}')" title="Apagar foto">✕</button>` : ''}
       ${!selectable && adminMode ? `<button class="photo-move-btn" onclick="event.stopPropagation();openMoveModal('${it.id}')" title="Mover para outra galeria">↗</button>` : ''}
       ${it.img && !selectable ? `
         <div class="photo-card-overlay">
@@ -2767,9 +2767,7 @@ let adminMode = false;
 function openAdminModal() {
   if (adminMode) {
     // Already admin — clicking again logs out
-    if (confirm('Sair do modo administrador?')) {
-      deactivateAdmin();
-    }
+    deactivateAdmin();
     return;
   }
   clearPinFields();
