@@ -175,103 +175,95 @@ body {
 .hero {
   background: var(--text);
   color: var(--bg);
-  padding: 24px 32px;
+  padding: 26px 36px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 96px 1fr auto;
   align-items: center;
-  gap: 32px;
-  min-height: 130px;
+  gap: 36px;
 }
-/* hero-left = brand block (logo + whatsapp) */
-.hero-left {
+.hero-brand {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
-.hero-left h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(28px, 3.5vw, 46px);
-  letter-spacing: 2px;
-  line-height: .95;
-  margin-bottom: 8px;
-}
-.hero-left h1 span { color: var(--accent); }
-.hero-left p {
-  font-size: 13px;
-  color: rgba(240,240,245,.55);
-  max-width: 340px;
-  line-height: 1.5;
-}
-.hero-left p strong { color: rgba(240,240,245,.85); }
-
-/* centro: título + subtítulo + cards antes/depois */
-.hero-center {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* cards antes / depois */
-.hero-befor-after {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-}
-.hero-ba-card {
-  border-radius: 10px;
+.hero-logo-wrap {
+  width: 78px;
+  height: 78px;
+  border-radius: 12px;
   overflow: hidden;
-  position: relative;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 18px rgba(0,0,0,.3);
   flex-shrink: 0;
-  width: 72px;
-  height: 90px;
 }
-.hero-ba-card-inner {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  background: #2a2a35;
-}
-.hero-ba-placeholder {
-  width: 100%;
-  height: 100%;
+.hero-logo-wrap img { width: 100%; height: 100%; object-fit: contain; }
+.hero-wabtn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: #242430;
+  gap: 5px;
+  background: #25d366;
+  color: #fff;
+  border-radius: 7px;
+  padding: 6px 10px;
+  text-decoration: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(37,211,102,.35);
+  transition: background .15s, transform .15s;
 }
-.hero-ba-depois {
-  background: linear-gradient(135deg, #003d38 0%, #004d42 100%);
+.hero-wabtn:hover { background: #1fb956; transform: translateY(-1px); }
+.hero-wanotice {
+  font-size: 10px;
+  color: rgba(240,240,245,.3);
+  text-align: center;
+  line-height: 1.3;
+}
+.hero-mid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hero-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(30px, 3.8vw, 50px);
+  letter-spacing: 2.5px;
+  line-height: .92;
+  color: #f0f0f5;
+}
+.hero-headline em { color: var(--accent); font-style: normal; }
+.hero-slogan {
+  font-size: 13px;
+  color: rgba(240,240,245,.5);
+  line-height: 1.55;
+  max-width: 430px;
+  border-left: 2px solid var(--accent);
+  padding-left: 12px;
+}
+.hero-slogan strong { color: rgba(240,240,245,.85); font-weight: 600; }
+.hero-pills {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.hero-pill {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.09);
+  font-size: 11px;
+  color: rgba(240,240,245,.48);
+  white-space: nowrap;
 }
-.hero-ba-depois::after {
-  content: '✦';
-  font-size: 22px;
-  color: var(--accent);
-  opacity: .7;
-}
-.hero-ba-label {
-  position: absolute;
-  bottom: 4px;
-  left: 4px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .8px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  text-transform: uppercase;
-}
-.label-antes { background: rgba(224,48,80,.85); color: #fff; }
-.label-depois { background: rgba(0,196,174,.9); color: #fff; }
-.hero-ba-arrow { color: rgba(240,240,245,.2); font-size: 16px; flex-shrink: 0; }
-
-/* direita: stats + badges */
-.hero-stats {
+.hero-pill-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.hero-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -281,53 +273,213 @@ body {
 .hero-stats-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
-.hero-stat {
-  text-align: center;
-}
+.hero-stat { text-align: center; }
 .hero-stat-num {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 38px;
+  font-size: 42px;
   letter-spacing: 1px;
   color: var(--accent);
   line-height: 1;
 }
 .hero-stat-label {
-  font-size: 10px;
+  font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: rgba(240,240,245,.35);
+  letter-spacing: 1.2px;
+  color: rgba(240,240,245,.3);
   margin-top: 2px;
 }
-.hero-stats-divider {
-  width: 1px;
-  height: 36px;
-  background: rgba(255,255,255,.08);
-}
-.hero-badges {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  align-items: flex-end;
-}
-.hero-badge {
+.hero-stats-div { width: 1px; height: 38px; background: rgba(255,255,255,.07); }
+.hero-cta {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background .15s, transform .15s;
+}
+.hero-cta:hover { background: #00a896; transform: translateY(-1px); }
+
+/* ── PRICING SECTION ── */
+.pricing-section {
+  background: var(--bg);
+  padding: 48px 28px 56px;
+  border-bottom: 1px solid var(--border);
+}
+.pricing-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.pricing-eyebrow {
   font-size: 11px;
-  color: rgba(240,240,245,.4);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.pricing-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: 2px;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.pricing-subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 440px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.pricing-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 28px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: transform .18s, box-shadow .18s;
+  position: relative;
+  text-align: center;
+}
+.pricing-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.1); }
+.pricing-card.featured {
+  border-color: var(--accent);
+  border-width: 2px;
+  background: var(--surface);
+}
+.pricing-card.featured::before {
+  content: 'MAIS POPULAR';
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 3px 10px;
+  border-radius: 20px;
   white-space: nowrap;
 }
-.hero-badge-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.pricing-qty {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--muted);
 }
-.dot-teal { background: var(--accent); }
-.dot-gold { background: var(--gold); }
-.dot-blue { background: #4a9eff; }
+.pricing-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px;
+  letter-spacing: 1px;
+  line-height: 1;
+  color: var(--text);
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+.pricing-num .currency {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 10px;
+  color: var(--muted);
+}
+.pricing-num .cents {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 10px;
+  color: var(--text);
+}
+.pricing-num.accent-price { color: var(--accent); }
+.pricing-per {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: -4px;
+}
+.pricing-per strong { color: var(--accent); font-weight: 600; }
+.pricing-divider {
+  width: 32px;
+  height: 1px;
+  background: var(--border2);
+  margin: 4px 0;
+}
+.pricing-detail {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.pricing-btn {
+  margin-top: 8px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 0;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .15s;
+  border: none;
+}
+.pricing-btn-ghost {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border2);
+}
+.pricing-btn-ghost:hover { background: var(--border2); }
+.pricing-btn-accent {
+  background: var(--accent);
+  color: #fff;
+}
+.pricing-btn-accent:hover { background: #00a896; transform: translateY(-1px); }
+.pricing-footer-note {
+  text-align: center;
+  margin-top: 28px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.pricing-footer-note a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+@media (max-width: 768px) {
+  .pricing-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .pricing-section { padding: 36px 16px 44px; }
+}
+@media (max-width: 480px) {
+  .pricing-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pricing-num { font-size: 40px; }
+}
 
 /* ── MAIN LAYOUT ── */
 .main {
@@ -779,26 +931,9 @@ body {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  .hero-left {
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 14px !important;
-  }
-  .hero-brand-block {
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 12px !important;
-  }
-  .hero-brand-block > div:first-child {
-    width: 64px !important;
-    height: 64px !important;
-    border-radius: 10px !important;
-    flex-shrink: 0;
-  }
-  .hero-center { order: 2; }
-  .hero-stats { order: 3; flex-direction: row !important; align-items: center; justify-content: space-between; width: 100%; }
-  .hero-badges { display: none; }
-  .hero-stats-row { gap: 12px; }
+  .hero-brand { flex-direction: row; align-items: center; gap: 12px; }
+  .hero-right { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; }
+  .hero-cta { display: none; }
 }
 @media (max-width: 480px) {
   .gallery-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
@@ -2042,66 +2177,105 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
 <div class="hero" id="heroStrip">
 
   <!-- COL 1: Logo + WhatsApp -->
-  <div class="hero-left">
-    <div style="width:88px;height:88px;border-radius:14px;overflow:hidden;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.3);flex-shrink:0;">
+  <div class="hero-brand">
+    <div class="hero-logo-wrap">
       <img id="heroLogo" style="width:100%;height:100%;object-fit:contain;" src="" alt="IA Foto Studio">
     </div>
-    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-      <a href="https://wa.me/5511926029852" target="_blank" rel="noopener"
-         style="display:flex;align-items:center;gap:5px;background:#25d366;color:#fff;border-radius:8px;padding:6px 12px;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;box-shadow:0 2px 8px rgba(37,211,102,.4);white-space:nowrap;transition:all .15s;"
-         onmouseover="this.style.background='#1fb956';this.style.transform='translateY(-1px)'"
-         onmouseout="this.style.background='#25d366';this.style.transform='translateY(0)'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        55 11 92602-9852
-      </a>
-      <span style="font-family:'DM Sans',sans-serif;font-size:10px;color:rgba(240,240,245,.35);text-align:center;">↑ abre direto no WhatsApp</span>
+    <a href="https://wa.me/5511926029852" target="_blank" rel="noopener" class="hero-wabtn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      55 11 92602-9852
+    </a>
+    <span class="hero-wanotice">↑ abre direto<br>no WhatsApp</span>
+  </div>
+
+  <!-- COL 2: Headline + slogan + pills -->
+  <div class="hero-mid">
+    <div class="hero-headline">VOCÊ REAL,<br>RESULTADO <em>EXTRAORDINÁRIO</em></div>
+    <p class="hero-slogan">Mande uma foto sua — do seu jeito, do seu cotidiano —<br>e a IA cria <strong>imagens de estúdio profissional</strong> que realmente parecem com você.</p>
+    <div class="hero-pills">
+      <div class="hero-pill"><span class="hero-pill-dot" style="background:#00c4ae"></span>Sem sair de casa</div>
+      <div class="hero-pill"><span class="hero-pill-dot" style="background:#d4a017"></span>Sem medo de julgamento</div>
+      <div class="hero-pill"><span class="hero-pill-dot" style="background:#4a9eff"></span>Resultado em minutos</div>
+      <div class="hero-pill"><span class="hero-pill-dot" style="background:#b47fff"></span>100% personalizado</div>
     </div>
   </div>
 
-  <!-- COL 2: Título + texto + cards antes/depois -->
-  <div class="hero-center">
-    <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,3.5vw,46px);letter-spacing:2px;line-height:.95;color:#f0f0f5;margin-bottom:0;">SEU ESTILO,<br><span style="color:#00c4ae;">SUA ESSÊNCIA</span></h1>
-    <p style="font-size:13px;color:rgba(240,240,245,.55);max-width:360px;line-height:1.5;">Escolha uma referência e a IA transforma <strong style="color:rgba(240,240,245,.85);">sua foto real</strong> em imagem de estúdio profissional. Sem julgamentos. 100% personalizado.</p>
-    <div class="hero-befor-after">
-      <div class="hero-ba-card">
-        <div class="hero-ba-placeholder">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        </div>
-        <span class="hero-ba-label label-antes">antes</span>
-      </div>
-      <span class="hero-ba-arrow">→</span>
-      <div class="hero-ba-card">
-        <div class="hero-ba-depois"></div>
-        <span class="hero-ba-label label-depois">depois IA</span>
-      </div>
-      <span class="hero-ba-arrow">→</span>
-      <div class="hero-ba-card" style="background:linear-gradient(135deg,#1a2a3a 0%,#0d1e30 100%);display:flex;align-items:center;justify-content:center;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4a9eff" stroke-width="1.5" style="opacity:.6"><path d="M5 3l14 9-14 9V3z"/></svg>
-        <span class="hero-ba-label" style="background:rgba(74,158,255,.8);color:#fff;">style</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- COL 3: Stats + badges de confiança -->
-  <div class="hero-stats">
+  <!-- COL 3: Stats + CTA -->
+  <div class="hero-right">
     <div class="hero-stats-row">
       <div class="hero-stat">
         <div class="hero-stat-num" id="heroFotos">0</div>
         <div class="hero-stat-label">Fotos</div>
       </div>
-      <div class="hero-stats-divider"></div>
+      <div class="hero-stats-div"></div>
       <div class="hero-stat">
         <div class="hero-stat-num" id="heroGalerias">0</div>
         <div class="hero-stat-label">Galerias</div>
       </div>
     </div>
-    <div class="hero-badges">
-      <div class="hero-badge"><span class="hero-badge-dot dot-teal"></span>IA processa em minutos</div>
-      <div class="hero-badge"><span class="hero-badge-dot dot-gold"></span>Fotos 100% únicas</div>
-      <div class="hero-badge"><span class="hero-badge-dot dot-blue"></span>Sem exposição de dados</div>
-    </div>
+    <a href="https://wa.me/5511926029852" target="_blank" rel="noopener" class="hero-cta">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Quero meu ensaio
+    </a>
   </div>
 
+</div>
+
+<!-- PRICING -->
+<div class="pricing-section" id="pricingSection">
+  <div class="pricing-header">
+    <div class="pricing-eyebrow">Investimento</div>
+    <div class="pricing-title">ESCOLHA SEU PACOTE</div>
+    <p class="pricing-subtitle">Fotos únicas, geradas com IA, que realmente parecem com você. Sem estúdio, sem deslocamento.</p>
+  </div>
+  <div class="pricing-grid">
+
+    <div class="pricing-card">
+      <div class="pricing-qty">5 fotos</div>
+      <div class="pricing-num">
+        <span class="currency">R$</span>49<span class="cents">,90</span>
+      </div>
+      <div class="pricing-per">R$ 9,98 <strong>por foto</strong></div>
+      <div class="pricing-divider"></div>
+      <div class="pricing-detail">Ideal para experimentar e ver como fica</div>
+      <a href="https://wa.me/5511926029852?text=Olá!%20Quero%20o%20pacote%20de%205%20fotos%20por%20R%2449%2C90" target="_blank" class="pricing-btn pricing-btn-ghost">Pedir agora</a>
+    </div>
+
+    <div class="pricing-card">
+      <div class="pricing-qty">10 fotos</div>
+      <div class="pricing-num">
+        <span class="currency">R$</span>89<span class="cents">,90</span>
+      </div>
+      <div class="pricing-per">R$ 8,99 <strong>por foto</strong></div>
+      <div class="pricing-divider"></div>
+      <div class="pricing-detail">Variedade de looks e cenários</div>
+      <a href="https://wa.me/5511926029852?text=Olá!%20Quero%20o%20pacote%20de%2010%20fotos%20por%20R%2489%2C90" target="_blank" class="pricing-btn pricing-btn-ghost">Pedir agora</a>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="pricing-qty">15 fotos</div>
+      <div class="pricing-num accent-price">
+        <span class="currency" style="color:var(--accent)">R$</span>129<span class="cents" style="color:var(--accent)">,90</span>
+      </div>
+      <div class="pricing-per">R$ 8,66 <strong>por foto</strong></div>
+      <div class="pricing-divider"></div>
+      <div class="pricing-detail">Melhor custo-benefício do catálogo</div>
+      <a href="https://wa.me/5511926029852?text=Olá!%20Quero%20o%20pacote%20de%2015%20fotos%20por%20R%24129%2C90" target="_blank" class="pricing-btn pricing-btn-accent">Pedir agora</a>
+    </div>
+
+    <div class="pricing-card">
+      <div class="pricing-qty">20 fotos</div>
+      <div class="pricing-num">
+        <span class="currency">R$</span>159<span class="cents">,90</span>
+      </div>
+      <div class="pricing-per">R$ 7,99 <strong>por foto</strong></div>
+      <div class="pricing-divider"></div>
+      <div class="pricing-detail">Ensaio completo, máxima diversidade</div>
+      <a href="https://wa.me/5511926029852?text=Olá!%20Quero%20o%20pacote%20de%2020%20fotos%20por%20R%24159%2C90" target="_blank" class="pricing-btn pricing-btn-ghost">Pedir agora</a>
+    </div>
+
+  </div>
+  <p class="pricing-footer-note">Dúvidas? <a href="https://wa.me/5511926029852" target="_blank">Fale com a gente no WhatsApp</a> — respondemos rapidinho.</p>
 </div>
 
 <!-- CAT CHIPS (mobile) -->
