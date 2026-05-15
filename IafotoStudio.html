@@ -175,81 +175,80 @@ body {
 .hero {
   background: var(--text);
   color: var(--bg);
-  padding: 26px 36px;
+  padding: 22px 36px;
   display: grid;
-  grid-template-columns: 96px 1fr auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 36px;
+  gap: 28px;
 }
 .hero-brand {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
 }
 .hero-logo-wrap {
-  width: 78px;
-  height: 78px;
-  border-radius: 12px;
+  width: 110px;
+  height: 110px;
+  border-radius: 16px;
   overflow: hidden;
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 18px rgba(0,0,0,.3);
+  box-shadow: 0 6px 24px rgba(0,0,0,.4);
   flex-shrink: 0;
 }
 .hero-logo-wrap img { width: 100%; height: 100%; object-fit: contain; }
 .hero-wabtn {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   background: #25d366;
   color: #fff;
-  border-radius: 7px;
-  padding: 6px 10px;
+  border-radius: 8px;
+  padding: 8px 14px;
   text-decoration: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(37,211,102,.35);
+  box-shadow: 0 2px 10px rgba(37,211,102,.45);
   transition: background .15s, transform .15s;
 }
 .hero-wabtn:hover { background: #1fb956; transform: translateY(-1px); }
-.hero-wanotice {
-  font-size: 10px;
-  color: rgba(240,240,245,.3);
-  text-align: center;
-  line-height: 1.3;
-}
+.hero-wanotice { display: none; }
 .hero-mid {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  text-align: center;
+  align-items: center;
 }
 .hero-headline {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(30px, 3.8vw, 50px);
-  letter-spacing: 2.5px;
+  font-size: clamp(34px, 4.2vw, 56px);
+  letter-spacing: 3px;
   line-height: .92;
   color: #f0f0f5;
 }
 .hero-headline em { color: var(--accent); font-style: normal; }
 .hero-slogan {
   font-size: 13px;
-  color: rgba(240,240,245,.5);
+  color: rgba(240,240,245,.55);
   line-height: 1.55;
-  max-width: 430px;
+  max-width: 480px;
   border-left: 2px solid var(--accent);
   padding-left: 12px;
+  text-align: left;
 }
 .hero-slogan strong { color: rgba(240,240,245,.85); font-weight: 600; }
 .hero-pills {
   display: flex;
   gap: 7px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 .hero-pill {
   display: flex;
@@ -266,49 +265,34 @@ body {
 .hero-right {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: 16px;
   flex-shrink: 0;
 }
-.hero-stats-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.hero-stat { text-align: center; }
-.hero-stat-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 42px;
-  letter-spacing: 1px;
-  color: var(--accent);
-  line-height: 1;
-}
-.hero-stat-label {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  color: rgba(240,240,245,.3);
-  margin-top: 2px;
-}
-.hero-stats-div { width: 1px; height: 38px; background: rgba(255,255,255,.07); }
+.hero-stats-row { display: none; }
+.hero-stat { display: none; }
+.hero-stat-num { display: none; }
+.hero-stat-label { display: none; }
+.hero-stats-div { display: none; }
 .hero-cta {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   background: var(--accent);
   color: #fff;
   border: none;
-  border-radius: 8px;
-  padding: 9px 18px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: 10px;
+  padding: 12px 22px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 1.2px;
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
   transition: background .15s, transform .15s;
+  box-shadow: 0 4px 16px rgba(0,196,174,.35);
 }
-.hero-cta:hover { background: #00a896; transform: translateY(-1px); }
+.hero-cta:hover { background: #00a896; transform: translateY(-2px); }
 
 /* ── PRICING SECTION ── */
 .pricing-section {
@@ -480,6 +464,96 @@ body {
   .pricing-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .pricing-num { font-size: 40px; }
 }
+
+/* ── ADMIN PRICING EDITOR ── */
+.pricing-admin-bar {
+  display: none;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+body.admin-mode .pricing-admin-bar { display: flex; }
+.pricing-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: var(--accent2);
+  border: 1px dashed rgba(0,196,174,.4);
+  border-radius: 10px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background .15s;
+}
+.pricing-add-btn:hover { background: rgba(0,196,174,.18); }
+/* Admin editable fields on pricing cards */
+.pricing-card .admin-edit-row {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  margin-top: 4px;
+}
+body.admin-mode .pricing-card .admin-edit-row { display: flex; }
+.pricing-card .admin-edit-row label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--muted);
+}
+.pricing-card .admin-edit-row input {
+  width: 100%;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface2);
+  outline: none;
+  transition: border-color .15s;
+}
+.pricing-card .admin-edit-row input:focus { border-color: var(--accent); }
+.pricing-card .admin-del-btn {
+  display: none;
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: rgba(224,48,80,.12);
+  border: 1px solid rgba(224,48,80,.25);
+  color: var(--red);
+  font-size: 14px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+  line-height: 1;
+}
+body.admin-mode .pricing-card .admin-del-btn { display: flex; }
+.pricing-card .admin-del-btn:hover { background: rgba(224,48,80,.25); }
+.pricing-card .admin-save-btn {
+  display: none;
+  width: 100%;
+  margin-top: 4px;
+  padding: 7px 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background .15s;
+}
+body.admin-mode .pricing-card .admin-save-btn { display: block; }
+.pricing-card .admin-save-btn:hover { background: #00a896; }
 
 /* ── MAIN LAYOUT ── */
 .main {
@@ -2228,52 +2302,11 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
     <div class="pricing-title">ESCOLHA SEU PACOTE</div>
     <p class="pricing-subtitle">Fotos únicas, geradas com IA, que realmente parecem com você. Sem estúdio, sem deslocamento.</p>
   </div>
-  <div class="pricing-grid">
-
-    <div class="pricing-card">
-      <div class="pricing-qty">5 fotos</div>
-      <div class="pricing-num">
-        <span class="currency">R$</span>49<span class="cents">,90</span>
-      </div>
-      <div class="pricing-per">R$ 9,98 <strong>por foto</strong></div>
-      <div class="pricing-divider"></div>
-      <div class="pricing-detail">Ideal para experimentar e ver como fica</div>
-      <a href="https://wa.me/5511926029852?text=Olá!%20Quero%20o%20pacote%20de%205%20fotos%20por%20R%2449%2C90" target="_blank" class="pricing-btn pricing-btn-ghost">Pedir agora</a>
-    </div>
-
-    <div class="pricing-card">
-      <div class="pricing-qty">10 fotos</div>
-      <div class="pricing-num">
-        <span class="currency">R$</span>89<span class="cents">,90</span>
-      </div>
-      <div class="pricing-per">R$ 8,99 <strong>por foto</strong></div>
-      <div class="pricing-divider"></div>
-      <div class="pricing-detail">Variedade de looks e cenários</div>
-      <a href="https://wa.me/5511926029852?text=Olá!%20Quero%20o%20pacote%20de%2010%20fotos%20por%20R%2489%2C90" target="_blank" class="pricing-btn pricing-btn-ghost">Pedir agora</a>
-    </div>
-
-    <div class="pricing-card featured">
-      <div class="pricing-qty">15 fotos</div>
-      <div class="pricing-num accent-price">
-        <span class="currency" style="color:var(--accent)">R$</span>129<span class="cents" style="color:var(--accent)">,90</span>
-      </div>
-      <div class="pricing-per">R$ 8,66 <strong>por foto</strong></div>
-      <div class="pricing-divider"></div>
-      <div class="pricing-detail">Melhor custo-benefício do catálogo</div>
-      <a href="https://wa.me/5511926029852?text=Olá!%20Quero%20o%20pacote%20de%2015%20fotos%20por%20R%24129%2C90" target="_blank" class="pricing-btn pricing-btn-accent">Pedir agora</a>
-    </div>
-
-    <div class="pricing-card">
-      <div class="pricing-qty">20 fotos</div>
-      <div class="pricing-num">
-        <span class="currency">R$</span>159<span class="cents">,90</span>
-      </div>
-      <div class="pricing-per">R$ 7,99 <strong>por foto</strong></div>
-      <div class="pricing-divider"></div>
-      <div class="pricing-detail">Ensaio completo, máxima diversidade</div>
-      <a href="https://wa.me/5511926029852?text=Olá!%20Quero%20o%20pacote%20de%2020%20fotos%20por%20R%24159%2C90" target="_blank" class="pricing-btn pricing-btn-ghost">Pedir agora</a>
-    </div>
-
+  <div class="pricing-grid" id="pricingGrid">
+    <!-- rendered by renderPricing() -->
+  </div>
+  <div class="pricing-admin-bar">
+    <button class="pricing-add-btn" onclick="addPricingPackage()">＋ Adicionar pacote</button>
   </div>
   <p class="pricing-footer-note">Dúvidas? <a href="https://wa.me/5511926029852" target="_blank">Fale com a gente no WhatsApp</a> — respondemos rapidinho.</p>
 </div>
@@ -3832,7 +3865,129 @@ function importSync(e) {
   r.readAsText(file);
 }
 
+// ── PRICING ──
+const PRICING_STORAGE_KEY = 'iafoto_pricing_v1';
+const DEFAULT_PRICING = [
+  { id:'p1', qty:5,  total:49.90,  desc:'Ideal para experimentar e ver como fica', featured:false },
+  { id:'p2', qty:10, total:89.90,  desc:'Variedade de looks e cenários', featured:false },
+  { id:'p3', qty:15, total:129.90, desc:'Melhor custo-benefício do catálogo', featured:true },
+  { id:'p4', qty:20, total:159.90, desc:'Ensaio completo, máxima diversidade', featured:false },
+];
+
+function loadPricing() {
+  try {
+    const raw = localStorage.getItem(PRICING_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_PRICING));
+}
+
+function savePricing(data) {
+  localStorage.setItem(PRICING_STORAGE_KEY, JSON.stringify(data));
+}
+
+function formatBRL(value) {
+  const n = parseFloat(value);
+  if (isNaN(n)) return { int:'0', cents:',00' };
+  const parts = n.toFixed(2).split('.');
+  return { int: parts[0], cents: ',' + parts[1] };
+}
+
+function renderPricing() {
+  const data = loadPricing();
+  const grid = document.getElementById('pricingGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  data.forEach(pkg => {
+    const perPhoto = pkg.qty > 0 ? (pkg.total / pkg.qty) : 0;
+    const { int, cents } = formatBRL(pkg.total);
+    const accentStyle = pkg.featured ? 'color:var(--accent)' : '';
+    const waText = encodeURIComponent(`Olá! Quero o pacote de ${pkg.qty} fotos por R$${pkg.total.toFixed(2).replace('.',',')}`);
+    const btnClass = pkg.featured ? 'pricing-btn-accent' : 'pricing-btn-ghost';
+    const card = document.createElement('div');
+    card.className = 'pricing-card' + (pkg.featured ? ' featured' : '');
+    card.dataset.pid = pkg.id;
+    card.innerHTML = `
+      <button class="admin-del-btn" onclick="deletePricingPackage('${pkg.id}')" title="Excluir pacote">✕</button>
+      <div class="pricing-qty">${pkg.qty} fotos</div>
+      <div class="pricing-num${pkg.featured ? ' accent-price' : ''}">
+        <span class="currency" style="${accentStyle}">R$</span>${int}<span class="cents" style="${accentStyle}">${cents}</span>
+      </div>
+      <div class="pricing-per">R$ ${perPhoto.toFixed(2).replace('.',',')} <strong>por foto</strong></div>
+      <div class="pricing-divider"></div>
+      <div class="pricing-detail">${pkg.desc}</div>
+      <a href="https://wa.me/5511926029852?text=${waText}" target="_blank" class="pricing-btn ${btnClass}">Pedir agora</a>
+      <div class="admin-edit-row">
+        <label>Nº de fotos</label>
+        <input type="number" min="1" value="${pkg.qty}" data-field="qty" data-pid="${pkg.id}" oninput="pricingFieldChange('${pkg.id}','qty',this.value)">
+        <label>Valor total (R$)</label>
+        <input type="number" step="0.01" min="0" value="${pkg.total}" data-field="total" data-pid="${pkg.id}" oninput="pricingFieldChange('${pkg.id}','total',this.value)">
+        <label>Descrição</label>
+        <input type="text" value="${pkg.desc}" data-field="desc" data-pid="${pkg.id}" oninput="pricingFieldChange('${pkg.id}','desc',this.value)">
+        <button class="admin-save-btn" onclick="savePricingPackage('${pkg.id}')">✓ Salvar</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function pricingFieldChange(pid, field, value) {
+  // live update displayed price-per-photo as user types
+  if (field === 'total' || field === 'qty') {
+    const card = document.querySelector(`.pricing-card[data-pid="${pid}"]`);
+    if (!card) return;
+    const qtyEl = card.querySelector('[data-field="qty"]');
+    const totalEl = card.querySelector('[data-field="total"]');
+    const qty = parseFloat(qtyEl?.value) || 0;
+    const total = parseFloat(totalEl?.value) || 0;
+    const perEl = card.querySelector('.pricing-per');
+    if (perEl && qty > 0) {
+      perEl.innerHTML = `R$ ${(total/qty).toFixed(2).replace('.',',')} <strong>por foto</strong>`;
+    }
+  }
+}
+
+function savePricingPackage(pid) {
+  const data = loadPricing();
+  const pkg = data.find(p => p.id === pid);
+  if (!pkg) return;
+  const card = document.querySelector(`.pricing-card[data-pid="${pid}"]`);
+  if (!card) return;
+  const qtyVal = parseFloat(card.querySelector('[data-field="qty"]').value);
+  const totalVal = parseFloat(card.querySelector('[data-field="total"]').value);
+  const descVal = card.querySelector('[data-field="desc"]').value.trim();
+  if (isNaN(qtyVal) || qtyVal < 1) { toast('⚠ Número de fotos inválido'); return; }
+  if (isNaN(totalVal) || totalVal < 0) { toast('⚠ Valor inválido'); return; }
+  pkg.qty = qtyVal;
+  pkg.total = totalVal;
+  pkg.desc = descVal || pkg.desc;
+  savePricing(data);
+  renderPricing();
+  toast('✓ Pacote atualizado!');
+}
+
+function deletePricingPackage(pid) {
+  const data = loadPricing();
+  if (data.length <= 1) { toast('⚠ Precisa ter ao menos 1 pacote'); return; }
+  const idx = data.findIndex(p => p.id === pid);
+  if (idx === -1) return;
+  data.splice(idx, 1);
+  savePricing(data);
+  renderPricing();
+  toast('✓ Pacote removido');
+}
+
+function addPricingPackage() {
+  const data = loadPricing();
+  const newId = 'p' + Date.now();
+  data.push({ id: newId, qty: 10, total: 99.90, desc: 'Novo pacote', featured: false });
+  savePricing(data);
+  renderPricing();
+  toast('✓ Pacote adicionado — edite os valores e salve!');
+}
+
 initApp();
+renderPricing();
 
 // Copy logo src from hidden topbar brand to hero
 (function() {
