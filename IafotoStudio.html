@@ -1590,6 +1590,23 @@ kbd {
   gap: 8px;
 }
 
+/* ── GALLERY UPLOAD FAB ── */
+.gallery-upload-fab {
+  display: block;
+  margin: 16px auto 0;
+  padding: 10px 20px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+  transition: transform .15s, box-shadow .15s;
+}
+.gallery-upload-fab:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.22); }
+
 /* ── PASTE FAB ── */
 .paste-fab {
   position: fixed;
@@ -2838,7 +2855,7 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
   <button class="lightbox-nav" id="lbPrev" onclick="lbNavigate(-1)">‹</button>
   <div class="lightbox-inner">
     <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-    <img id="lightboxImg" src="https://rciannace.github.io/index.html/IafotoStudio.html" alt="">
+    <img id="lightboxImg" src="./IA Foto Studio — Vitrine de Referências_files/IA Foto Studio — Vitrine de Referências.html" alt="">
     <div class="lightbox-info">
       <span class="lightbox-title" id="lightboxTitle"></span>
       <button class="btn btn-accent btn-sm" onclick="downloadCurrentLb()">⬇ Download</button>
@@ -2929,7 +2946,7 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
     </div>
     <div class="move-modal-body">
       <div class="move-preview-wrap">
-        <img id="movePreviewImg" src="https://rciannace.github.io/index.html/IafotoStudio.html" alt="">
+        <img id="movePreviewImg" src="./IA Foto Studio — Vitrine de Referências_files/IA Foto Studio — Vitrine de Referências.html" alt="">
         <span class="move-preview-label" id="movePreviewLabel"></span>
       </div>
       <div>
@@ -2956,8 +2973,14 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
         <span class="paste-hint-icon">⌨</span>
         <span>Pressione <kbd>Ctrl+V</kbd> para colar a imagem</span>
       </div>
+      <div style="text-align:center;margin:8px 0 0;">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pasteFileInput').click()" style="font-size:12px;gap:6px;">
+          📁 Selecionar arquivo (mobile)
+        </button>
+        <input type="file" id="pasteFileInput" accept="image/*" style="display:none" onchange="pasteFromFile(this.files[0]);this.value=''">
+      </div>
       <div class="paste-preview-wrap" id="pastePreviewWrap" style="display:none">
-        <img id="pastePreviewImg" src="https://rciannace.github.io/index.html/IafotoStudio.html" alt="Preview">
+        <img id="pastePreviewImg" src="./IA Foto Studio — Vitrine de Referências_files/IA Foto Studio — Vitrine de Referências.html" alt="Preview">
         <button class="paste-clear-btn" onclick="clearPastePreview()" title="Remover">✕</button>
       </div>
       <div>
@@ -3276,6 +3299,7 @@ function render(pool) {
         <div class="empty-state-icon">${q ? '🔍' : '📷'}</div>
         <div class="empty-state-title">${q ? 'Nenhuma foto encontrada' : 'Galeria vazia'}</div>
         <div class="empty-state-sub">${q ? `Sem resultados para "${q}"` : 'Adicione fotos usando o botão Upload.'}</div>
+        ${!q && currentCat && currentCat !== '__inbox__' && adminMode ? `<button class="btn btn-primary" style="margin-top:16px" onclick="openUploadInCat()">⬆ Upload nesta galeria</button>` : ''}
       </div>`;
     return;
   }
@@ -3303,6 +3327,16 @@ function render(pool) {
         </div>` : ''}
     </div>
   `).join('');
+
+  // Botão de upload flutuante dentro da galeria (admin mode, categoria específica)
+  if (adminMode && currentCat && currentCat !== '__inbox__') {
+    const fab = document.createElement('button');
+    fab.className = 'gallery-upload-fab';
+    fab.innerHTML = '⬆ Upload';
+    fab.title = 'Adicionar fotos nesta galeria';
+    fab.onclick = openUploadInCat;
+    grid.appendChild(fab);
+  }
 
   // Load thumbs from IDB for items without img in memory
   if (idb) {
@@ -3560,6 +3594,9 @@ function openUpload() {
   document.getElementById('uploadConfirmBtn').disabled = true;
   document.getElementById('uploadProgress').style.display = 'none';
   document.getElementById('uploadProgressBar').style.width = '0%';
+  // Reset hint para padrão
+  const hint = document.querySelector('.upload-inbox-hint');
+  if (hint) hint.innerHTML = `📥 As fotos serão salvas em <strong>Sem categoria</strong>. Depois você organiza nas galerias.`;
   document.getElementById('uploadOverlay').classList.add('open');
 }
 
@@ -3616,7 +3653,10 @@ async function confirmUpload() {
   if (!pendingFiles.length) return;
 
   const INBOX = '__inbox__';
-  const existingInInbox = items.filter(it => it.cat === INBOX).length;
+  // Salva na galeria atual se foi aberto via openUploadInCat, senão no inbox
+  const targetCat = (currentCat && currentCat !== '__inbox__' && document.querySelector('.upload-inbox-hint strong')?.textContent !== 'Sem categoria')
+    ? currentCat : INBOX;
+  const existingInInbox = items.filter(it => it.cat === targetCat).length;
 
   const progressEl  = document.getElementById('uploadProgress');
   const progressBar = document.getElementById('uploadProgressBar');
@@ -3640,7 +3680,7 @@ async function confirmUpload() {
     const id    = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
     const num   = existingInInbox + i + 1;
     const title = `Foto ${num}`;
-    const meta  = { id, title, cat: INBOX, tags: [], orient: 'portrait', createdAt: Date.now() };
+    const meta  = { id, title, cat: targetCat, tags: [], orient: 'portrait', createdAt: Date.now() };
     items.push({ ...meta, img: dataUrl });
     newItems.push(meta);
     idbBatch.push({ id, dataUrl });
@@ -3658,8 +3698,9 @@ async function confirmUpload() {
   updateHeroStats();
 
   setTimeout(() => {
+    const catName = targetCat === INBOX ? 'Sem categoria' : (cats.find(c => c.id === targetCat)?.name || 'galeria');
     closeUpload();
-    toast(`✓ ${newItems.length} foto${newItems.length !== 1 ? 's' : ''} salva${newItems.length !== 1 ? 's' : ''} em Sem categoria!`);
+    toast(`✓ ${newItems.length} foto${newItems.length !== 1 ? 's' : ''} salva${newItems.length !== 1 ? 's' : ''} em ${catName}!`);
   }, 300);
 }
 
@@ -3910,6 +3951,34 @@ function confirmMove() {
 
 // ── PASTE (Ctrl+V) ──
 let pasteDataUrl = null;
+
+// Fallback mobile: selecionar arquivo pelo file picker
+function pasteFromFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pasteDataUrl = ev.target.result;
+    showPastePreview(pasteDataUrl);
+  };
+  reader.readAsDataURL(file);
+}
+
+// Upload direto na categoria atual
+function openUploadInCat() {
+  pendingFiles = [];
+  document.getElementById('uploadPreviewGrid').style.display = 'none';
+  document.getElementById('uploadPreviewGrid').innerHTML = '';
+  document.getElementById('uploadConfirmBtn').disabled = true;
+  document.getElementById('uploadProgress').style.display = 'none';
+  document.getElementById('uploadProgressBar').style.width = '0%';
+  // Atualiza hint com nome da galeria atual
+  const hint = document.querySelector('.upload-inbox-hint');
+  if (hint && currentCat && currentCat !== '__inbox__') {
+    const cat = cats.find(c => c.id === currentCat);
+    if (cat) hint.innerHTML = `📂 As fotos serão salvas em <strong>${cat.name}</strong>.`;
+  }
+  document.getElementById('uploadOverlay').classList.add('open');
+}
 
 // Global paste listener — works anywhere on the page
 document.addEventListener('paste', function(e) {
@@ -4452,6 +4521,7 @@ renderPricing();
   if (src) document.getElementById('heroLogo').src = src;
 })();
 </script>
+
 
 
 </body></html>
