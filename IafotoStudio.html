@@ -991,8 +991,6 @@ body.admin-mode .pricing-card .admin-save-btn { display: block; }
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .topbar { padding: 0 14px; gap: 12px; }
-  .hero { padding: 32px 16px 28px; flex-direction: column; gap: 20px; }
-  .hero-stats { gap: 20px; }
   .sidebar { display: none; }
   .content { padding: 16px 14px 80px; }
   .gallery-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -1000,14 +998,45 @@ body.admin-mode .pricing-card .admin-save-btn { display: block; }
   .brand-tagline { display: none; }
   .upload-preview-grid { grid-template-columns: repeat(3, 1fr); }
   .gallery-cards-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+  /* Hero mobile: stack tudo verticalmente, centralizado */
   .hero {
-    padding: 20px 16px;
+    padding: 20px 16px 24px;
     grid-template-columns: 1fr;
     gap: 16px;
+    text-align: center;
   }
-  .hero-brand { flex-direction: row; align-items: center; gap: 12px; }
-  .hero-right { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; }
-  .hero-cta { display: none; }
+  .hero-brand {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-logo-wrap {
+    width: 90px;
+    height: 90px;
+  }
+  .hero-wabtn {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+  .hero-mid {
+    align-items: center;
+  }
+  .hero-slogan {
+    font-size: 12px;
+    max-width: 100%;
+    text-align: left;
+  }
+  .hero-right {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  .hero-cta {
+    font-size: 16px;
+    padding: 11px 20px;
+  }
 }
 @media (max-width: 480px) {
   .gallery-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
@@ -1090,7 +1119,7 @@ body.admin-mode .pricing-card .admin-save-btn { display: block; }
   }
 
   /* Badge admin repositionado no mobile */
-  #adminBadge { top: auto; bottom: 70px; left: 10px; font-size: 9px; }
+  #adminBadge { bottom: 68px; left: 12px; top: auto; font-size: 9px; }
 
   /* Barra bulk adaptada para mobile */
   #bulkBar {
@@ -1141,9 +1170,36 @@ body.admin-mode .pricing-card .admin-save-btn { display: block; }
 /* ── GALLERY CARDS (home view) ── */
 .gallery-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
 }
+
+/* ── BACK TO GALLERIES BUTTON (shown inside gallery view) ── */
+#backToGalleriesBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 32px auto 48px;
+  padding: 12px 28px;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: 50px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  width: fit-content;
+}
+#backToGalleriesBtn:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+#backToGalleriesBtn.visible { display: flex; }
 .gallery-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1810,21 +1866,22 @@ kbd {
 #adminBadge {
   display: none;
   position: fixed;
-  top: 70px;
-  left: 12px;
+  bottom: 68px;
+  left: 14px;
   z-index: 200;
   background: var(--accent);
   color: #fff;
   font-family: 'DM Mono', monospace;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   letter-spacing: .8px;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 20px;
   text-transform: uppercase;
-  box-shadow: 0 2px 10px rgba(0,196,174,.35);
+  box-shadow: 0 2px 8px rgba(0,196,174,.3);
+  pointer-events: none;
 }
-#adminBadge.visible { display: flex; align-items: center; gap: 5px; }
+#adminBadge.visible { display: flex; align-items: center; gap: 4px; }
 
 /* ── HIDE ADMIN ELEMENTS WHEN NOT ADMIN ── */
 .admin-only { display: none !important; }
@@ -2378,6 +2435,9 @@ body.admin-mode .admin-only.paste-fab { display: flex !important; }
     </div>
 
     <div class="gallery-grid" id="galleryGrid"></div>
+    <button id="backToGalleriesBtn" onclick="selectCat(null)" title="Voltar para galerias">
+      ‹ Voltar para galerias
+    </button>
   </main>
 </div>
 
@@ -2757,6 +2817,7 @@ function render(pool) {
   const backBtn = document.getElementById('mobileBackBtn');
   const drawerBtn = document.getElementById('drawerToggleBtn');
   const reorderBtn = document.getElementById('reorderBtn');
+  const backToGalBtn = document.getElementById('backToGalleriesBtn');
 
   // HOME VIEW: mostra caixas de galerias quando currentCat === null e sem busca
   const q = document.getElementById('globalSearch').value.trim().toLowerCase();
@@ -2765,6 +2826,7 @@ function render(pool) {
     if (backBtn) backBtn.classList.remove('visible');
     if (drawerBtn) drawerBtn.style.display = 'flex';
     if (reorderBtn) reorderBtn.style.display = '';
+    if (backToGalBtn) backToGalBtn.classList.remove('visible');
     const tb = document.getElementById('mainToolbar');
     if (tb) tb.classList.add('toolbar-home-state');
     renderHomeGalleries(grid, title, badge);
@@ -2775,6 +2837,7 @@ function render(pool) {
   if (backBtn) backBtn.classList.add('visible');
   if (drawerBtn) drawerBtn.style.display = 'none';
   if (reorderBtn) reorderBtn.style.display = '';
+  if (backToGalBtn) backToGalBtn.classList.add('visible');
   const tb2 = document.getElementById('mainToolbar');
   if (tb2) tb2.classList.remove('toolbar-home-state');
 
@@ -2891,6 +2954,8 @@ function renderHomeGalleries(grid, title, badge) {
 
   const backBtn = document.getElementById('mobileBackBtn');
   if (backBtn) backBtn.classList.remove('visible');
+  const backToGalBtn2 = document.getElementById('backToGalleriesBtn');
+  if (backToGalBtn2) backToGalBtn2.classList.remove('visible');
   const drawerBtn2 = document.getElementById('drawerToggleBtn');
   if (drawerBtn2) drawerBtn2.style.display = 'flex';
   const tb3 = document.getElementById('mainToolbar');
